@@ -1462,7 +1462,7 @@ export default function Timesheets() {
                           </div>
                         ) : isImported ? (
                           // ITKnecht-import: status is automatisch 'Gewerkt'.
-                          // Geen dropdown — de monteur mag deze dag niet bewerken.
+                          // Geen dropdown — maar eigen uren toevoegen is WEL mogelijk.
                           <div className="mb-3 p-3 rounded-lg border border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20">
                             <p className="text-xs font-medium text-primary-700 dark:text-primary-300">
                               Status van de dag
@@ -1471,7 +1471,7 @@ export default function Timesheets() {
                               Productie uren Riset
                             </p>
                             <p className="text-[11px] text-primary-600 dark:text-primary-400 mt-0.5">
-                              Automatisch geïmporteerd via ITKnecht. Niet bewerkbaar.
+                              Automatisch geïmporteerd via ITKnecht. U kunt eigen uren toevoegen via de knop hieronder.
                             </p>
                           </div>
                         ) : (
@@ -1578,7 +1578,7 @@ export default function Timesheets() {
                         step="1"
                         value={entry.travelKilometers}
                         onChange={(e) => updateEntry(index, 'travelKilometers', parseFloat(e.target.value) || 0)}
-                        disabled={isReadOnly || isImported || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work')}
+                        disabled={isReadOnly || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work')}
                         className="text-center font-semibold text-lg"
                         placeholder="0"
                       />
@@ -1602,7 +1602,7 @@ export default function Timesheets() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Werkzaamheden</label>
-                      {!isReadOnly && !isImported && (
+                      {!isReadOnly && (
                         <Button
                           onClick={() => addWorkActivity(index)}
                           size="sm"
@@ -1636,13 +1636,17 @@ export default function Timesheets() {
                               </select>
                             </div>
                           )}
-                          {/* Taak-selector: verschijnt als project gekozen + taken beschikbaar */}
-                          {!activity.isITKnechtImport && !isReadOnly && activity.internalProjectId && (() => {
-                            const projectTasks = assignedTasks.filter(
-                              t => t.internalProjectId === activity.internalProjectId &&
-                                   t.status !== 'completed' && t.status !== 'cancelled'
-                            );
-                            if (projectTasks.length === 0) return null;
+                          {/* Taak-selector: verschijnt altijd als er taken beschikbaar zijn */}
+                          {!activity.isITKnechtImport && !isReadOnly && (() => {
+                            const relevantTasks = activity.internalProjectId
+                              ? assignedTasks.filter(
+                                  t => t.internalProjectId === activity.internalProjectId &&
+                                       t.status !== 'completed' && t.status !== 'cancelled'
+                                )
+                              : assignedTasks.filter(
+                                  t => t.status !== 'completed' && t.status !== 'cancelled'
+                                );
+                            if (relevantTasks.length === 0) return null;
                             return (
                               <div className="flex items-center gap-2">
                                 <ListChecks className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
@@ -1652,7 +1656,7 @@ export default function Timesheets() {
                                   className="flex-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-1 px-1.5"
                                 >
                                   <option value="">— Kies taak (optioneel) —</option>
-                                  {projectTasks.map(t => (
+                                  {relevantTasks.map(t => (
                                     <option key={t.id} value={t.id}>
                                       {t.title}{t.estimatedHours ? ` (~${t.estimatedHours}u)` : ''}
                                     </option>
