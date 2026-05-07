@@ -279,7 +279,7 @@ const AdminLeaveApprovals: React.FC = () => {
 
                     {/* Reason */}
                     {request.reason && (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                      <div className="bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
                         <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1.5">Reden</p>
                         <p className="text-sm text-blue-900 dark:text-blue-100 leading-relaxed">{request.reason}</p>
                       </div>

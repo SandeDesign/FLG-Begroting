@@ -8,8 +8,14 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ children, className = '', title, subtitle }) => {
+  // Geen standaard bg toevoegen als className al een achtergrondklasse bevat —
+  // zo wint dark:bg-gray-800 altijd van bg-*-50 zonder specificity-conflicten.
+  const hasBg = /\bbg-/.test(className) || /\bfrom-/.test(className);
+  const base = hasBg
+    ? 'rounded-xl shadow-md border border-gray-100 dark:border-gray-600 hover:shadow-lg transition-shadow duration-200'
+    : 'bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-600 hover:shadow-lg transition-shadow duration-200';
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-600 hover:shadow-lg transition-shadow duration-200 ${className}`}>
+    <div className={`${base} ${className}`}>
       {(title || subtitle) && (
         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-600">
           {title && (

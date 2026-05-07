@@ -180,7 +180,7 @@ export default function InternalProjects() {
       </div>
 
       {/* Uitleg */}
-      <Card className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+      <Card className="bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-800">
         <p className="text-sm text-blue-700 dark:text-blue-300">
           Interne projecten zijn niet factureerbaar via Riset. Medewerkers kunnen deze selecteren bij het toevoegen van werkzaamheden in hun urenregistratie.
         </p>

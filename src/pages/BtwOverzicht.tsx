@@ -319,7 +319,7 @@ const BtwOverzicht: React.FC = () => {
       ) : (
         <>
           {zonderGb > 0 && (
-            <div className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 sm:p-4 bg-amber-50 dark:bg-gray-700 border border-amber-200 dark:border-amber-800 rounded-xl">
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
                   <Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400" />
@@ -509,7 +509,7 @@ const BtwOverzicht: React.FC = () => {
                     return (
                       <div
                         key={i}
-                        className={`p-3 rounded-lg ${isUncat ? 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800' : 'bg-gray-50 dark:bg-gray-800/50'}`}
+                        className={`p-3 rounded-lg ${isUncat ? 'bg-amber-50 dark:bg-gray-700 border border-amber-200 dark:border-amber-800' : 'bg-gray-50 dark:bg-gray-800/50'}`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2 min-w-0">

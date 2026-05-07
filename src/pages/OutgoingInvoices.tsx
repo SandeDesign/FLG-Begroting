@@ -652,12 +652,12 @@ const OutgoingInvoices: React.FC = () => {
   const getDeliveryBadge = (invoice: OutgoingInvoice) => {
     if (invoice.status !== 'sent' && invoice.status !== 'overdue') return null;
     if (!invoice.deliveryStatus || invoice.deliveryStatus === 'pending') {
-      return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800"><Loader2 className="h-2.5 w-2.5 animate-spin" />Wacht op bevestiging</span>;
+      return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-gray-700 dark:text-yellow-400 dark:border-yellow-800"><Loader2 className="h-2.5 w-2.5 animate-spin" />Wacht op bevestiging</span>;
     }
     if (invoice.deliveryStatus === 'delivered') {
-      return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"><MailCheck className="h-2.5 w-2.5" />Bezorgd</span>;
+      return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-green-50 text-green-700 border border-green-200 dark:bg-gray-700 dark:text-green-400 dark:border-green-800"><MailCheck className="h-2.5 w-2.5" />Bezorgd</span>;
     }
-    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"><MailX className="h-2.5 w-2.5" />Bezorging mislukt</span>;
+    return <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-red-50 text-red-700 border border-red-200 dark:bg-gray-700 dark:text-red-400 dark:border-red-800"><MailX className="h-2.5 w-2.5" />Bezorging mislukt</span>;
   };
 
   const getStatusIcon = (status: OutgoingInvoice['status']) => {
@@ -1168,7 +1168,7 @@ const OutgoingInvoices: React.FC = () => {
           </Card>
 
           {/* Totals */}
-          <Card className="p-5 sm:p-6 bg-gradient-to-br from-primary-50 to-indigo-50 border-primary-200">
+          <Card className="p-5 sm:p-6 bg-gradient-to-br from-primary-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 border-primary-200 dark:border-gray-700">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600 dark:text-gray-300">Subtotaal:</span>

@@ -959,7 +959,7 @@ const Grootboekrekeningen: React.FC = () => {
         size="sm"
       >
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+          <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-gray-700 rounded-lg border border-red-200 dark:border-red-800">
             <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-800 dark:text-red-300">Onomkeerbare actie</p>
@@ -993,7 +993,7 @@ const Grootboekrekeningen: React.FC = () => {
       >
         <div className="space-y-4">
           {replaceBeforeImport ? (
-            <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-gray-700 rounded-lg border border-amber-200 dark:border-amber-800">
               <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-amber-800 dark:text-amber-300">
                 <strong>Vervanging actief:</strong> alle bestaande rekeningen worden verwijderd voordat de{' '}
@@ -1001,7 +1001,7 @@ const Grootboekrekeningen: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-200 dark:border-blue-800">
               <FileSpreadsheet className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
               <p className="text-sm text-blue-800 dark:text-blue-300">
                 <strong>{importPreviewData.length} rekeningen</strong> gevonden. Bestaande codes worden overgeslagen.
@@ -1109,7 +1109,7 @@ const Grootboekrekeningen: React.FC = () => {
         size="md"
       >
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+          <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-gray-700 rounded-lg border border-amber-200 dark:border-amber-800">
             <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-amber-800 dark:text-amber-300">Bestaand rekeningschema wordt gewist</p>

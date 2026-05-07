@@ -481,19 +481,19 @@ const EmployerStatistics: React.FC = () => {
       <Card>
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Verlof & Verzuim Overzicht</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="text-center p-3 bg-blue-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">{stats.totalLeaveRequests}</p>
             <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Verlofaanvragen</p>
           </div>
-          <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+          <div className="text-center p-3 bg-green-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-green-700 dark:text-green-400">{stats.approvedLeave}</p>
             <p className="text-xs text-green-600 dark:text-green-400 mt-1">Goedgekeurd</p>
           </div>
-          <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <div className="text-center p-3 bg-red-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-red-700 dark:text-red-400">{stats.totalSickDays}</p>
             <p className="text-xs text-red-600 dark:text-red-400 mt-1">Ziektedagen</p>
           </div>
-          <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+          <div className="text-center p-3 bg-orange-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">{stats.activeSickCount}</p>
             <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">Nu ziek</p>
           </div>

@@ -290,7 +290,7 @@ const AdminAbsenceManagement: React.FC = () => {
             </div>
           </div>
           <div className="p-6">
-            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-xl p-4">
+            <div className="bg-orange-50 dark:bg-gray-700 border border-orange-200 dark:border-orange-700 rounded-xl p-4">
               <p className="text-sm text-orange-800 dark:text-orange-200">
                 <strong>{longTermCases.length} werknemers</strong> zijn langer dan 6 weken ziek. 
                 Overweeg contact op te nemen met de arbodienst en activeer de poortwachter procedure indien nog niet gedaan.

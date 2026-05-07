@@ -429,7 +429,7 @@ const Chat: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
+        <div className="p-3 bg-red-50 dark:bg-gray-700 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300">
           {error}
         </div>
       )}
@@ -582,7 +582,7 @@ const Chat: React.FC = () => {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50/50 dark:bg-gray-900/20">
+              <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50/50 dark:bg-gray-800">
                 {loadingMessages ? (
                   <div className="flex items-center justify-center h-full">
                     <LoadingSpinner />

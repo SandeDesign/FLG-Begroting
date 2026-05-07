@@ -151,7 +151,7 @@ const EmployeeTasks: React.FC = () => {
         <div className="flex items-center gap-2">
           <Link
             to="/employee-dashboard/agenda"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
           >
             <CalendarDays className="h-4 w-4" />
             Agenda
@@ -186,7 +186,7 @@ const EmployeeTasks: React.FC = () => {
               onClick={() => setFilterStatus(filterStatus === status ? 'all' : status)}
               className={`p-3 rounded-xl border-2 transition-all ${
                 filterStatus === status
-                  ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                  ? 'border-primary-500 bg-primary-50 dark:bg-gray-700'
                   : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >

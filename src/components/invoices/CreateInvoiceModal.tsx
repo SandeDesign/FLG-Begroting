@@ -356,7 +356,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
 
             {/* WERKBONNEN SECTION - ALLEEN VOOR SPECIFIEKE BEDRIJF/KLANT */}
             {isWerkbonnenFactuur && (
-              <div className="border-l-4 border-primary-500 bg-primary-50 dark:bg-primary-900/20 p-4 rounded">
+              <div className="border-l-4 border-primary-500 bg-primary-50 dark:bg-gray-700 p-4 rounded">
                 <h3 className="font-semibold text-primary-900 dark:text-primary-200 mb-3">
                   Werkbonnen Factuurgegevens
                 </h3>

@@ -951,15 +951,15 @@ const InvoiceRelations: React.FC = () => {
 
             {/* Bedragen */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+              <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-4 text-center">
                 <p className="text-xs text-blue-600 dark:text-blue-400 mb-1">Excl. BTW</p>
                 <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{formatCurrency(selectedSupplier.totalAmountExVat)}</p>
               </div>
-              <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 text-center">
+              <div className="bg-orange-50 dark:bg-gray-700 rounded-lg p-4 text-center">
                 <p className="text-xs text-orange-600 dark:text-orange-400 mb-1">BTW</p>
                 <p className="text-lg font-bold text-orange-700 dark:text-orange-300">{formatCurrency(selectedSupplier.totalVatAmount)}</p>
               </div>
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 text-center">
+              <div className="bg-emerald-50 dark:bg-gray-700 rounded-lg p-4 text-center">
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-1">Totaal incl. BTW</p>
                 <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{formatCurrency(selectedSupplier.totalAmountIncVat)}</p>
               </div>

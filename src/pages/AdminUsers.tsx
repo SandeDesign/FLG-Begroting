@@ -354,7 +354,7 @@ const AdminUsers: React.FC = () => {
 
       {/* Debug Info */}
       {users.length === 0 && (
-        <Card className="p-4 bg-yellow-50 border-yellow-200">
+        <Card className="p-4 bg-yellow-50 dark:bg-gray-800 border-yellow-200 dark:border-gray-700">
           <div className="flex items-start space-x-3">
             <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
             <div className="text-yellow-800">

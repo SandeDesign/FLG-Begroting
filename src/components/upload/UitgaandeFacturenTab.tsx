@@ -192,7 +192,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
           <div className="p-5 space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-50 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-red-50 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                   <FileText className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
@@ -334,7 +334,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
                 <p className="text-xs text-gray-600 dark:text-gray-300">BTW ({form.btwPct}%)</p>
                 <p className="text-lg font-bold text-gray-900 dark:text-gray-100">€ {vatPreview.toFixed(2)}</p>
               </div>
-              <div className="bg-primary-50 dark:bg-primary-900/20 p-3 rounded">
+              <div className="bg-primary-50 dark:bg-gray-700 p-3 rounded">
                 <p className="text-xs text-primary-600">Incl. BTW</p>
                 <p className="text-lg font-bold text-primary-900 dark:text-primary-100">€ {totalPreview.toFixed(2)}</p>
               </div>

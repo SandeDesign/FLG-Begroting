@@ -439,7 +439,7 @@ const Tasks: React.FC = () => {
               onClick={() => setViewMode('byEmployee')}
               className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 ${
                 viewMode === 'byEmployee'
-                  ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                  ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
@@ -450,7 +450,7 @@ const Tasks: React.FC = () => {
               onClick={() => setViewMode('list')}
               className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 border-l border-gray-300 dark:border-gray-600 ${
                 viewMode === 'list'
-                  ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                  ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
@@ -578,10 +578,10 @@ const Tasks: React.FC = () => {
                 const overdue = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && (t.status === 'overdue' || (!t.isScheduled && new Date(t.dueDate) < new Date())));
 
                 const statGroups = [
-                  { label: 'Voltooid', count: completed.length, tasks: completed, icon: CheckCircle, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800' },
-                  { label: 'Ingepland', count: scheduled.length, tasks: scheduled, icon: CalendarClock, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-800' },
-                  { label: 'Niet ingepland', count: unscheduled.length, tasks: unscheduled, icon: MinusCircle, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800' },
-                  { label: 'Te laat', count: overdue.length, tasks: overdue, icon: AlertCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800' },
+                  { label: 'Voltooid', count: completed.length, tasks: completed, icon: CheckCircle, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-gray-700', border: 'border-green-200 dark:border-green-800' },
+                  { label: 'Ingepland', count: scheduled.length, tasks: scheduled, icon: CalendarClock, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-gray-700', border: 'border-blue-200 dark:border-blue-800' },
+                  { label: 'Niet ingepland', count: unscheduled.length, tasks: unscheduled, icon: MinusCircle, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-gray-700', border: 'border-amber-200 dark:border-amber-800' },
+                  { label: 'Te laat', count: overdue.length, tasks: overdue, icon: AlertCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-gray-700', border: 'border-red-200 dark:border-red-800' },
                 ];
 
                 return (
@@ -1125,7 +1125,7 @@ const Tasks: React.FC = () => {
                     }}
                     className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
                       isSelected
-                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 ring-1 ring-primary-500'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 ring-1 ring-primary-500'
                         : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >

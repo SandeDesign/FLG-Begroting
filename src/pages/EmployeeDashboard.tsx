@@ -242,7 +242,7 @@ const EmployeeDashboard: React.FC = () => {
 
       {/* Afgekeurde weken waarschuwing */}
       {timesheets.filter(ts => ts.status === 'rejected').length > 0 && (
-        <div className="rounded-xl border-2 border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4">
+        <div className="rounded-xl border-2 border-red-300 dark:border-red-700 bg-red-50 dark:bg-gray-700 p-4">
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
@@ -274,7 +274,7 @@ const EmployeeDashboard: React.FC = () => {
 
       {/* Goedgekeurde uren melding */}
       {timesheets.filter(ts => ts.status === 'approved' && isRecentDate(ts.approvedAt)).length > 0 && (
-        <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4">
+        <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-gray-700 p-4">
           <div className="flex items-start gap-3">
             <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
@@ -303,7 +303,7 @@ const EmployeeDashboard: React.FC = () => {
 
       {/* Afgekeurde verlof aanvragen */}
       {leaveRequests.filter(lr => lr.status === 'rejected').length > 0 && (
-        <div className="rounded-xl border-2 border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4">
+        <div className="rounded-xl border-2 border-red-300 dark:border-red-700 bg-red-50 dark:bg-gray-700 p-4">
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
@@ -334,7 +334,7 @@ const EmployeeDashboard: React.FC = () => {
 
       {/* Goedgekeurde verlof aanvragen */}
       {leaveRequests.filter(lr => lr.status === 'approved' && isRecentDate(lr.approvedAt)).length > 0 && (
-        <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4">
+        <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-gray-700 p-4">
           <div className="flex items-start gap-3">
             <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
