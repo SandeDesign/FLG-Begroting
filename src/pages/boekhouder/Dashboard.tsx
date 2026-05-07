@@ -113,7 +113,7 @@ const BoekhouderDashboard: React.FC = () => {
             <button
               key={action.path}
               onClick={() => navigate(action.path)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all text-sm font-medium text-gray-700 dark:text-gray-300"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all text-sm font-medium text-gray-700 dark:text-gray-200"
             >
               <action.icon className="h-4 w-4 text-primary-600" />
               <span>{action.label}</span>
@@ -151,7 +151,7 @@ const BoekhouderDashboard: React.FC = () => {
                         <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
                           Administratie #{group.ownerUserId.substring(0, 6)}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-300">
                           {group.companies.length} bedrij{group.companies.length === 1 ? 'f' : 'ven'}
                           {numEmployerCompanies > 0 && ` · ${numEmployerCompanies} werkgever${numEmployerCompanies === 1 ? '' : 's'}`}
                         </p>
@@ -175,7 +175,7 @@ const BoekhouderDashboard: React.FC = () => {
                       <button
                         key={a.path}
                         onClick={() => goToAdminAction(group.ownerUserId, a.path)}
-                        className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-primary-400 hover:bg-white dark:hover:bg-gray-700 transition-all text-xs font-medium text-gray-700 dark:text-gray-300"
+                        className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-primary-400 hover:bg-white dark:hover:bg-gray-700 transition-all text-xs font-medium text-gray-700 dark:text-gray-200"
                       >
                         <a.icon className="h-3.5 w-3.5 text-primary-600" />
                         <span>{a.label}</span>
@@ -185,7 +185,7 @@ const BoekhouderDashboard: React.FC = () => {
 
                   {/* Bedrijven binnen deze administratie — geen KPIs, alleen selectie */}
                   <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
-                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-300 mb-2">
                       Bedrijven
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -223,7 +223,7 @@ const BoekhouderDashboard: React.FC = () => {
       <Card>
         <div className="p-4 flex items-start gap-3">
           <UsersIcon className="h-5 w-5 text-primary-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="text-sm text-gray-600 dark:text-gray-300">
             <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">Werken met meerdere administraties</p>
             <ul className="space-y-0.5 list-disc list-inside">
               <li>Klik op een bedrijf om dat als actieve context te zetten — alle acties werken dan voor die administratie</li>

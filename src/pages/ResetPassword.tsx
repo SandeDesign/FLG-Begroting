@@ -43,7 +43,7 @@ const ResetPassword: React.FC = () => {
             <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-gray-100">
               E-mail Verzonden!
             </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               Controleer je inbox voor de reset link
             </p>
           </div>
@@ -52,7 +52,7 @@ const ResetPassword: React.FC = () => {
             <div className="mb-6">
               <Mail className="mx-auto h-16 w-16 text-green-500" />
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               We hebben een wachtwoord reset link gestuurd naar je e-mailadres. 
               Klik op de link in de e-mail om je wachtwoord opnieuw in te stellen.
             </p>
@@ -78,7 +78,7 @@ const ResetPassword: React.FC = () => {
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-gray-100">
             Wachtwoord Vergeten?
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Voer je e-mailadres in om een reset link te ontvangen
           </p>
         </div>

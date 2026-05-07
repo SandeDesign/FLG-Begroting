@@ -305,7 +305,7 @@ const BtwOverzicht: React.FC = () => {
     <div className="space-y-4 sm:space-y-6">
       <div className="hidden lg:block">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">BTW Overzicht</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
           BTW aangifte overzicht op basis van geboekte transacties
         </p>
       </div>
@@ -349,7 +349,7 @@ const BtwOverzicht: React.FC = () => {
               <div className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-1 sm:mb-2">
                   <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
-                  <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-200">
                     Af te dragen BTW
                   </h3>
                 </div>
@@ -363,7 +363,7 @@ const BtwOverzicht: React.FC = () => {
               <div className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-1 sm:mb-2">
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                  <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-200">
                     Voorbelasting
                   </h3>
                 </div>
@@ -377,7 +377,7 @@ const BtwOverzicht: React.FC = () => {
               <div className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-1 sm:mb-2">
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
-                  <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+                  <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-200">
                     {saldo >= 0 ? 'Te betalen' : 'Terug te ontvangen'}
                   </h3>
                 </div>
@@ -403,7 +403,7 @@ const BtwOverzicht: React.FC = () => {
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400">
+                      <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300">
                         <th className="text-left py-2 px-3">Code</th>
                         <th className="text-left py-2 px-3">Rekening</th>
                         <th className="text-left py-2 px-3">BTW</th>
@@ -607,7 +607,7 @@ const BtwOverzicht: React.FC = () => {
             <Card>
               <div className="p-6 sm:p-8 text-center">
                 <Receipt className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   Geen geboekte transacties in deze periode.
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
@@ -640,7 +640,7 @@ const BtwOverzicht: React.FC = () => {
                   <div className="mt-3 hidden sm:block overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+                        <tr className="border-b border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-300">
                           <th className="text-left py-2 px-2">Datum</th>
                           <th className="text-left py-2 px-2">Begunstigde</th>
                           <th className="text-left py-2 px-2">Omschrijving</th>
@@ -654,13 +654,13 @@ const BtwOverzicht: React.FC = () => {
                             key={i}
                             className="border-b border-gray-50 dark:border-gray-800 last:border-0"
                           >
-                            <td className="py-1.5 px-2 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                            <td className="py-1.5 px-2 text-gray-600 dark:text-gray-300 whitespace-nowrap">
                               {safeFmt(toDate(t.date))}
                             </td>
                             <td className="py-1.5 px-2 text-gray-900 dark:text-white truncate max-w-[150px]">
                               {t.beneficiary || '-'}
                             </td>
-                            <td className="py-1.5 px-2 text-gray-600 dark:text-gray-400 truncate max-w-[250px]">
+                            <td className="py-1.5 px-2 text-gray-600 dark:text-gray-300 truncate max-w-[250px]">
                               {t.matchedInvoiceNumber || t.description?.substring(0, 60) || '-'}
                             </td>
                             <td className="py-1.5 px-2">
@@ -729,7 +729,7 @@ const BtwOverzicht: React.FC = () => {
                     <FileText className="w-4 h-4 flex-shrink-0" />
                     Dagboek Export
                   </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  <p className="text-xs text-gray-500 dark:text-gray-300 mt-0.5">
                     Exporteer voor je boekhoudpakket
                   </p>
                 </div>

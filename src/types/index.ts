@@ -945,6 +945,9 @@ export interface BusinessTask {
   // wanneer dueDate in de toekomst opschuift voorbij de 1-uur-threshold.
   reminderSentAt?: Date;
 
+  // Per-medewerker voltooiingstracking voor gedeelde taken
+  completedByUsers?: string[];  // UIDs/employee IDs van wie de taak als voltooid markeren
+
   createdAt: Date;
   updatedAt: Date;
 }

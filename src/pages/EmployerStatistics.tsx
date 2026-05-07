@@ -274,7 +274,7 @@ const EmployerStatistics: React.FC = () => {
   if (!selectedCompany) {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">Selecteer een employer bedrijf om statistieken te bekijken.</p>
+        <p className="text-gray-500 dark:text-gray-300">Selecteer een employer bedrijf om statistieken te bekijken.</p>
       </div>
     );
   }
@@ -282,7 +282,7 @@ const EmployerStatistics: React.FC = () => {
   if (selectedCompany.companyType !== 'employer') {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">Deze pagina is alleen beschikbaar voor employer bedrijven.</p>
+        <p className="text-gray-500 dark:text-gray-300">Deze pagina is alleen beschikbaar voor employer bedrijven.</p>
       </div>
     );
   }
@@ -301,7 +301,7 @@ const EmployerStatistics: React.FC = () => {
     <div className="space-y-6">
       <div className="hidden lg:block">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Werkgeverstatistieken</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Overzicht van {selectedCompany.name}</p>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">Overzicht van {selectedCompany.name}</p>
       </div>
 
       {/* Key Metrics */}
@@ -309,9 +309,9 @@ const EmployerStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Werknemers</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Werknemers</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">{stats.activeEmployees}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">van {stats.totalEmployees} totaal</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">van {stats.totalEmployees} totaal</p>
             </div>
             <Users className="h-7 w-7 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
           </div>
@@ -320,11 +320,11 @@ const EmployerStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Totaal Uren</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Totaal Uren</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
                 {stats.totalHours.toLocaleString('nl-NL')}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
                 {stats.totalOvertime > 0 ? `+${stats.totalOvertime.toFixed(0)} overuren` : 'productie uren'}
               </p>
             </div>
@@ -335,11 +335,11 @@ const EmployerStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Productiewaarde</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Productiewaarde</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
                 {formatCurrency(stats.productionValue)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
                 {stats.hourlyRate > 0 ? `€${stats.hourlyRate}/uur` : 'geen tarief'}
               </p>
             </div>
@@ -350,11 +350,11 @@ const EmployerStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Loonkosten /mnd</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Loonkosten /mnd</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
                 {formatCurrency(stats.estimatedMonthlyPayroll)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
                 ~€{AVERAGE_MONTHLY_COST_PER_EMPLOYEE.toLocaleString('nl-NL')} p.p.
               </p>
             </div>
@@ -365,11 +365,11 @@ const EmployerStatistics: React.FC = () => {
         <Card className={stats.sickPercentage > 5 ? 'border-red-300 dark:border-red-700' : ''}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Ziekteverzuim</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Ziekteverzuim</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
                 {(stats.sickPercentage || 0).toFixed(1)}%
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
                 {stats.activeSickCount} ziek • {stats.totalSickDays} dagen totaal
               </p>
             </div>
@@ -382,7 +382,7 @@ const EmployerStatistics: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Totale Omzet</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Totale Omzet</p>
             <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1 break-words">
               €{stats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
@@ -391,7 +391,7 @@ const EmployerStatistics: React.FC = () => {
 
         <Card>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Totale Kosten</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Totale Kosten</p>
             <p className="text-xl sm:text-2xl font-bold text-red-600 mt-1 break-words">
               €{stats.totalCosts.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
@@ -400,7 +400,7 @@ const EmployerStatistics: React.FC = () => {
 
         <Card>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Winst</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Winst</p>
             <p className={`text-xl sm:text-2xl font-bold mt-1 break-words ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               €{profit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
@@ -420,7 +420,7 @@ const EmployerStatistics: React.FC = () => {
               <div key={emp.id} className="py-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{emp.employeeName}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">
                     Sinds {emp.startDate.toLocaleDateString('nl-NL')} • {emp.days} dagen
                     {emp.days > 42 && <span className="text-orange-600 font-medium ml-1">(Poortwachter)</span>}
                   </p>
@@ -433,7 +433,7 @@ const EmployerStatistics: React.FC = () => {
                     {emp.status === 'active' ? 'Ziek' : 'Gedeeltelijk'}
                   </span>
                   {emp.capacity > 0 && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{emp.capacity}% inzetbaar</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 mt-0.5">{emp.capacity}% inzetbaar</p>
                   )}
                 </div>
               </div>

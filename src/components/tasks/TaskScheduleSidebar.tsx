@@ -52,7 +52,7 @@ const TaskScheduleSidebar: React.FC<TaskScheduleSidebarProps> = ({ tasks, onTask
               {priorityConfig.label}
             </span>
             {task.dueDate && (
-              <span className="text-[10px] text-gray-500 dark:text-gray-400">
+              <span className="text-[10px] text-gray-500 dark:text-gray-300">
                 {new Date(task.dueDate).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
               </span>
             )}
@@ -73,7 +73,7 @@ const TaskScheduleSidebar: React.FC<TaskScheduleSidebarProps> = ({ tasks, onTask
 
     return (
       <div className="space-y-2">
-        <h4 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+        <h4 className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
           {icon}
           {title} ({taskList.length})
         </h4>
@@ -97,7 +97,7 @@ const TaskScheduleSidebar: React.FC<TaskScheduleSidebarProps> = ({ tasks, onTask
               ? 'text-red-600 dark:text-red-400'
               : isDeadlineNear
                 ? 'text-amber-600 dark:text-amber-400'
-                : 'text-gray-500 dark:text-gray-400'
+                : 'text-gray-500 dark:text-gray-300'
           }`}>
             {(isOverdue || isDeadlineNear) && <AlertTriangle className="h-3.5 w-3.5" />}
             Deadline: vrijdag 19:00
@@ -110,7 +110,7 @@ const TaskScheduleSidebar: React.FC<TaskScheduleSidebarProps> = ({ tasks, onTask
         {tasks.length === 0 ? (
           <div className="text-center py-8">
             <Calendar className="h-8 w-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">Alle taken zijn ingepland</p>
+            <p className="text-sm text-gray-500 dark:text-gray-300">Alle taken zijn ingepland</p>
           </div>
         ) : (
           <>
@@ -125,7 +125,7 @@ const TaskScheduleSidebar: React.FC<TaskScheduleSidebarProps> = ({ tasks, onTask
       {/* Drag hint */}
       {tasks.length > 0 && (
         <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <p className="text-[11px] text-gray-500 dark:text-gray-400 text-center">
+          <p className="text-[11px] text-gray-500 dark:text-gray-300 text-center">
             Sleep taken naar de kalender om in te plannen
           </p>
         </div>

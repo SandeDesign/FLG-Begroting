@@ -116,7 +116,7 @@ const BankPartiesOverviewCards: React.FC<Props> = ({
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {grootboekrekeningen.length}
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+          <p className="text-xs text-gray-600 dark:text-gray-300">
             grootboekrekeningen
           </p>
           {grootboekrekeningen.length > 0 && (
@@ -127,7 +127,7 @@ const BankPartiesOverviewCards: React.FC<Props> = ({
                   return acc;
                 }, {} as Record<string, number>)
               ).slice(0, 4).map(([cat, count]) => (
-                <div key={cat} className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+                <div key={cat} className="flex justify-between text-xs text-gray-600 dark:text-gray-300">
                   <span>{grootboekCategoryLabels[cat as keyof typeof grootboekCategoryLabels] || cat}</span>
                   <span>{count}</span>
                 </div>
@@ -157,14 +157,14 @@ const BankPartiesOverviewCards: React.FC<Props> = ({
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {crediteuren.length}
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+          <p className="text-xs text-gray-600 dark:text-gray-300">
             leveranciers / schuldeisers
           </p>
           {crediteuren.length > 0 && (
             <div className="mt-2 space-y-1">
               {crediteuren.slice(0, 4).map((c) => (
                 <div key={c.id} className="flex justify-between text-xs">
-                  <span className="text-gray-600 dark:text-gray-400 truncate mr-2">
+                  <span className="text-gray-600 dark:text-gray-300 truncate mr-2">
                     {c.code} - {c.name}
                   </span>
                   <span className="text-red-600 whitespace-nowrap">
@@ -190,14 +190,14 @@ const BankPartiesOverviewCards: React.FC<Props> = ({
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
             {debiteuren.length}
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+          <p className="text-xs text-gray-600 dark:text-gray-300">
             klanten / betalers
           </p>
           {debiteuren.length > 0 && (
             <div className="mt-2 space-y-1">
               {debiteuren.slice(0, 4).map((d) => (
                 <div key={d.id} className="flex justify-between text-xs">
-                  <span className="text-gray-600 dark:text-gray-400 truncate mr-2">
+                  <span className="text-gray-600 dark:text-gray-300 truncate mr-2">
                     {d.code} - {d.name}
                   </span>
                   <span className="text-green-600 whitespace-nowrap">

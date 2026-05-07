@@ -73,12 +73,12 @@ const BoekhouderAdminSelector: React.FC<Props> = ({ variant }) => {
       >
         <Handshake className="h-5 w-5 text-primary-600 dark:text-primary-400" />
         {variant === 'desktop' && (
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[180px] truncate">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200 max-w-[180px] truncate">
             {selectedCompany?.name || activeAdminLabel}
           </span>
         )}
         <ChevronDown
-          className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${
+          className={`h-4 w-4 text-gray-500 dark:text-gray-300 transition-transform ${
             open ? 'rotate-180' : ''
           }`}
         />
@@ -100,14 +100,14 @@ const BoekhouderAdminSelector: React.FC<Props> = ({ variant }) => {
             className={`${dropdownPosition} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20 max-h-[70vh] overflow-y-auto`}
           >
             <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700">
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-gray-500 dark:text-gray-400">
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-gray-500 dark:text-gray-300">
                 Administraties
               </p>
             </div>
 
             <div className="p-2 space-y-1">
               {adminGroups.length === 0 && (
-                <p className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                <p className="px-3 py-4 text-sm text-gray-500 dark:text-gray-300 text-center">
                   Nog geen administraties toegewezen
                 </p>
               )}
@@ -136,7 +136,7 @@ const BoekhouderAdminSelector: React.FC<Props> = ({ variant }) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{group.label}</p>
-                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                        <p className="text-[11px] text-gray-500 dark:text-gray-300">
                           {group.companies.length} bedrij{group.companies.length === 1 ? 'f' : 'ven'}
                         </p>
                       </div>

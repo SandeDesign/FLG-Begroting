@@ -40,7 +40,7 @@ const AbsenceStatsCard: React.FC<AbsenceStatsCardProps> = ({ stats, previousYear
 
     if (diff > 0) return 'text-red-600 dark:text-red-400';
     if (diff < 0) return 'text-green-600 dark:text-green-400';
-    return 'text-gray-600 dark:text-gray-400';
+    return 'text-gray-600 dark:text-gray-300';
   };
 
   const getStatusColor = () => {
@@ -68,7 +68,7 @@ const AbsenceStatsCard: React.FC<AbsenceStatsCardProps> = ({ stats, previousYear
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Verzuim Statistieken
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               {new Date(stats.periodStart).getFullYear()}
             </p>
           </div>
@@ -93,11 +93,11 @@ const AbsenceStatsCard: React.FC<AbsenceStatsCardProps> = ({ stats, previousYear
       <div className="space-y-4">
         <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Verzuimpercentage</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Verzuimpercentage</p>
             <p className={`text-2xl font-bold ${getStatusColor()}`}>
               {formatPercentage(stats.absencePercentage)}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
               Status: {getStatusText()}
             </p>
           </div>
@@ -117,21 +117,21 @@ const AbsenceStatsCard: React.FC<AbsenceStatsCardProps> = ({ stats, previousYear
 
         <div className="grid grid-cols-2 gap-4">
           <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Totaal Dagen</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">Totaal Dagen</p>
             <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {stats.totalSickDays}
             </p>
           </div>
 
           <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Frequentie</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">Frequentie</p>
             <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {stats.absenceFrequency}x
             </p>
           </div>
 
           <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg col-span-2">
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+            <p className="text-xs text-gray-600 dark:text-gray-300 mb-1">
               Gemiddelde Duur per Keer
             </p>
             <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -141,7 +141,7 @@ const AbsenceStatsCard: React.FC<AbsenceStatsCardProps> = ({ stats, previousYear
         </div>
 
         <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500 dark:text-gray-300">
             Laatst berekend: {new Date(stats.calculatedAt).toLocaleDateString('nl-NL', {
               day: 'numeric',
               month: 'short',

@@ -280,7 +280,7 @@ const InvestmentPitch: React.FC = () => {
     return (
       <div className="p-8 text-center">
         <Target className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-        <p className="text-gray-500 dark:text-gray-400">Geen pitch decks beschikbaar</p>
+        <p className="text-gray-500 dark:text-gray-300">Geen pitch decks beschikbaar</p>
       </div>
     );
   }
@@ -303,7 +303,7 @@ const InvestmentPitch: React.FC = () => {
         {pitches.length === 0 ? (
           <div className="text-center py-12">
             <Target className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 mb-4">Geen pitch decks gevonden</p>
+            <p className="text-gray-500 dark:text-gray-300 mb-4">Geen pitch decks gevonden</p>
             <button
               onClick={createNewPitch}
               className="text-primary-600 hover:text-primary-700 font-medium"
@@ -318,11 +318,11 @@ const InvestmentPitch: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{pitch.companyName}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{pitch.elevatorPitch}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{pitch.elevatorPitch}</p>
                     <div className="flex gap-4 mt-3 text-sm">
                       <span className="text-primary-600 font-semibold">Ask: €{(pitch.askingAmount / 1000).toFixed(0)}k</span>
-                      <span className="text-gray-500 dark:text-gray-400">ARR: €{(pitch.currentARR / 1000).toFixed(0)}k</span>
-                      <span className="text-gray-500 dark:text-gray-400">Updated: {pitch.updatedAt?.toLocaleDateString('nl-NL')}</span>
+                      <span className="text-gray-500 dark:text-gray-300">ARR: €{(pitch.currentARR / 1000).toFixed(0)}k</span>
+                      <span className="text-gray-500 dark:text-gray-300">Updated: {pitch.updatedAt?.toLocaleDateString('nl-NL')}</span>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -429,7 +429,7 @@ const InvestmentPitch: React.FC = () => {
                 maxLength={280}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{currentPitch.elevatorPitch.length}/280</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">{currentPitch.elevatorPitch.length}/280</p>
             </div>
           </div>
 
@@ -446,7 +446,7 @@ const InvestmentPitch: React.FC = () => {
               />
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">TAM €</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">TAM €</label>
                   <input
                     type="number"
                     value={currentPitch.tam}
@@ -455,7 +455,7 @@ const InvestmentPitch: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">SAM €</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">SAM €</label>
                   <input
                     type="number"
                     value={currentPitch.sam}
@@ -464,7 +464,7 @@ const InvestmentPitch: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">SOM €</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">SOM €</label>
                   <input
                     type="number"
                     value={currentPitch.som}
@@ -479,7 +479,7 @@ const InvestmentPitch: React.FC = () => {
               <h2 className="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100">💰 Investment Ask</h2>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Amount €</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">Amount €</label>
                   <input
                     type="number"
                     value={currentPitch.askingAmount}
@@ -488,7 +488,7 @@ const InvestmentPitch: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Runway (months)</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">Runway (months)</label>
                   <input
                     type="number"
                     value={currentPitch.runway}
@@ -503,7 +503,7 @@ const InvestmentPitch: React.FC = () => {
               <h2 className="font-semibold text-lg mb-4 text-gray-900 dark:text-gray-100">📊 Revenue Projections</h2>
               <div className="space-y-2 text-sm">
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Year 1 Revenue €</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">Year 1 Revenue €</label>
                   <input
                     type="number"
                     value={currentPitch.projectedYear1Revenue}
@@ -512,7 +512,7 @@ const InvestmentPitch: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Year 2 Revenue €</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">Year 2 Revenue €</label>
                   <input
                     type="number"
                     value={currentPitch.projectedYear2Revenue}
@@ -521,7 +521,7 @@ const InvestmentPitch: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Year 3 Revenue €</label>
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-200">Year 3 Revenue €</label>
                   <input
                     type="number"
                     value={currentPitch.projectedYear3Revenue}
@@ -873,7 +873,7 @@ const InvestmentPitch: React.FC = () => {
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">{item.category}</h3>
                       <span className="text-lg font-bold text-primary-600">€{(item.amount / 1000).toFixed(0)}k</span>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{item.description}</p>
                     <p className="text-sm font-semibold text-green-700 flex items-center gap-1">
                       <CheckCircle className="h-4 w-4" />
                       {item.expectedOutcome}
@@ -891,19 +891,19 @@ const InvestmentPitch: React.FC = () => {
           <p className="text-gray-700 dark:text-gray-300 mb-6">{currentPitch.targetMarket}</p>
           <div className="grid grid-cols-3 gap-4">
             <div className="p-4 bg-blue-50 rounded-lg text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">TAM</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">TAM</p>
               <p className="text-2xl font-bold text-blue-600">€{(currentPitch.tam / 1000000).toFixed(0)}M</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Addressable</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Total Addressable</p>
             </div>
             <div className="p-4 bg-cyan-50 rounded-lg text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">SAM</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">SAM</p>
               <p className="text-2xl font-bold text-cyan-600">€{(currentPitch.sam / 1000000).toFixed(0)}M</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Serviceable</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Serviceable</p>
             </div>
             <div className="p-4 bg-green-50 rounded-lg text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">SOM</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">SOM</p>
               <p className="text-2xl font-bold text-green-600">€{(currentPitch.som / 1000000).toFixed(1)}M</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Obtainable (5yr)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Obtainable (5yr)</p>
             </div>
           </div>
         </div>
@@ -917,7 +917,7 @@ const InvestmentPitch: React.FC = () => {
                 <div key={member.id} className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg">
                   <h3 className="font-bold text-gray-900 dark:text-gray-100">{member.name}</h3>
                   <p className="text-sm font-semibold text-primary-600 mb-2">{member.role}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{member.bio}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{member.bio}</p>
                 </div>
               ))}
             </div>
@@ -949,7 +949,7 @@ const InvestmentPitch: React.FC = () => {
 
         {/* Footer */}
         <div className="text-center py-8 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Investment Pitch Deck | {currentPitch.companyName} | {new Date().toLocaleDateString('nl-NL')}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300">Investment Pitch Deck | {currentPitch.companyName} | {new Date().toLocaleDateString('nl-NL')}</p>
         </div>
       </div>
     );

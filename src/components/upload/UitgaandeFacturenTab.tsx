@@ -171,7 +171,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
           }`}
         >
           <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 dark:text-gray-400 mb-2">
+          <p className="text-gray-600 dark:text-gray-300 mb-2">
             Sleep een factuur PDF hierheen of{' '}
             <label className="font-medium text-primary-600 hover:text-primary-500 cursor-pointer">
               selecteer bestand
@@ -211,7 +211,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t dark:border-gray-700">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   Klantnaam *
                 </label>
                 <input
@@ -224,7 +224,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   Factuurnummer *
                 </label>
                 <input
@@ -237,7 +237,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   Factuurdatum *
                 </label>
                 <input
@@ -249,7 +249,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   Vervaldatum
                 </label>
                 <input
@@ -261,7 +261,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   Bedrag excl. BTW *
                 </label>
                 <input
@@ -275,7 +275,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   BTW tarief
                 </label>
                 <select
@@ -290,7 +290,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   Omschrijving
                 </label>
                 <input
@@ -303,7 +303,7 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
                   Status
                 </label>
                 <div className="flex gap-2">
@@ -327,11 +327,11 @@ const UitgaandeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
 
             <div className="grid grid-cols-3 gap-3 pt-3 border-t dark:border-gray-700">
               <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded">
-                <p className="text-xs text-gray-600 dark:text-gray-400">Excl. BTW</p>
+                <p className="text-xs text-gray-600 dark:text-gray-300">Excl. BTW</p>
                 <p className="text-lg font-bold text-gray-900 dark:text-gray-100">€ {amountNum.toFixed(2)}</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded">
-                <p className="text-xs text-gray-600 dark:text-gray-400">BTW ({form.btwPct}%)</p>
+                <p className="text-xs text-gray-600 dark:text-gray-300">BTW ({form.btwPct}%)</p>
                 <p className="text-lg font-bold text-gray-900 dark:text-gray-100">€ {vatPreview.toFixed(2)}</p>
               </div>
               <div className="bg-primary-50 dark:bg-primary-900/20 p-3 rounded">

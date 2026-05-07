@@ -69,9 +69,9 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           {mobileMenuOpen ? (
-            <X className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+            <X className="h-6 w-6 text-gray-600 dark:text-gray-300" />
           ) : (
-            <Menu className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+            <Menu className="h-6 w-6 text-gray-600 dark:text-gray-300" />
           )}
         </button>
       </div>
@@ -86,7 +86,7 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
             <img src="/Logo_1.png" alt="FLG-Administratie Logo" className="h-8 w-auto" />
             <div>
               <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Administratie</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{selectedCompany?.name || 'Dashboard'}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300">{selectedCompany?.name || 'Dashboard'}</p>
             </div>
           </div>
 
@@ -119,7 +119,7 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
                 <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
                   {getFirstName()}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-300 truncate">{user?.email}</p>
               </div>
             </div>
             <Button
@@ -162,10 +162,10 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
                   to={href}
                   className="flex flex-col items-center justify-center flex-1 transition-all duration-300"
                 >
-                  <div className={`p-3 rounded-2xl transition-all duration-300 ${ isActive ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 dark:text-gray-500' }`}>
+                  <div className={`p-3 rounded-2xl transition-all duration-300 ${ isActive ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-300 dark:text-gray-500' }`}>
                     <Icon size={20} strokeWidth={2.2} />
                   </div>
-                  <span className={`text-xs font-semibold mt-1.5 ${ isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500' }`}>
+                  <span className={`text-xs font-semibold mt-1.5 ${ isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-300 dark:text-gray-500' }`}>
                     {name}
                   </span>
                 </NavLink>

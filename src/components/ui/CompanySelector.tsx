@@ -20,7 +20,7 @@ export const CompanySelector: React.FC = () => {
 
   return (
     <div className="w-full">
-      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+      <label className="block text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-2">
         Bedrijf
       </label>
       <div className="relative">
@@ -42,7 +42,7 @@ export const CompanySelector: React.FC = () => {
       </div>
 
       {selectedCompany && (
-        <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs text-gray-600 dark:text-gray-400">
+        <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs text-gray-600 dark:text-gray-300">
           <div className="flex items-center space-x-2">
             <Building2 className="h-3 w-3" />
             <span>{selectedCompany.name}</span>

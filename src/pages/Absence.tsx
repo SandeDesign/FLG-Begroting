@@ -110,7 +110,7 @@ const Absence: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="hidden lg:block">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Verzuim</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
             Bekijk je verzuimhistorie en statistieken
           </p>
         </div>
@@ -131,11 +131,11 @@ const Absence: React.FC = () => {
                 Actieve Ziekmelding
               </h3>
               <div className="space-y-1 text-sm">
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 dark:text-gray-300">
                   <span className="font-medium">Start datum:</span>{' '}
                   {(activeSickLeave.startDate instanceof Date ? activeSickLeave.startDate : new Date(activeSickLeave.startDate)).toLocaleDateString('nl-NL')}
                 </p>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-gray-600 dark:text-gray-300">
                   <span className="font-medium">Arbeidsgeschiktheid:</span>{' '}
                   {activeSickLeave.workCapacityPercentage}%
                 </p>
@@ -175,19 +175,19 @@ const Absence: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Start Datum
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Eind Datum
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Duur
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Arbeidsgeschiktheid
                   </th>
                 </tr>
@@ -207,12 +207,12 @@ const Absence: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         {startTime > 0 ? startDate.toLocaleDateString('nl-NL') : '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                         {endDate && endTime
                           ? endDate.toLocaleDateString('nl-NL')
                           : 'Nog actief'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                         {duration} dagen
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -220,7 +220,7 @@ const Absence: React.FC = () => {
                           {getStatusText(record.status)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                         {record.workCapacityPercentage}%
                       </td>
                     </tr>

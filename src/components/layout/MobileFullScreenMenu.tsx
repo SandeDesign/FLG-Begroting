@@ -215,10 +215,10 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({ isOp
           >
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4 text-primary-600 dark:text-primary-400" />
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Periode</span>
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide">Periode</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
                 {selectedYear} · {selectedQuarter ? `Q${selectedQuarter}` : 'Heel jaar'}
               </span>
               <ChevronDown className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${periodSelectorOpen ? 'rotate-180' : ''}`} />
@@ -228,11 +228,11 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({ isOp
           {periodSelectorOpen && (
             <div className="px-4 pb-3 space-y-2">
               <div className="flex items-center justify-center gap-1">
-                <button onClick={() => { setSelectedYear(selectedYear - 1); onClose(); }} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                <button onClick={() => { setSelectedYear(selectedYear - 1); onClose(); }} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 min-w-[3rem] text-center">{selectedYear}</span>
-                <button onClick={() => { setSelectedYear(selectedYear + 1); onClose(); }} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                <button onClick={() => { setSelectedYear(selectedYear + 1); onClose(); }} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
@@ -244,7 +244,7 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({ isOp
                     className={`px-2 py-2 text-xs font-medium rounded-md transition-all duration-150 ${
                       selectedQuarter === q
                         ? 'bg-primary-600 text-white shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
                     }`}
                   >
                     {getQuarterLabel(q)}
@@ -323,7 +323,7 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({ isOp
                         {({ isActive }) => (
                           <>
                             <div className={`p-2 rounded-lg transition-all duration-200 ${ isActive ? 'bg-amber-100 dark:bg-amber-900/50' : 'bg-white dark:bg-gray-700/70' }`}>
-                              <ItemIcon className={`h-4 w-4 ${ isActive ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-400' }`} />
+                              <ItemIcon className={`h-4 w-4 ${ isActive ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-gray-300' }`} />
                             </div>
                             <span className="flex-1">{getItemDisplayName(item, userRole)}</span>
                           </>
@@ -375,7 +375,7 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({ isOp
                           {({ isActive }) => (
                             <>
                               <div className={`p-2 rounded-lg transition-all duration-200 ${ isActive ? 'bg-white dark:bg-gray-800/20 shadow-inner' : 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600' }`}>
-                                <ItemIcon className={`h-4 w-4 ${ isActive ? 'text-white' : 'text-gray-600 dark:text-gray-400' }`} />
+                                <ItemIcon className={`h-4 w-4 ${ isActive ? 'text-white' : 'text-gray-600 dark:text-gray-300' }`} />
                               </div>
                               <span className="flex-1">{getItemDisplayName(item, userRole)}</span>
                               {item.id === 'chat' && chatBadge && (

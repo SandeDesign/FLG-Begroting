@@ -134,7 +134,7 @@ const FactuurWerkbonnenImport: React.FC<FactuurWerkbonnenImportProps> = ({
                     ))}
                   </div>
 
-                  <div className="mt-2 text-right text-sm font-semibold text-gray-600 dark:text-gray-400">
+                  <div className="mt-2 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">
                     Totaal: {week.totalUren} uren
                   </div>
                 </div>

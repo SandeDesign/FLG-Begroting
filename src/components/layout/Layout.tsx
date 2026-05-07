@@ -77,7 +77,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={handleBackClick}
               className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${canGoBack ? '' : 'opacity-0 pointer-events-none'}`}
             >
-              <ArrowLeft className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+              <ArrowLeft className="h-6 w-6 text-gray-600 dark:text-gray-300" />
             </button>
           </div>
 
@@ -94,7 +94,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
             </button>
             {pageTitle && (
-              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 truncate max-w-[160px]">
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[160px]">
                 {pageTitle}
               </span>
             )}
@@ -111,7 +111,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className="flex items-center space-x-1 px-2 py-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <Building2 className="h-5 w-5 text-primary-600" />
-                  <ChevronDown className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${companyDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-gray-500 dark:text-gray-300 transition-transform ${companyDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown Menu - Opens LEFT on mobile */}
@@ -121,7 +121,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       className="fixed inset-0 z-10"
                       onClick={() => setCompanyDropdownOpen(false)}
                     />
-                    <div className="absolute -left-48 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20 w-64 max-h-60 overflow-y-auto lg:right-0">
+                    <div className="absolute -left-48 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-20 w-64 max-h-60 overflow-y-auto lg:right-0">
                       <div className="p-2 space-y-1">
                         {companies && companies.map((company) => (
                           <button
@@ -160,28 +160,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <Calendar className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 {selectedYear} {selectedQuarter ? `Q${selectedQuarter}` : 'Heel jaar'}
               </span>
-              <ChevronDown className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${periodDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-4 w-4 text-gray-500 dark:text-gray-300 transition-transform ${periodDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {periodDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setPeriodDropdownOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20 w-56 p-3">
+                <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-20 w-56 p-3">
                   {/* Year selector */}
                   <div className="flex items-center justify-between mb-3">
-                    <button onClick={() => setSelectedYear(selectedYear - 1)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                    <button onClick={() => setSelectedYear(selectedYear - 1)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
                       <ChevronLeft className="h-4 w-4" />
                     </button>
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{selectedYear}</span>
-                    <button onClick={() => setSelectedYear(selectedYear + 1)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400">
+                    <button onClick={() => setSelectedYear(selectedYear + 1)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
                   {/* Quarter pills */}
-                  <div className="grid grid-cols-5 gap-1 bg-gray-100 dark:bg-gray-900 rounded-lg p-1">
+                  <div className="grid grid-cols-5 gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                     {([null, 1, 2, 3, 4] as (number | null)[]).map((q) => (
                       <button
                         key={q ?? 'all'}
@@ -189,7 +189,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         className={`px-2 py-1.5 text-xs font-medium rounded-md transition-all duration-150 ${
                           selectedQuarter === q
                             ? 'bg-primary-600 text-white shadow-sm'
-                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
+                            : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
                         }`}
                       >
                         {getQuarterLabel(q)}
@@ -211,8 +211,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <Building2 className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{selectedCompany?.name || 'Selecteer bedrijf'}</span>
-                <ChevronDown className={`h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform ${companyDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{selectedCompany?.name || 'Selecteer bedrijf'}</span>
+                <ChevronDown className={`h-4 w-4 text-gray-500 dark:text-gray-300 transition-transform ${companyDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {companyDropdownOpen && (
@@ -221,7 +221,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     className="fixed inset-0 z-10"
                     onClick={() => setCompanyDropdownOpen(false)}
                   />
-                  <div className="absolute -left-48 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20 w-64 max-h-60 overflow-y-auto">
+                  <div className="absolute -left-48 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-20 w-64 max-h-60 overflow-y-auto">
                     <div className="p-2 space-y-1">
                       {companies && companies.map((company) => (
                         <button

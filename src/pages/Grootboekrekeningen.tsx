@@ -554,7 +554,7 @@ const Grootboekrekeningen: React.FC = () => {
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Code</label>
           <input
             type="text"
             value={formData.code}
@@ -564,7 +564,7 @@ const Grootboekrekeningen: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Type</label>
           <select
             value={formData.type}
             onChange={(e) => setFormData({ ...formData, type: e.target.value as 'debet' | 'credit' })}
@@ -576,7 +576,7 @@ const Grootboekrekeningen: React.FC = () => {
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Naam</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Naam</label>
         <input
           type="text"
           value={formData.name}
@@ -587,7 +587,7 @@ const Grootboekrekeningen: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categorie</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Categorie</label>
           <select
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value as GrootboekCategory })}
@@ -599,7 +599,7 @@ const Grootboekrekeningen: React.FC = () => {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">BTW</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">BTW</label>
           <select
             value={formData.btw}
             onChange={(e) => setFormData({ ...formData, btw: e.target.value })}
@@ -638,7 +638,7 @@ const Grootboekrekeningen: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="hidden lg:block">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rekeningschema</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
             {rekeningen.length} rekeningen in {Object.keys(grouped).length} categorieën
           </p>
         </div>
@@ -707,7 +707,7 @@ const Grootboekrekeningen: React.FC = () => {
           <div className="p-8 sm:p-12 text-center">
             <BookOpen className="w-12 sm:w-16 h-12 sm:h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Nog geen rekeningschema</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm">
+            <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm">
               Importeer het standaard MKB-rekeningschema, upload een Excel CSV-bestand of voeg handmatig rekeningen toe.
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -744,7 +744,7 @@ const Grootboekrekeningen: React.FC = () => {
                     <div className="hidden sm:block">
                       <table className="w-full">
                         <thead>
-                          <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+                          <tr className="text-xs text-gray-500 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700">
                             <th className="text-left px-4 py-2 w-20">Code</th>
                             <th className="text-left px-4 py-2">Naam</th>
                             <th className="text-left px-4 py-2 w-16">Type</th>
@@ -822,7 +822,7 @@ const Grootboekrekeningen: React.FC = () => {
                                   </td>
                                   <td className="px-4 py-2">
                                     {r.btw && (
-                                      <span className="text-xs text-gray-500 dark:text-gray-400">{r.btw}</span>
+                                      <span className="text-xs text-gray-500 dark:text-gray-300">{r.btw}</span>
                                     )}
                                   </td>
                                   <td className="px-4 py-2 text-right">
@@ -891,7 +891,7 @@ const Grootboekrekeningen: React.FC = () => {
                                 </button>
                                 <button
                                   onClick={resetForm}
-                                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg"
+                                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg"
                                 >
                                   <X className="w-3.5 h-3.5" /> Annuleren
                                 </button>
@@ -1019,7 +1019,7 @@ const Grootboekrekeningen: React.FC = () => {
               }, {} as Record<string, number>)
             ).map(([label, count]) => (
               <div key={label} className="flex items-center justify-between px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg text-xs">
-                <span className="text-gray-600 dark:text-gray-400 truncate">{label}</span>
+                <span className="text-gray-600 dark:text-gray-300 truncate">{label}</span>
                 <span className="ml-2 font-semibold text-gray-900 dark:text-white flex-shrink-0">{count}</span>
               </div>
             ))}
@@ -1027,7 +1027,7 @@ const Grootboekrekeningen: React.FC = () => {
 
           {/* Paginering */}
           {importPreviewData.length > PREVIEW_PAGE_SIZE && (
-            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
               <span>
                 Rijen {previewPage * PREVIEW_PAGE_SIZE + 1}–{Math.min((previewPage + 1) * PREVIEW_PAGE_SIZE, importPreviewData.length)} van {importPreviewData.length}
               </span>
@@ -1054,7 +1054,7 @@ const Grootboekrekeningen: React.FC = () => {
           <div className="max-h-[55vh] overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800 z-10">
-                <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                <tr className="text-xs text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left px-3 py-2 w-16">Code</th>
                   <th className="text-left px-3 py-2">Naam</th>
                   <th className="text-left px-3 py-2 hidden sm:table-cell">Categorie</th>
@@ -1068,7 +1068,7 @@ const Grootboekrekeningen: React.FC = () => {
                     <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
                       <td className="px-3 py-1.5 font-mono text-blue-600 dark:text-blue-400 font-bold">{row.code}</td>
                       <td className="px-3 py-1.5 text-gray-900 dark:text-white">{row.name}</td>
-                      <td className="px-3 py-1.5 text-gray-500 dark:text-gray-400 text-xs hidden sm:table-cell">
+                      <td className="px-3 py-1.5 text-gray-500 dark:text-gray-300 text-xs hidden sm:table-cell">
                         {grootboekCategoryLabels[row.category as keyof typeof grootboekCategoryLabels] || row.category}
                       </td>
                       <td className="px-3 py-1.5">
@@ -1130,7 +1130,7 @@ const Grootboekrekeningen: React.FC = () => {
                 <Upload className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 <span className="font-semibold text-gray-900 dark:text-white text-sm">Standaard sjabloon</span>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Laad het ingebouwde MKB-rekeningschema</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300">Laad het ingebouwde MKB-rekeningschema</p>
               {replacingTemplate && <LoadingSpinner size="sm" />}
             </button>
 
@@ -1143,7 +1143,7 @@ const Grootboekrekeningen: React.FC = () => {
                 <FileSpreadsheet className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 <span className="font-semibold text-gray-900 dark:text-white text-sm">Excel bestand</span>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Upload je eigen rekeningschema (.xlsx / .csv)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300">Upload je eigen rekeningschema (.xlsx / .csv)</p>
             </button>
 
             <div className="flex flex-col items-start gap-2 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl text-left">
@@ -1206,12 +1206,12 @@ const Grootboekrekeningen: React.FC = () => {
         size="sm"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Sla het rekeningschema van <strong>{selectedCompany.name}</strong> op als herbruikbaar sjabloon ({rekeningen.length} rekeningen).
             Je kunt dit sjabloon daarna bij andere bedrijven inladen via "Vervang sjabloon".
           </p>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sjabloonnaam</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Sjabloonnaam</label>
             <input
               type="text"
               value={saveTemplateName}

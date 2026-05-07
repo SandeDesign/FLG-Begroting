@@ -224,7 +224,32 @@ const Tasks: React.FC = () => {
     if (!user) return;
 
     try {
-      await updateTask(task.id, user.uid, { status: newStatus });
+      // Voor taken met meerdere toegewezen personen: bijhouden per persoon
+      if (task.assignedTo && task.assignedTo.length > 1) {
+        const myId = user.uid;
+        const currentCompleted = task.completedByUsers || [];
+        let updatedCompleted: string[];
+
+        if (newStatus === 'completed') {
+          updatedCompleted = currentCompleted.includes(myId)
+            ? currentCompleted
+            : [...currentCompleted, myId];
+        } else {
+          updatedCompleted = currentCompleted.filter(id => id !== myId);
+        }
+
+        // Globale status: completed als alle toegewezen personen klaar zijn
+        const allDone = task.assignedTo.every(id => updatedCompleted.includes(id));
+        const globalStatus: TaskStatus = allDone ? 'completed' : (task.status === 'completed' ? 'pending' : task.status);
+
+        await updateTask(task.id, user.uid, {
+          completedByUsers: updatedCompleted,
+          status: globalStatus,
+        });
+      } else {
+        await updateTask(task.id, user.uid, { status: newStatus });
+      }
+
       success('Status bijgewerkt');
       loadTasks();
     } catch (err) {
@@ -403,7 +428,7 @@ const Tasks: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Taken</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             {selectedCompany?.name} - {tasks.length} taken
           </p>
         </div>
@@ -457,7 +482,7 @@ const Tasks: React.FC = () => {
         <Card>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Status
               </label>
               <select
@@ -475,7 +500,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Categorie
               </label>
               <select
@@ -493,7 +518,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Prioriteit
               </label>
               <select
@@ -511,7 +536,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Inplanning
               </label>
               <select
@@ -542,10 +567,15 @@ const Tasks: React.FC = () => {
               {allPeople.map(person => {
                 const empName = person.name;
                 const empTasks = tasks.filter(t => t.assignedTo?.includes(person.id));
-                const completed = empTasks.filter(t => t.status === 'completed');
-                const scheduled = empTasks.filter(t => t.isScheduled && t.status !== 'completed' && t.status !== 'cancelled');
-                const unscheduled = empTasks.filter(t => !t.isScheduled && t.status !== 'completed' && t.status !== 'cancelled' && t.status !== 'overdue');
-                const overdue = empTasks.filter(t => t.status === 'overdue' || (!t.isScheduled && t.status !== 'completed' && t.status !== 'cancelled' && new Date(t.dueDate) < new Date()));
+                // Voltooiing per persoon: gebruik completedByUsers als beschikbaar
+                const isCompletedForPerson = (t: BusinessTask) =>
+                  t.assignedTo && t.assignedTo.length > 1
+                    ? (t.completedByUsers || []).includes(person.id)
+                    : t.status === 'completed';
+                const completed = empTasks.filter(t => isCompletedForPerson(t));
+                const scheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.isScheduled);
+                const unscheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.status !== 'overdue' && !t.isScheduled);
+                const overdue = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && (t.status === 'overdue' || (!t.isScheduled && new Date(t.dueDate) < new Date())));
 
                 const statGroups = [
                   { label: 'Voltooid', count: completed.length, tasks: completed, icon: CheckCircle, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800' },
@@ -563,7 +593,7 @@ const Tasks: React.FC = () => {
                         </div>
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{empName}</span>
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">{empTasks.length} taken</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-300">{empTasks.length} taken</span>
                     </div>
 
                     {empTasks.length === 0 ? (
@@ -582,12 +612,18 @@ const Tasks: React.FC = () => {
                               {group.tasks.length > 0 && (
                                 <ul className="space-y-0.5">
                                   {group.tasks.slice(0, 3).map(t => (
-                                    <li key={t.id} className="text-[10px] text-gray-600 dark:text-gray-400 truncate leading-tight">
-                                      • {t.title}
+                                    <li key={t.id}>
+                                      <button
+                                        onClick={() => openEditModal(t)}
+                                        className="w-full text-left text-[10px] text-gray-600 dark:text-gray-300 truncate leading-tight hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                                        title={t.title}
+                                      >
+                                        • {t.title}
+                                      </button>
                                     </li>
                                   ))}
                                   {group.tasks.length > 3 && (
-                                    <li className="text-[10px] text-gray-400 dark:text-gray-500">+{group.tasks.length - 3} meer</li>
+                                    <li className="text-[10px] text-gray-400 dark:text-gray-300">+{group.tasks.length - 3} meer</li>
                                   )}
                                 </ul>
                               )}
@@ -608,7 +644,7 @@ const Tasks: React.FC = () => {
             if (unassigned.length === 0) return null;
             return (
               <div className="mt-2">
-                <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1.5">
+                <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center gap-1.5">
                   <Users className="h-4 w-4" />
                   Niet toegewezen ({unassigned.length})
                 </h3>
@@ -659,24 +695,31 @@ const Tasks: React.FC = () => {
                   {/* Header */}
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1">
-                      <button
-                        onClick={() => {
-                          const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-                          handleStatusChange(task, newStatus);
-                        }}
-                        className="mt-1"
-                      >
-                        {task.status === 'completed' ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
-                        )}
-                      </button>
+                      {(() => {
+                        const isMultiAssignee = task.assignedTo && task.assignedTo.length > 1;
+                        const myDone = isMultiAssignee
+                          ? (task.completedByUsers || []).includes(user?.uid || '')
+                          : task.status === 'completed';
+                        const newStatus = myDone ? 'pending' : 'completed';
+                        return (
+                          <button
+                            onClick={() => handleStatusChange(task, newStatus)}
+                            className="mt-1 flex-shrink-0"
+                            title={isMultiAssignee ? (myDone ? 'Markeer als niet voltooid (voor jou)' : 'Markeer als voltooid (voor jou)') : undefined}
+                          >
+                            {myDone ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                            )}
+                          </button>
+                        );
+                      })()}
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3
-                            className={`font-semibold text-gray-900 dark:text-gray-100 ${ task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-400 dark:text-gray-500' : '' }`}
+                            className={`font-semibold text-gray-900 dark:text-gray-100 ${ task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-300 dark:text-gray-500' : '' }`}
                           >
                             {task.title}
                           </h3>
@@ -730,6 +773,20 @@ const Tasks: React.FC = () => {
                             </span>
                           )}
 
+                          {/* Toegewezen personen */}
+                          {task.assignedTo && task.assignedTo.length > 0 && (() => {
+                            const assignees = task.assignedTo!
+                              .map(id => allPeople.find(p => p.id === id))
+                              .filter(Boolean) as Array<{ id: string; name: string }>;
+                            if (assignees.length === 0) return null;
+                            return assignees.map(p => (
+                              <span key={p.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">
+                                <Users className="h-3 w-3" />
+                                {p.name.split(' ')[0]}
+                              </span>
+                            ));
+                          })()}
+
                         </div>
                       </div>
                     </div>
@@ -740,16 +797,16 @@ const Tasks: React.FC = () => {
                         className="p-1 hover:bg-gray-100 rounded"
                       >
                         {isExpanded ? (
-                          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                         ) : (
-                          <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                          <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                         )}
                       </button>
                       <button
                         onClick={() => openEditModal(task)}
                         className="p-1 hover:bg-gray-100 rounded"
                       >
-                        <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                       </button>
                       <button
                         onClick={() => handleDeleteTask(task.id)}
@@ -765,14 +822,14 @@ const Tasks: React.FC = () => {
                     <div className="pl-8 pt-2 border-t border-gray-100 dark:border-gray-700 space-y-3">
                       {task.description && (
                         <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Beschrijving</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{task.description}</p>
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-1">Beschrijving</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
                         </div>
                       )}
 
                       {task.checklist && task.checklist.length > 0 && (
                         <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-2">
                             Subtaken ({task.checklist.filter(s => s.completed).length}/{task.checklist.length})
                           </h4>
                           <div className="space-y-1">
@@ -787,7 +844,7 @@ const Tasks: React.FC = () => {
                                   onChange={() => toggleTaskSubtask(task, subtask.id)}
                                   className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
                                 />
-                                <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                                <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
                                   {subtask.title}
                                 </span>
                               </label>
@@ -816,7 +873,7 @@ const Tasks: React.FC = () => {
       >
         <form onSubmit={editingTask ? handleUpdateTask : handleCreateTask} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Titel *
             </label>
             <input
@@ -830,7 +887,7 @@ const Tasks: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Beschrijving
             </label>
             <textarea
@@ -844,7 +901,7 @@ const Tasks: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Categorie *
               </label>
               <select
@@ -862,7 +919,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Prioriteit *
               </label>
               <select
@@ -881,8 +938,8 @@ const Tasks: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Vervaldatum *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              Plandatum *
             </label>
             <input
               type="date"
@@ -896,7 +953,7 @@ const Tasks: React.FC = () => {
           {/* Toewijzen aan */}
           {allPeople.length > 0 && (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1.5">
                 <Users className="h-4 w-4" />
                 Toewijzen aan
               </label>
@@ -923,7 +980,7 @@ const Tasks: React.FC = () => {
               </div>
               {formData.assignedTo.length > 0 && (
                 <div className="mt-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-1.5">
                     <Clock className="h-4 w-4" />
                     Verwachte duur (uren)
                   </label>
@@ -936,7 +993,7 @@ const Tasks: React.FC = () => {
                     placeholder="bijv. 2.5"
                     className="w-32 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100"
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Hoelang de medewerker er mee bezig mag zijn</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Hoelang de medewerker er mee bezig mag zijn</p>
                 </div>
               )}
             </div>
@@ -945,7 +1002,7 @@ const Tasks: React.FC = () => {
           {/* Intern project koppeling */}
           {internalProjects.length > 0 && (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Intern project (optioneel)
               </label>
               <select
@@ -980,7 +1037,7 @@ const Tasks: React.FC = () => {
 
           {/* Subtaken sectie */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Subtaken
             </label>
 
@@ -995,7 +1052,7 @@ const Tasks: React.FC = () => {
                       onChange={() => toggleSubtask(subtask.id)}
                       className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
                     />
-                    <span className={`flex-1 text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                    <span className={`flex-1 text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-300' : 'text-gray-900 dark:text-gray-100'}`}>
                       {subtask.title}
                     </span>
                     <button
@@ -1038,7 +1095,7 @@ const Tasks: React.FC = () => {
 
           {/* Frequentie sectie - prominent */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
               Frequentie
             </label>
             <div className="flex flex-wrap gap-2">
@@ -1081,7 +1138,7 @@ const Tasks: React.FC = () => {
 
             {formData.isRecurring && formData.frequency === 'weekly' && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Dag van de week
                 </label>
                 <select
@@ -1102,7 +1159,7 @@ const Tasks: React.FC = () => {
 
             {formData.isRecurring && (formData.frequency === 'monthly' || formData.frequency === 'quarterly') && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Dag van de maand (1-31)
                 </label>
                 <input

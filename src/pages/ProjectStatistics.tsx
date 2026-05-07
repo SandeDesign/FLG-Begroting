@@ -200,7 +200,7 @@ const ProjectStatistics: React.FC = () => {
   if (!selectedCompany) {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">Selecteer een project bedrijf om statistieken te bekijken.</p>
+        <p className="text-gray-500 dark:text-gray-300">Selecteer een project bedrijf om statistieken te bekijken.</p>
       </div>
     );
   }
@@ -208,7 +208,7 @@ const ProjectStatistics: React.FC = () => {
   if (selectedCompany.companyType !== 'project') {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">Deze pagina is alleen beschikbaar voor project bedrijven.</p>
+        <p className="text-gray-500 dark:text-gray-300">Deze pagina is alleen beschikbaar voor project bedrijven.</p>
       </div>
     );
   }
@@ -228,7 +228,7 @@ const ProjectStatistics: React.FC = () => {
     <div className="space-y-6">
       <div className="hidden lg:block">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Projectstatistieken</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Overzicht van {selectedCompany.name}</p>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">Overzicht van {selectedCompany.name}</p>
       </div>
 
       {/* Key Metrics */}
@@ -236,11 +236,11 @@ const ProjectStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Productie Uren</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Productie Uren</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {stats.totalProductionHours.toLocaleString('nl-NL')}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                 {stats.totalOvertime > 0 && `+${stats.totalOvertime.toFixed(0)} overuren`}
               </p>
             </div>
@@ -251,11 +251,11 @@ const ProjectStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Totale Omzet</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Omzet</p>
               <p className="text-2xl font-bold text-green-600 mt-1">
                 €{stats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stats.totalInvoices} facturen</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">{stats.totalInvoices} facturen</p>
             </div>
             <TrendingUp className="h-8 w-8 text-green-600" />
           </div>
@@ -264,11 +264,11 @@ const ProjectStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Winstmarge</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Winstmarge</p>
               <p className={`text-2xl font-bold mt-1 ${profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {profitMargin.toFixed(1)}%
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                 €{profit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })} winst
               </p>
             </div>
@@ -281,7 +281,7 @@ const ProjectStatistics: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Verkoop (Omzet)</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Verkoop (Omzet)</p>
             <p className="text-2xl font-bold text-green-600 mt-1">
               €{stats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
@@ -290,7 +290,7 @@ const ProjectStatistics: React.FC = () => {
 
         <Card>
           <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Inkoop (Kosten)</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Inkoop (Kosten)</p>
             <p className="text-2xl font-bold text-red-600 mt-1">
               €{stats.totalCosts.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
@@ -299,7 +299,7 @@ const ProjectStatistics: React.FC = () => {
 
         <Card>
           <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Netto Winst</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Netto Winst</p>
             <p className={`text-2xl font-bold mt-1 ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               €{profit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
@@ -376,17 +376,17 @@ const ProjectStatistics: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Medewerker</th>
-                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Weken</th>
-                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Uren</th>
-                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Waarde (incl. BTW)</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Medewerker</th>
+                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Weken</th>
+                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Uren</th>
+                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Waarde (incl. BTW)</th>
                 </tr>
               </thead>
               <tbody>
                 {employeeProduction.map((emp) => (
                   <tr key={emp.employeeId} className="border-b border-gray-100 dark:border-gray-800">
                     <td className="py-2 px-2 text-gray-900 dark:text-gray-100">{emp.name}</td>
-                    <td className="py-2 px-2 text-right text-gray-600 dark:text-gray-400">{emp.totalWeeks}</td>
+                    <td className="py-2 px-2 text-right text-gray-600 dark:text-gray-300">{emp.totalWeeks}</td>
                     <td className="py-2 px-2 text-right font-medium text-gray-900 dark:text-gray-100">{emp.totalHours.toLocaleString('nl-NL', { minimumFractionDigits: 1 })}</td>
                     <td className="py-2 px-2 text-right font-medium text-green-600">€{emp.value.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</td>
                   </tr>
@@ -395,7 +395,7 @@ const ProjectStatistics: React.FC = () => {
               <tfoot>
                 <tr className="border-t-2 border-gray-300 dark:border-gray-600 font-semibold">
                   <td className="py-2 px-2 text-gray-900 dark:text-gray-100">Totaal</td>
-                  <td className="py-2 px-2 text-right text-gray-600 dark:text-gray-400"></td>
+                  <td className="py-2 px-2 text-right text-gray-600 dark:text-gray-300"></td>
                   <td className="py-2 px-2 text-right text-gray-900 dark:text-gray-100">{employeeProduction.reduce((s, e) => s + e.totalHours, 0).toLocaleString('nl-NL', { minimumFractionDigits: 1 })}</td>
                   <td className="py-2 px-2 text-right text-green-600">€{employeeProduction.reduce((s, e) => s + e.value, 0).toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</td>
                 </tr>
@@ -413,17 +413,17 @@ const ProjectStatistics: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Week</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Medewerker</th>
-                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Uren</th>
-                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-400">Waarde (incl. BTW)</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Week</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Medewerker</th>
+                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Uren</th>
+                  <th className="text-right py-3 px-2 font-medium text-gray-600 dark:text-gray-200">Waarde (incl. BTW)</th>
                 </tr>
               </thead>
               <tbody>
                 {weeklyProduction.map((row, i) => (
                   <tr key={`${row.week}-${row.employeeId}-${i}`} className="border-b border-gray-100 dark:border-gray-800">
                     <td className="py-2 px-2 text-gray-900 dark:text-gray-100">Week {row.week}</td>
-                    <td className="py-2 px-2 text-gray-600 dark:text-gray-400">{row.name}</td>
+                    <td className="py-2 px-2 text-gray-600 dark:text-gray-300">{row.name}</td>
                     <td className="py-2 px-2 text-right font-medium text-gray-900 dark:text-gray-100">{row.hours.toLocaleString('nl-NL', { minimumFractionDigits: 1 })}</td>
                     <td className="py-2 px-2 text-right font-medium text-green-600">€{row.value.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</td>
                   </tr>
@@ -444,7 +444,7 @@ const ProjectStatistics: React.FC = () => {
 
       {/* Geen werknemers notitie */}
       <Card>
-        <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+        <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
           <Package className="h-5 w-5" />
           <p className="text-sm">
             <strong>Let op:</strong> Project bedrijven hebben geen eigen personeel in dienst.

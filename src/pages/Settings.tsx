@@ -112,7 +112,7 @@ const MicrosoftConnectionCard: React.FC = () => {
           <Link2 className="h-5 w-5 text-primary-600" />
           Microsoft Account
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <p className="text-sm text-gray-500 dark:text-gray-300 mb-4">
           Koppel je Microsoft account om je Outlook-agenda te zien in de takenagenda. Zo kun je taken realistisch inplannen rondom je bestaande afspraken.
         </p>
         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -121,7 +121,7 @@ const MicrosoftConnectionCard: React.FC = () => {
               {msConnected ? 'Gekoppeld' : 'Niet gekoppeld'}
             </p>
             {msEmail && (
-              <p className="text-sm text-gray-500 dark:text-gray-400">{msEmail}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300">{msEmail}</p>
             )}
           </div>
           {msConnected ? (
@@ -654,7 +654,7 @@ const Settings: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="hidden lg:block">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Instellingen</h1>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Beheer je account en voorkeuren
           </p>
         </div>
@@ -668,7 +668,7 @@ const Settings: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`${ activeTab === tab.id ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 dark:text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600' } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-colors flex-shrink-0`}
+                className={`${ activeTab === tab.id ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600' } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-colors flex-shrink-0`}
               >
                 <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 {tab.name}
@@ -721,7 +721,7 @@ const Settings: React.FC = () => {
                   </label>
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
                     Upload een profielfoto (max 2MB)
                   </p>
                   {profilePhotoBase64 && profilePhotoBase64 !== photoPreview && (
@@ -755,7 +755,7 @@ const Settings: React.FC = () => {
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     Dark Mode
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-300">
                     {isDarkMode ? 'Donkere modus ingeschakeld' : 'Lichte modus ingeschakeld'}
                   </p>
                 </div>
@@ -769,7 +769,7 @@ const Settings: React.FC = () => {
                     {isDarkMode ? (
                       <Moon className="h-5 w-5 text-primary-600 p-0.5" />
                     ) : (
-                      <Sun className="h-5 w-5 text-gray-500 dark:text-gray-400 p-0.5" />
+                      <Sun className="h-5 w-5 text-gray-500 dark:text-gray-300 p-0.5" />
                     )}
                   </span>
                 </button>
@@ -788,7 +788,7 @@ const Settings: React.FC = () => {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Nieuw e-mailadres
                   </label>
                   <div className="relative">
@@ -804,7 +804,7 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Huidig wachtwoord (ter bevestiging)
                   </label>
                   <div className="relative">
@@ -838,7 +838,7 @@ const Settings: React.FC = () => {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Huidig wachtwoord
                   </label>
                   <div className="relative">
@@ -854,7 +854,7 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Nieuw wachtwoord
                   </label>
                   <div className="relative">
@@ -867,11 +867,11 @@ const Settings: React.FC = () => {
                       placeholder="••••••••"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Minimaal 6 tekens</p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">Minimaal 6 tekens</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Bevestig nieuw wachtwoord
                   </label>
                   <div className="relative">
@@ -917,12 +917,12 @@ const Settings: React.FC = () => {
                 Standaard Bedrijf
               </h2>
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                   Kies welk bedrijf standaard wordt geselecteerd wanneer je inlogt
                 </p>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Selecteer bedrijf
                   </label>
                   <select
@@ -962,12 +962,12 @@ const Settings: React.FC = () => {
                 Jaar Filter
               </h2>
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   Selecteer welk jaar wordt weergegeven voor productie, facturen en statistieken. <strong>Oude data blijft altijd toegankelijk</strong> door het jaar te wijzigen.
                 </p>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Selecteer jaar
                   </label>
                   <select
@@ -1010,7 +1010,7 @@ const Settings: React.FC = () => {
                 Factuurnummer Preview
               </h2>
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   Bekijk welk factuurnummer de volgende factuur krijgt bij aanmaken. De prefix kun je wijzigen bij het bewerken van het bedrijf.
                 </p>
 
@@ -1018,7 +1018,7 @@ const Settings: React.FC = () => {
                   <div className="space-y-3">
                     {/* Current Prefix */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         Huidige prefix
                       </label>
                       <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -1030,14 +1030,14 @@ const Settings: React.FC = () => {
 
                     {/* Next Invoice Number */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         Eerstvolgende factuurnummer
                       </label>
                       <div className="px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                         {loadingInvoiceNumber ? (
                           <div className="flex items-center gap-2">
                             <LoadingSpinner className="h-4 w-4" />
-                            <p className="text-sm text-gray-600 dark:text-gray-400">Laden...</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Laden...</p>
                           </div>
                         ) : (
                           <p className="text-lg font-bold font-mono text-green-700 dark:text-green-300">
@@ -1058,7 +1058,7 @@ const Settings: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                  <div className="text-sm text-gray-500 dark:text-gray-300 italic">
                     Selecteer een bedrijf om het volgende factuurnummer te zien
                   </div>
                 )}
@@ -1077,7 +1077,7 @@ const Settings: React.FC = () => {
                 Co-Admins Beheren
               </h2>
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   Voeg andere gebruikers toe die toegang hebben tot <strong>al jouw bedrijven</strong> met dezelfde rechten als jij.
                 </p>
 
@@ -1105,14 +1105,14 @@ const Settings: React.FC = () => {
 
                 {coAdmins.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Huidige co-admins:</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Huidige co-admins:</p>
                     {coAdmins.map((email) => (
                       <div
                         key={email}
                         className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
                       >
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          <User className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                           <span className="text-sm text-gray-900 dark:text-gray-100">{email}</span>
                         </div>
                         <button
@@ -1130,7 +1130,7 @@ const Settings: React.FC = () => {
 
                 {coAdmins.length === 0 && (
                   <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-gray-300">
                       Nog geen co-admins toegevoegd
                     </p>
                   </div>
@@ -1156,7 +1156,7 @@ const Settings: React.FC = () => {
                 Boekhouders Beheren
               </h2>
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   Geef je boekhouder toegang tot <strong>al jouw bedrijven</strong>. De boekhouder ziet verkoop- en inkoopfacturen read-only,
                   en krijgt volledige toegang tot grootboek, BTW overzicht, bankafschriften en uploads.
                 </p>
@@ -1185,14 +1185,14 @@ const Settings: React.FC = () => {
 
                 {boekhouders.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Huidige boekhouders:</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Huidige boekhouders:</p>
                     {boekhouders.map((email) => (
                       <div
                         key={email}
                         className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
                       >
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          <User className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                           <span className="text-sm text-gray-900 dark:text-gray-100">{email}</span>
                         </div>
                         <button
@@ -1210,7 +1210,7 @@ const Settings: React.FC = () => {
 
                 {boekhouders.length === 0 && (
                   <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-gray-300">
                       Nog geen boekhouders toegevoegd
                     </p>
                   </div>
@@ -1251,7 +1251,7 @@ const Settings: React.FC = () => {
                     </p>
                   </div>
                 )}
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   Selecteer je favoriete pagina's om ze bovenaan het menu weer te geven voor snelle toegang.
                 </p>
 
@@ -1268,7 +1268,7 @@ const Settings: React.FC = () => {
                           className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-left ${ isFavorite ? 'border-amber-400 bg-amber-50 hover:bg-amber-100' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-gray-900' }`}
                         >
                           <div className={`p-2 rounded-lg ${ isFavorite ? 'bg-amber-100' : 'bg-gray-100 dark:bg-gray-800' }`}>
-                            <Icon className={`h-4 w-4 ${ isFavorite ? 'text-amber-600' : 'text-gray-600 dark:text-gray-400 dark:text-gray-500' }`} />
+                            <Icon className={`h-4 w-4 ${ isFavorite ? 'text-amber-600' : 'text-gray-600 dark:text-gray-300 dark:text-gray-500' }`} />
                           </div>
                           <div className="flex-1">
                             <p className={`text-sm font-medium ${ isFavorite ? 'text-amber-900' : 'text-gray-900 dark:text-gray-100' }`}>

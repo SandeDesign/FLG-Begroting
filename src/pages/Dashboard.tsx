@@ -483,7 +483,7 @@ const Dashboard: React.FC = () => {
       <div className="space-y-6 pb-24 sm:pb-6 px-4 sm:px-0">
         <div className="hidden lg:block">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Welkom!</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Laten we beginnen met je loonadministratie</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Laten we beginnen met je loonadministratie</p>
         </div>
         <EmptyState
           icon={Briefcase}
@@ -507,7 +507,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold">Holding Dashboard</h1>
-              <p className="text-primary-50 dark:text-gray-400 mt-1">{selectedCompany?.name}</p>
+              <p className="text-primary-50 dark:text-gray-300 mt-1">{selectedCompany?.name}</p>
             </div>
             <Briefcase className="h-12 w-12 text-primary-100 dark:text-gray-500" />
           </div>
@@ -522,7 +522,7 @@ const Dashboard: React.FC = () => {
               <h3 className="text-sm font-semibold text-orange-900 dark:text-gray-100">
                 {tasks.filter(t => t.status === 'overdue').length === 1 ? '1 taak verlopen' : `${tasks.filter(t => t.status === 'overdue').length} taken verlopen`}
               </h3>
-              <p className="text-xs text-orange-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-orange-700 dark:text-gray-300 mt-1">
                 {tasks.filter(t => t.status === 'overdue').slice(0, 3).map(t => t.title).join(' • ')}
                 {tasks.filter(t => t.status === 'overdue').length > 3 && ` • +${tasks.filter(t => t.status === 'overdue').length - 3} meer`}
               </p>
@@ -539,7 +539,7 @@ const Dashboard: React.FC = () => {
               <h3 className="text-sm font-semibold text-green-900 dark:text-gray-100">
                 {tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).length === 1 ? '1 taak afgerond deze week' : `${tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).length} taken afgerond deze week`}
               </h3>
-              <p className="text-xs text-green-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-green-700 dark:text-gray-300 mt-1">
                 {tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).slice(0, 3).map(t => t.title).join(' • ')}
               </p>
             </div>
@@ -552,7 +552,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-blue-700 dark:text-gray-400">Bedrijven</p>
+                <p className="text-xs font-medium text-blue-700 dark:text-gray-300">Bedrijven</p>
                 <p className="text-2xl font-bold text-blue-900 dark:text-gray-100 mt-2">{companies?.length || 0}</p>
                 <p className="text-xs text-blue-600 dark:text-gray-500 mt-2">totaal</p>
               </div>
@@ -563,7 +563,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-green-700 dark:text-gray-400">Verkoop</p>
+                <p className="text-xs font-medium text-green-700 dark:text-gray-300">Verkoop</p>
                 <p className="text-2xl font-bold text-green-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal)}</p>
                 <p className="text-xs text-green-600 dark:text-gray-500 mt-2">{stats.outgoingInvoices} facturen</p>
               </div>
@@ -574,7 +574,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-purple-50 dark:bg-gray-800 border-purple-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-purple-700 dark:text-gray-400">Inkoop</p>
+                <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Inkoop</p>
                 <p className="text-2xl font-bold text-purple-900 dark:text-gray-100 mt-2">{formatCurrency(stats.incomingTotal)}</p>
                 <p className="text-xs text-purple-600 dark:text-gray-500 mt-2">{stats.incomingInvoices} facturen</p>
               </div>
@@ -585,7 +585,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-orange-50 dark:bg-gray-800 border-orange-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-orange-700 dark:text-gray-400">Marge</p>
+                <p className="text-xs font-medium text-orange-700 dark:text-gray-300">Marge</p>
                 <p className="text-2xl font-bold text-orange-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal - stats.incomingTotal)}</p>
                 <p className="text-xs text-orange-600 dark:text-gray-500 mt-2">verschil</p>
               </div>
@@ -607,7 +607,7 @@ const Dashboard: React.FC = () => {
               <ChevronRight className="h-5 w-5 text-green-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform" />
             </div>
             <p className="font-semibold text-gray-900 dark:text-gray-100 text-left">Facturatie</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-left">Uitgaande facturen</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 text-left">Uitgaande facturen</p>
           </button>
 
           <button
@@ -621,7 +621,7 @@ const Dashboard: React.FC = () => {
               <ChevronRight className="h-5 w-5 text-purple-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform" />
             </div>
             <p className="font-semibold text-gray-900 dark:text-gray-100 text-left">Inkoop</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-left">Inkomende facturen</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 text-left">Inkomende facturen</p>
           </button>
 
           <button
@@ -635,7 +635,7 @@ const Dashboard: React.FC = () => {
               <ChevronRight className="h-5 w-5 text-blue-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform" />
             </div>
             <p className="font-semibold text-gray-900 dark:text-gray-100 text-left">Begroting</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-left">Budget beheren</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 text-left">Budget beheren</p>
           </button>
         </div>
       </div>
@@ -655,7 +655,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold">WerkMaatschappij</h1>
-              <p className="text-primary-100 dark:text-gray-400 mt-1">{selectedCompany?.name}</p>
+              <p className="text-primary-100 dark:text-gray-300 mt-1">{selectedCompany?.name}</p>
             </div>
             <Briefcase className="h-12 w-12 text-primary-200 dark:text-gray-500" />
           </div>
@@ -668,7 +668,7 @@ const Dashboard: React.FC = () => {
             <Bell className="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-orange-900 dark:text-gray-100">{totalPending} items wachten op actie</h3>
-              <p className="text-xs text-orange-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-orange-700 dark:text-gray-300 mt-1">
                 {pendingTimesheets.length} uren • {pendingLeave.length} verlof • {pendingExpenses.length} onkosten
               </p>
             </div>
@@ -692,7 +692,7 @@ const Dashboard: React.FC = () => {
               <h3 className="text-sm font-semibold text-orange-900 dark:text-gray-100">
                 {tasks.filter(t => t.status === 'overdue').length === 1 ? '1 taak verlopen' : `${tasks.filter(t => t.status === 'overdue').length} taken verlopen`}
               </h3>
-              <p className="text-xs text-orange-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-orange-700 dark:text-gray-300 mt-1">
                 {tasks.filter(t => t.status === 'overdue').slice(0, 3).map(t => t.title).join(' • ')}
                 {tasks.filter(t => t.status === 'overdue').length > 3 && ` • +${tasks.filter(t => t.status === 'overdue').length - 3} meer`}
               </p>
@@ -709,7 +709,7 @@ const Dashboard: React.FC = () => {
               <h3 className="text-sm font-semibold text-green-900 dark:text-gray-100">
                 {tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).length === 1 ? '1 taak afgerond deze week' : `${tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).length} taken afgerond deze week`}
               </h3>
-              <p className="text-xs text-green-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-green-700 dark:text-gray-300 mt-1">
                 {tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).slice(0, 3).map(t => t.title).join(' • ')}
               </p>
             </div>
@@ -723,7 +723,7 @@ const Dashboard: React.FC = () => {
             <Card className="p-4 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-700">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-blue-700 dark:text-gray-400">Totale Uren</p>
+                  <p className="text-xs font-medium text-blue-700 dark:text-gray-300">Totale Uren</p>
                   <p className="text-2xl font-bold text-blue-900 dark:text-gray-100 mt-2">{projectStats.totalHours.toFixed(0)}</p>
                   <p className="text-xs text-blue-600 dark:text-gray-500 mt-2">geregistreerd</p>
                 </div>
@@ -734,7 +734,7 @@ const Dashboard: React.FC = () => {
             <Card className="p-4 bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-green-700 dark:text-gray-400">Productie Waarde (HUIDIG) (incl. BTW)</p>
+                  <p className="text-xs font-medium text-green-700 dark:text-gray-300">Productie Waarde (HUIDIG) (incl. BTW)</p>
                   <p className="text-2xl font-bold text-green-900 dark:text-gray-100 mt-2">€{Number(projectStats.productionValue).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   <p className="text-xs text-green-600 dark:text-gray-500 mt-2">€{Number(projectStats.hourlyRate).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/uur excl. BTW</p>
                 </div>
@@ -749,7 +749,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-green-700 dark:text-gray-400">Verkoop</p>
+                <p className="text-xs font-medium text-green-700 dark:text-gray-300">Verkoop</p>
                 <p className="text-xl font-bold text-green-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal)}</p>
                 <p className="text-xs text-green-600 dark:text-gray-500 mt-2">{stats.outgoingInvoices} facturen</p>
               </div>
@@ -760,7 +760,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-purple-50 dark:bg-gray-800 border-purple-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-purple-700 dark:text-gray-400">Inkoop</p>
+                <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Inkoop</p>
                 <p className="text-xl font-bold text-purple-900 dark:text-gray-100 mt-2">{formatCurrency(stats.incomingTotal)}</p>
                 <p className="text-xs text-purple-600 dark:text-gray-500 mt-2">{stats.incomingInvoices} facturen</p>
               </div>
@@ -771,7 +771,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-blue-700 dark:text-gray-400">Marge</p>
+                <p className="text-xs font-medium text-blue-700 dark:text-gray-300">Marge</p>
                 <p className="text-xl font-bold text-blue-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal - stats.incomingTotal)}</p>
                 <p className="text-xs text-blue-600 dark:text-gray-500 mt-2">winst</p>
               </div>
@@ -782,7 +782,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-orange-50 dark:bg-gray-800 border-orange-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-orange-700 dark:text-gray-400">Marges %</p>
+                <p className="text-xs font-medium text-orange-700 dark:text-gray-300">Marges %</p>
                 <p className="text-xl font-bold text-orange-900 dark:text-gray-100 mt-2">
                   {stats.outgoingTotal > 0 ? (((stats.outgoingTotal - stats.incomingTotal) / stats.outgoingTotal) * 100).toFixed(0) : 0}%
                 </p>
@@ -802,7 +802,7 @@ const Dashboard: React.FC = () => {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-orange-700 dark:text-gray-400">Uren</p>
+                  <p className="text-xs font-medium text-orange-700 dark:text-gray-300">Uren</p>
                   <p className="text-2xl font-bold text-orange-900 dark:text-gray-100 mt-2">{pendingTimesheets.length}</p>
                   <p className="text-xs text-orange-600 dark:text-gray-500 mt-2">wachten</p>
                 </div>
@@ -823,7 +823,7 @@ const Dashboard: React.FC = () => {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-purple-700 dark:text-gray-400">Verlof</p>
+                  <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Verlof</p>
                   <p className="text-2xl font-bold text-purple-900 dark:text-gray-100 mt-2">{pendingLeave.length}</p>
                   <p className="text-xs text-purple-600 dark:text-gray-500 mt-2">aanvragen</p>
                 </div>
@@ -844,7 +844,7 @@ const Dashboard: React.FC = () => {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-green-700 dark:text-gray-400">Onkosten</p>
+                  <p className="text-xs font-medium text-green-700 dark:text-gray-300">Onkosten</p>
                   <p className="text-2xl font-bold text-green-900 dark:text-gray-100 mt-2">{pendingExpenses.length}</p>
                   <p className="text-xs text-green-600 dark:text-gray-500 mt-2">pending</p>
                 </div>
@@ -874,7 +874,7 @@ const Dashboard: React.FC = () => {
               <ChevronRight className="h-5 w-5 text-primary-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform" />
             </div>
             <p className="font-semibold text-gray-900 dark:text-gray-100 text-left">Productie</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-left">Projecten beheren</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 text-left">Projecten beheren</p>
           </button>
 
           <button
@@ -888,7 +888,7 @@ const Dashboard: React.FC = () => {
               <ChevronRight className="h-5 w-5 text-purple-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform" />
             </div>
             <p className="font-semibold text-gray-900 dark:text-gray-100 text-left">Statistieken</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-left">Uitgebreide analyse</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 text-left">Uitgebreide analyse</p>
           </button>
 
           <button
@@ -902,7 +902,7 @@ const Dashboard: React.FC = () => {
               <ChevronRight className="h-5 w-5 text-green-400 dark:text-gray-500 group-hover:translate-x-1 transition-transform" />
             </div>
             <p className="font-semibold text-gray-900 dark:text-gray-100 text-left">Facturatie</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-left">Omzet beheren</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1 text-left">Omzet beheren</p>
           </button>
         </div>
       </div>
@@ -920,7 +920,7 @@ const Dashboard: React.FC = () => {
               <h1 className="text-3xl font-bold">
                 {(userRole === 'admin' || userRole === 'co-admin') ? 'Management Dashboard' : 'Team Dashboard'}
               </h1>
-              <p className="text-primary-100 dark:text-gray-400 mt-1">{selectedCompany?.name || 'Loonadministratie'}</p>
+              <p className="text-primary-100 dark:text-gray-300 mt-1">{selectedCompany?.name || 'Loonadministratie'}</p>
             </div>
             <TrendingUp className="h-12 w-12 text-primary-200 dark:text-gray-500" />
           </div>
@@ -933,7 +933,7 @@ const Dashboard: React.FC = () => {
             <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-red-900 dark:text-gray-100">{totalPending} items wachten!</h3>
-              <p className="text-xs text-red-700 dark:text-gray-400 mt-1">
+              <p className="text-xs text-red-700 dark:text-gray-300 mt-1">
                 {pendingTimesheets.length} uren • {pendingLeave.length} verlof • {pendingExpenses.length} onkosten
               </p>
             </div>
@@ -955,7 +955,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Actieve Medewerkers</p>
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-200">Actieve Medewerkers</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{stats.activeEmployees}</p>
               </div>
               <Users className="h-8 w-8 text-primary-400" />
@@ -966,7 +966,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-green-700 dark:text-gray-400">Verkoop</p>
+                <p className="text-xs font-medium text-green-700 dark:text-gray-300">Verkoop</p>
                 <p className="text-2xl font-bold text-green-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal)}</p>
                 <p className="text-xs text-green-600 dark:text-gray-500 mt-2">{stats.outgoingInvoices} facturen</p>
               </div>
@@ -978,7 +978,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-purple-50 dark:bg-gray-800 border-purple-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-purple-700 dark:text-gray-400">Inkoop</p>
+                <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Inkoop</p>
                 <p className="text-2xl font-bold text-purple-900 dark:text-gray-100 mt-2">{formatCurrency(stats.incomingTotal)}</p>
                 <p className="text-xs text-purple-600 dark:text-gray-500 mt-2">{stats.incomingInvoices} facturen</p>
               </div>
@@ -990,7 +990,7 @@ const Dashboard: React.FC = () => {
           <Card className="p-4 bg-orange-50 dark:bg-gray-800 border-orange-200 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium text-orange-700 dark:text-gray-400">Declaraties</p>
+                <p className="text-xs font-medium text-orange-700 dark:text-gray-300">Declaraties</p>
                 <p className="text-2xl font-bold text-orange-900 dark:text-gray-100 mt-2">€{stats.totalExpenses.toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                 <p className="text-xs text-orange-600 dark:text-gray-500 mt-2">{pendingExpenses.length} wachten</p>
               </div>
@@ -1005,7 +1005,7 @@ const Dashboard: React.FC = () => {
             <Card className="p-4 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-700">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-blue-700 dark:text-gray-400">Loonkosten (bruto)</p>
+                  <p className="text-xs font-medium text-blue-700 dark:text-gray-300">Loonkosten (bruto)</p>
                   <p className="text-2xl font-bold text-blue-900 dark:text-gray-100 mt-2">{formatCurrency(stats.totalGrossPay)}</p>
                   <p className="text-xs text-blue-600 dark:text-gray-500 mt-2">deze maand</p>
                 </div>
@@ -1016,7 +1016,7 @@ const Dashboard: React.FC = () => {
             <Card className="p-4 bg-cyan-50 dark:bg-gray-800 border-cyan-200 dark:border-gray-700">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-cyan-700 dark:text-gray-400">Netto Uitbetaald</p>
+                  <p className="text-xs font-medium text-cyan-700 dark:text-gray-300">Netto Uitbetaald</p>
                   <p className="text-2xl font-bold text-cyan-900 dark:text-gray-100 mt-2">{formatCurrency(stats.totalNetPay)}</p>
                   <p className="text-xs text-cyan-600 dark:text-gray-500 mt-2">{stats.payrollCount} salarissen</p>
                 </div>
@@ -1030,7 +1030,7 @@ const Dashboard: React.FC = () => {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium text-indigo-700 dark:text-gray-400">Loonstroken</p>
+                  <p className="text-xs font-medium text-indigo-700 dark:text-gray-300">Loonstroken</p>
                   <p className="text-2xl font-bold text-indigo-900 dark:text-gray-100 mt-2">→</p>
                   <p className="text-xs text-indigo-600 dark:text-gray-500 mt-2">bekijk details</p>
                 </div>
@@ -1082,8 +1082,8 @@ const Dashboard: React.FC = () => {
               blue: 'text-primary-600',
               purple: 'text-purple-600 dark:text-purple-400',
               green: 'text-green-600 dark:text-green-400',
-              gray: 'text-gray-600 dark:text-gray-400 dark:text-gray-500',
-            }[action.color] || 'text-gray-600 dark:text-gray-400 dark:text-gray-500';
+              gray: 'text-gray-600 dark:text-gray-300 dark:text-gray-500',
+            }[action.color] || 'text-gray-600 dark:text-gray-300 dark:text-gray-500';
 
             return (
               <button
@@ -1123,7 +1123,7 @@ const Dashboard: React.FC = () => {
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       📋 Week {ts.weekNumber} - {employees?.find((e: any) => e.id === ts.employeeId)?.personalInfo?.firstName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{ts.totalRegularHours}u • Ingediend op {new Date(ts.submittedAt).toLocaleDateString('nl-NL')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">{ts.totalRegularHours}u • Ingediend op {new Date(ts.submittedAt).toLocaleDateString('nl-NL')}</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-500 group-hover:translate-x-0.5 transition-transform" />
                 </button>
@@ -1145,7 +1145,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold">Welkom terug!</h1>
-              <p className="text-green-100 dark:text-gray-400 mt-1">Hier is je overzicht</p>
+              <p className="text-green-100 dark:text-gray-300 mt-1">Hier is je overzicht</p>
             </div>
             <CheckCircle className="h-12 w-12 text-green-200 dark:text-gray-500" />
           </div>
@@ -1154,19 +1154,19 @@ const Dashboard: React.FC = () => {
         {/* Key Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <Card className="p-4 bg-primary-50 dark:bg-gray-800 border-primary-200 dark:border-gray-700">
-            <p className="text-xs font-medium text-primary-700 dark:text-gray-400">Uren Deze Week</p>
+            <p className="text-xs font-medium text-primary-700 dark:text-gray-300">Uren Deze Week</p>
             <p className="text-2xl font-bold text-primary-900 dark:text-gray-100 mt-2">-</p>
             <p className="text-xs text-primary-600 dark:text-gray-500 mt-1">uren</p>
           </Card>
 
           <Card className="p-4 bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700">
-            <p className="text-xs font-medium text-green-700 dark:text-gray-400">Goedgekeurd</p>
+            <p className="text-xs font-medium text-green-700 dark:text-gray-300">Goedgekeurd</p>
             <p className="text-2xl font-bold text-green-900 dark:text-gray-100 mt-2">{employeeStats.approvedThisMonth}</p>
             <p className="text-xs text-green-600 dark:text-gray-500 mt-1">deze maand</p>
           </Card>
 
           <Card className="p-4 bg-purple-50 dark:bg-gray-800 border-purple-200 dark:border-gray-700">
-            <p className="text-xs font-medium text-purple-700 dark:text-gray-400">Saldo</p>
+            <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Saldo</p>
             <p className="text-2xl font-bold text-purple-900 dark:text-gray-100 mt-2">-</p>
             <p className="text-xs text-purple-600 dark:text-gray-500 mt-1">verlof</p>
           </Card>
@@ -1180,7 +1180,7 @@ const Dashboard: React.FC = () => {
           >
             <Clock className="h-6 w-6 text-primary-600 dark:text-primary-400 mb-2" />
             <p className="font-semibold text-gray-900 dark:text-gray-100">Uren Invoeren</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Jouw uren registreren</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Jouw uren registreren</p>
           </button>
 
           <button
@@ -1189,7 +1189,7 @@ const Dashboard: React.FC = () => {
           >
             <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-400 mb-2" />
             <p className="font-semibold text-gray-900 dark:text-gray-100">Verlof Aanvragen</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Verlof indienen</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Verlof indienen</p>
           </button>
 
           <button
@@ -1198,7 +1198,7 @@ const Dashboard: React.FC = () => {
           >
             <AlertCircle className="h-6 w-6 text-green-600 dark:text-green-400 mb-2" />
             <p className="font-semibold text-gray-900 dark:text-gray-100">Onkosten</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Kosten indienen</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Kosten indienen</p>
           </button>
 
           <button
@@ -1207,7 +1207,7 @@ const Dashboard: React.FC = () => {
           >
             <FileText className="h-6 w-6 text-amber-600 dark:text-amber-400 mb-2" />
             <p className="font-semibold text-gray-900 dark:text-gray-100">Loonstroken</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Jouw betalingen</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Jouw betalingen</p>
           </button>
         </div>
 
@@ -1218,7 +1218,7 @@ const Dashboard: React.FC = () => {
               <Target className="h-5 w-5 text-primary-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Tips</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
                   Zorg dat je uren op tijd indient en verlof vooraf aanvraagt. Je loonstroken zijn beschikbaar na verwerking.
                 </p>
               </div>

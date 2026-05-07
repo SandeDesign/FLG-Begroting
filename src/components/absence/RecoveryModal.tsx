@@ -102,7 +102,7 @@ const RecoveryModal: React.FC<RecoveryModalProps> = ({ isOpen, onClose, onSucces
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
             Arbeidsgeschiktheid (%) *
           </label>
           <input
@@ -116,7 +116,7 @@ const RecoveryModal: React.FC<RecoveryModalProps> = ({ isOpen, onClose, onSucces
             })}
             className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
           />
-          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-300 mt-1">
             <span>0%</span>
             <span className="font-semibold">{workCapacity}%</span>
             <span>100%</span>
@@ -129,7 +129,7 @@ const RecoveryModal: React.FC<RecoveryModalProps> = ({ isOpen, onClose, onSucces
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
             Status *
           </label>
           <select
@@ -145,7 +145,7 @@ const RecoveryModal: React.FC<RecoveryModalProps> = ({ isOpen, onClose, onSucces
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
             Notities (optioneel)
           </label>
           <textarea

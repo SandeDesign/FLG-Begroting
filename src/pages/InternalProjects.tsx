@@ -161,13 +161,13 @@ export default function InternalProjects() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Interne Projecten</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{selectedCompany.name}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-300">{selectedCompany.name}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowInactive(v => !v)}
-            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-1"
+            className="text-xs text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-1"
           >
             {showInactive ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
             {showInactive ? 'Alle tonen' : 'Alleen actief'}
@@ -194,7 +194,7 @@ export default function InternalProjects() {
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Naam <span className="text-red-500">*</span>
               </label>
               <Input
@@ -205,7 +205,7 @@ export default function InternalProjects() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Omschrijving (optioneel)
               </label>
               <Input
@@ -215,7 +215,7 @@ export default function InternalProjects() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kleur</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Kleur</label>
               <div className="flex gap-2 flex-wrap">
                 {PROJECT_COLORS.map(c => (
                   <button
@@ -263,11 +263,11 @@ export default function InternalProjects() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{project.name}</span>
                     {!project.isActive && (
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400">Inactief</span>
+                      <span className="text-xs px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-300">Inactief</span>
                     )}
                   </div>
                   {project.description && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{project.description}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 truncate">{project.description}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">

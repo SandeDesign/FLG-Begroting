@@ -304,7 +304,7 @@ export default function TimesheetApprovals() {
       {/* Header */}
       <div className="hidden lg:block">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Uren goedkeuren</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
           {pendingCount} aanvraag{pendingCount !== 1 ? 'en' : ''} wachtend op goedkeuring
         </p>
       </div>
@@ -339,7 +339,7 @@ export default function TimesheetApprovals() {
                           : 'bg-primary-600 text-white shadow-md'
                         : emp.hasPending
                           ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
                     }`}
                   >
                     {emp.firstName}
@@ -362,7 +362,7 @@ export default function TimesheetApprovals() {
           <div className="hidden lg:block w-72 flex-shrink-0">
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Medewerkers</h3>
+                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Medewerkers</h3>
               </div>
               <div className="max-h-[calc(100vh-320px)] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
                 {employeeSummaries.map((emp) => {
@@ -390,7 +390,7 @@ export default function TimesheetApprovals() {
                         }`}>
                           {emp.firstName} {emp.lastName}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        <p className="text-xs text-gray-500 dark:text-gray-300 mt-0.5">
                           {emp.hasPending ? (
                             <span className="text-orange-600 dark:text-orange-400 font-medium">
                               {emp.pendingTimesheets.length} wachtend
@@ -431,7 +431,7 @@ export default function TimesheetApprovals() {
                       <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         {selectedEmployee.firstName} {selectedEmployee.lastName}
                       </h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500 dark:text-gray-300">
                         Contract: {selectedEmployee.contractHoursPerWeek}u/week
                       </p>
                     </div>
@@ -439,19 +439,19 @@ export default function TimesheetApprovals() {
                   {/* Mini stats */}
                   <div className="grid grid-cols-4 gap-2">
                     <div className="text-center p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Weken</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">Weken</p>
                       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{selectedEmployee.allTimesheets.length}</p>
                     </div>
                     <div className="text-center p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Totaal</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">Totaal</p>
                       <p className="text-lg font-bold text-green-600">{selectedEmployee.totalAllHours || 0}u</p>
                     </div>
                     <div className="text-center p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Wachten</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">Wachten</p>
                       <p className="text-lg font-bold text-orange-600">{selectedEmployee.pendingTimesheets.length}</p>
                     </div>
                     <div className="text-center p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Gem/week</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">Gem/week</p>
                       <p className="text-lg font-bold text-primary-600">
                         {selectedEmployee.allTimesheets.length > 0
                           ? ((selectedEmployee.totalAllHours || 0) / selectedEmployee.allTimesheets.length).toFixed(1)
@@ -469,7 +469,7 @@ export default function TimesheetApprovals() {
                       className={`flex-1 px-4 py-3 text-sm font-medium transition-all relative ${
                         activeTab === 'pending'
                           ? 'text-primary-600 dark:text-primary-400'
-                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                          : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-300'
                       }`}
                     >
                       Wachten op goedkeuring
@@ -491,7 +491,7 @@ export default function TimesheetApprovals() {
                       className={`flex-1 px-4 py-3 text-sm font-medium transition-all relative ${
                         activeTab === 'all'
                           ? 'text-primary-600 dark:text-primary-400'
-                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                          : 'text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-300'
                       }`}
                     >
                       Alle weken
@@ -514,7 +514,7 @@ export default function TimesheetApprovals() {
                         {selectedEmployee.pendingTimesheets.length === 0 ? (
                           <div className="text-center py-8">
                             <CheckCircle className="h-12 w-12 text-green-400 mx-auto mb-3" />
-                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                            <p className="text-sm font-medium text-gray-600 dark:text-gray-200">
                               Geen wachtende uren
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
@@ -552,7 +552,7 @@ export default function TimesheetApprovals() {
                                       </span>
                                     </div>
                                     {timesheet.submittedAt && (
-                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                      <p className="text-xs text-gray-500 dark:text-gray-300 mt-0.5">
                                         Ingediend: {formatFirebaseDate(timesheet.submittedAt)}
                                       </p>
                                     )}
@@ -581,22 +581,22 @@ export default function TimesheetApprovals() {
                                     {/* Summary Stats */}
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                       <div className="text-center p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Totaal uren</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-300">Totaal uren</p>
                                         <p className={`text-xl font-bold ${isUnder ? 'text-red-600' : 'text-green-600'}`}>
                                           {timesheet.totalRegularHours}u
                                         </p>
                                         <p className="text-xs text-gray-400 mt-0.5">{hoursPercentage.toFixed(0)}% van {selectedEmployee.contractHoursPerWeek}u</p>
                                       </div>
                                       <div className="text-center p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Reiskilometers</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-300">Reiskilometers</p>
                                         <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{timesheet.totalTravelKilometers}km</p>
                                       </div>
                                       <div className="text-center p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Werkdagen</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-300">Werkdagen</p>
                                         <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{workDays}</p>
                                       </div>
                                       <div className="text-center p-2.5 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Gem/dag</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-300">Gem/dag</p>
                                         <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{avgPerDay}u</p>
                                       </div>
                                     </div>
@@ -656,7 +656,7 @@ export default function TimesheetApprovals() {
 
                                     {/* Daily Details */}
                                     <div>
-                                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
+                                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1.5">
                                         <Calendar className="h-4 w-4" />
                                         Dagelijkse details
                                       </h4>
@@ -676,7 +676,7 @@ export default function TimesheetApprovals() {
                                               </span>
                                             </div>
                                             {entry.travelKilometers > 0 && (
-                                              <div className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                              <div className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-300">
                                                 <MapPin className="h-3 w-3" />
                                                 {entry.travelKilometers}km
                                               </div>
@@ -684,7 +684,7 @@ export default function TimesheetApprovals() {
                                             {(entry as any).workActivities && (entry as any).workActivities.length > 0 && (
                                               <div className="space-y-1 mt-1.5 pl-3 border-l-2 border-gray-300 dark:border-gray-600">
                                                 {(entry as any).workActivities.map((activity: any, actIdx: number) => (
-                                                  <div key={actIdx} className="flex justify-between items-start text-xs text-gray-600 dark:text-gray-400">
+                                                  <div key={actIdx} className="flex justify-between items-start text-xs text-gray-600 dark:text-gray-300">
                                                     <span className="flex items-center gap-1 flex-wrap mr-2">
                                                       {activity.internalProjectName && (
                                                         <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
@@ -779,7 +779,7 @@ export default function TimesheetApprovals() {
                       <div className="space-y-3">
                         {/* Filter bar */}
                         <div className="flex flex-wrap items-center gap-2">
-                          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-300">
                             <Filter className="h-3.5 w-3.5" />
                             <span className="font-medium">Filter:</span>
                           </div>
@@ -796,7 +796,7 @@ export default function TimesheetApprovals() {
                             <option value="draft">Concept</option>
                           </select>
                           <div className="flex-1" />
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-300">
                             {filteredWeeks.length} week{filteredWeeks.length !== 1 ? 'en' : ''} · {totalFilteredHours}u
                           </span>
                         </div>
@@ -810,7 +810,7 @@ export default function TimesheetApprovals() {
                         {filteredWeeks.length === 0 ? (
                           <div className="text-center py-8">
                             <Calendar className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                            <p className="text-sm font-medium text-gray-600 dark:text-gray-200">
                               Geen weken gevonden
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
@@ -867,7 +867,7 @@ export default function TimesheetApprovals() {
                                         </span>
                                       )}
                                       {timesheet.status === 'draft' && (
-                                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold">
+                                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold">
                                           Concept
                                         </span>
                                       )}
@@ -879,7 +879,7 @@ export default function TimesheetApprovals() {
                                       style={{ width: `${Math.min(percentage, 100)}%` }}
                                     />
                                   </div>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex justify-between">
+                                  <div className="text-xs text-gray-500 dark:text-gray-300 mt-1.5 flex justify-between">
                                     <span>{percentage.toFixed(0)}% van contract ({selectedEmployee.contractHoursPerWeek}u)</span>
                                     <span>{timesheet.totalTravelKilometers}km</span>
                                   </div>

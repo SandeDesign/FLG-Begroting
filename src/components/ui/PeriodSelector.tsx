@@ -15,10 +15,10 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({ showQuarter = true }) =
   return (
     <div className="flex flex-wrap items-center gap-3 mb-4">
       <div className="flex items-center gap-1">
-        <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+        <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-300" />
         <button
           onClick={() => setSelectedYear(selectedYear - 1)}
-          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -27,7 +27,7 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({ showQuarter = true }) =
         </span>
         <button
           onClick={() => setSelectedYear(selectedYear + 1)}
-          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -42,7 +42,7 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({ showQuarter = true }) =
               className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-150 ${
                 selectedQuarter === q
                   ? 'bg-primary-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
               {getQuarterLabel(q)}

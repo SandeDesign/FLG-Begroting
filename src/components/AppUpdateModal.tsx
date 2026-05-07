@@ -65,7 +65,7 @@ const AppUpdateModal: React.FC<Props> = ({ reg, onDismiss }) => {
         <div className="px-6 py-5">
           {roleChanges.length > 0 && (
             <div className="mb-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300 mb-2">
                 Wat is er nieuw voor jou
               </h3>
               <ul className="space-y-2">
@@ -81,7 +81,7 @@ const AppUpdateModal: React.FC<Props> = ({ reg, onDismiss }) => {
 
           {allChanges.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300 mb-2">
                 Algemeen
               </h3>
               <ul className="space-y-2">
@@ -107,7 +107,7 @@ const AppUpdateModal: React.FC<Props> = ({ reg, onDismiss }) => {
           </button>
           <button
             onClick={onDismiss}
-            className="w-full text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 py-2 transition-colors"
+            className="w-full text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 py-2 transition-colors"
           >
             Later herinneren
           </button>

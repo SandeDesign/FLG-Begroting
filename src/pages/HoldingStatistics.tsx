@@ -187,7 +187,7 @@ const HoldingStatistics: React.FC = () => {
   if (!selectedCompany) {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">Selecteer een holding of aandeelhouder om statistieken te bekijken.</p>
+        <p className="text-gray-500 dark:text-gray-300">Selecteer een holding of aandeelhouder om statistieken te bekijken.</p>
       </div>
     );
   }
@@ -195,7 +195,7 @@ const HoldingStatistics: React.FC = () => {
   if (selectedCompany.companyType !== 'holding' && selectedCompany.companyType !== 'shareholder') {
     return (
       <div className="p-6">
-        <p className="text-gray-500 dark:text-gray-400">Deze pagina is alleen beschikbaar voor holdings en aandeelhouders.</p>
+        <p className="text-gray-500 dark:text-gray-300">Deze pagina is alleen beschikbaar voor holdings en aandeelhouders.</p>
       </div>
     );
   }
@@ -235,7 +235,7 @@ const HoldingStatistics: React.FC = () => {
     <div className="space-y-6">
       <div className="hidden lg:block">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pageTitle}</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">{pageDescription}</p>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">{pageDescription}</p>
       </div>
 
       {/* Totalen Cards */}
@@ -243,7 +243,7 @@ const HoldingStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Totale Omzet</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Omzet</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 €{totalStats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
               </p>
@@ -255,7 +255,7 @@ const HoldingStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Totale Kosten</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Kosten</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 €{totalStats.totalCosts.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
               </p>
@@ -267,7 +267,7 @@ const HoldingStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Totale Winst</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Winst</p>
               <p className={`text-2xl font-bold mt-1 ${totalStats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 €{totalStats.totalProfit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
               </p>
@@ -279,7 +279,7 @@ const HoldingStatistics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Aantal Bedrijven</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Aantal Bedrijven</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalStats.totalCompanies}</p>
             </div>
             <Building2 className="h-8 w-8 text-blue-600" />
@@ -303,7 +303,7 @@ const HoldingStatistics: React.FC = () => {
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-center py-8">Geen data beschikbaar</p>
+          <p className="text-gray-500 dark:text-gray-300 text-center py-8">Geen data beschikbaar</p>
         )}
       </Card>
 
@@ -339,22 +339,22 @@ const HoldingStatistics: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Bedrijf
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Type
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Omzet
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Kosten
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Budget (mnd)
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Winst
                 </th>
               </tr>
@@ -365,7 +365,7 @@ const HoldingStatistics: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                     {stat.companyName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${ stat.companyType === 'employer' ? 'bg-blue-100 text-blue-800' : stat.companyType === 'project' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200' }`}>
                       {stat.companyType === 'employer' ? 'Werkgever' :
                        stat.companyType === 'project' ? 'Project' : 'Holding'}
@@ -379,7 +379,7 @@ const HoldingStatistics: React.FC = () => {
                     €{stat.incomingInvoicesTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
                     <span className="text-gray-400 dark:text-gray-500 ml-2">({stat.incomingInvoicesCount})</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-600 dark:text-gray-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-600 dark:text-gray-300">
                     <span className="text-red-600">-€{stat.budgetCostsMonthly.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</span>
                     {stat.budgetIncomeMonthly > 0 && (
                       <span className="text-green-600 ml-2">+€{stat.budgetIncomeMonthly.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</span>

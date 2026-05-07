@@ -903,7 +903,7 @@ const BankStatementImport: React.FC = () => {
           {t.beneficiary && (
             <div className="font-medium text-gray-900 dark:text-white truncate">{t.beneficiary}</div>
           )}
-          <div className="text-gray-500 dark:text-gray-400 truncate">{t.description}</div>
+          <div className="text-gray-500 dark:text-gray-300 truncate">{t.description}</div>
           {t.matchedInvoiceId && (
             <div className="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5">
               ↔ {t.matchedInvoiceNumber || t.matchedInvoiceId}
@@ -1008,7 +1008,7 @@ const BankStatementImport: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Bankafschrift Import
           </h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
             Import en match bankafschriften met facturen
           </p>
         </div>
@@ -1057,7 +1057,7 @@ const BankStatementImport: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Plak bankafschrift hier
             </label>
             <textarea
@@ -1119,7 +1119,7 @@ const BankStatementImport: React.FC = () => {
                   <Clock className="w-4 h-4 mr-1" />
                   {pendingResults.length} ter beoordeling
                 </span>
-                <span className="flex items-center text-gray-600 dark:text-gray-400">
+                <span className="flex items-center text-gray-600 dark:text-gray-300">
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {unmatchedResults.length} geen match
                 </span>
@@ -1219,7 +1219,7 @@ const BankStatementImport: React.FC = () => {
                                 {result.transaction.description}
                               </div>
                               {result.transaction.beneficiary && (
-                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                <div className="text-xs text-gray-600 dark:text-gray-300">
                                   Begunstigde: {result.transaction.beneficiary}
                                 </div>
                               )}
@@ -1228,7 +1228,7 @@ const BankStatementImport: React.FC = () => {
                                   <span className="font-medium text-gray-900 dark:text-white">
                                     Gematcht met: {result.matchedInvoice.invoiceNumber}
                                   </span>
-                                  <span className="text-gray-600 dark:text-gray-400 ml-2">
+                                  <span className="text-gray-600 dark:text-gray-300 ml-2">
                                     {result.matchedInvoice.clientName}
                                   </span>
                                 </div>
@@ -1284,7 +1284,7 @@ const BankStatementImport: React.FC = () => {
                                 {result.transaction.description}
                               </div>
                               {result.transaction.beneficiary && (
-                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                <div className="text-xs text-gray-600 dark:text-gray-300">
                                   Begunstigde: {result.transaction.beneficiary}
                                 </div>
                               )}
@@ -1293,7 +1293,7 @@ const BankStatementImport: React.FC = () => {
                                   <span className="font-medium text-gray-900 dark:text-white">
                                     Mogelijk: {result.matchedInvoice.invoiceNumber}
                                   </span>
-                                  <span className="text-gray-600 dark:text-gray-400 ml-2">
+                                  <span className="text-gray-600 dark:text-gray-300 ml-2">
                                     {result.matchedInvoice.clientName}
                                   </span>
                                 </div>
@@ -1308,7 +1308,7 @@ const BankStatementImport: React.FC = () => {
 
               {unmatchedResults.length > 0 && (
                 <div>
-                  <h3 className="text-md font-semibold text-gray-600 dark:text-gray-400 mb-3 flex items-center">
+                  <h3 className="text-md font-semibold text-gray-600 dark:text-gray-300 mb-3 flex items-center">
                     <AlertCircle className="w-5 h-5 mr-2" />
                     Geen match ({unmatchedResults.length})
                   </h3>
@@ -1349,7 +1349,7 @@ const BankStatementImport: React.FC = () => {
                                 {result.transaction.description}
                               </div>
                               {result.transaction.beneficiary && (
-                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                <div className="text-xs text-gray-600 dark:text-gray-300">
                                   Begunstigde: {result.transaction.beneficiary}
                                 </div>
                               )}
@@ -1383,7 +1383,7 @@ const BankStatementImport: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Import bezig...
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   {importProgress.phase}
                 </p>
               </div>
@@ -1398,7 +1398,7 @@ const BankStatementImport: React.FC = () => {
                       }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-300">
                     <span>{importProgress.current} / {importProgress.total}</span>
                     <span>{Math.round((importProgress.current / importProgress.total) * 100)}%</span>
                   </div>
@@ -1444,10 +1444,10 @@ const BankStatementImport: React.FC = () => {
                           <span className="text-sm font-medium text-gray-900 dark:text-white">
                             {safeFormatDate(imp.importedAt, 'dd-MM-yyyy HH:mm')}
                           </span>
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-300">
                             {imp.format}
                           </span>
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-300">
                             {imp.totalLines} regels
                           </span>
                         </div>
@@ -1462,7 +1462,7 @@ const BankStatementImport: React.FC = () => {
                             {unmatched.length} geen match
                           </span>
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate">
+                        <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 truncate">
                           Door: {imp.importedByName}
                         </div>
                       </div>
@@ -1567,7 +1567,7 @@ const BankStatementImport: React.FC = () => {
                             <div>
                               <button
                                 onClick={() => toggleSection(key)}
-                                className="w-full flex items-center justify-between px-4 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700/50 transition-colors"
+                                className="w-full flex items-center justify-between px-4 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700/50 transition-colors"
                               >
                                 <span className="flex items-center gap-2">
                                   <AlertCircle className="w-3.5 h-3.5" />
@@ -1613,11 +1613,11 @@ const BankStatementImport: React.FC = () => {
               <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-gray-600 dark:text-gray-400">Datum:</span>{' '}
+                    <span className="text-gray-600 dark:text-gray-300">Datum:</span>{' '}
                     {safeFormatDate(linkingTransaction.transaction.date, 'dd-MM-yyyy')}
                   </div>
                   <div>
-                    <span className="text-gray-600 dark:text-gray-400">Bedrag:</span>{' '}
+                    <span className="text-gray-600 dark:text-gray-300">Bedrag:</span>{' '}
                     <span
                       className={
                         linkingTransaction.transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
@@ -1627,7 +1627,7 @@ const BankStatementImport: React.FC = () => {
                     </span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-gray-600 dark:text-gray-400">Omschrijving:</span>{' '}
+                    <span className="text-gray-600 dark:text-gray-300">Omschrijving:</span>{' '}
                     {linkingTransaction.transaction.description}
                   </div>
                 </div>
@@ -1636,10 +1636,10 @@ const BankStatementImport: React.FC = () => {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
                   Zoek factuur
                 </label>
-                <label className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                <label className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-300 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={showAlreadyLinked}
@@ -1698,7 +1698,7 @@ const BankStatementImport: React.FC = () => {
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {invoice.invoiceNumber}
                                 </div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                <div className="text-sm text-gray-600 dark:text-gray-300">
                                   {invoice.supplierName}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1">
@@ -1771,7 +1771,7 @@ const BankStatementImport: React.FC = () => {
                                 <div className="font-medium text-gray-900 dark:text-white">
                                   {invoice.invoiceNumber}
                                 </div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                <div className="text-sm text-gray-600 dark:text-gray-300">
                                   {invoice.clientName}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1">
@@ -1809,7 +1809,7 @@ const BankStatementImport: React.FC = () => {
               })()}
 
               {incomingInvoices.length === 0 && outgoingInvoices.length === 0 && (
-                <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+                <p className="text-center text-gray-500 dark:text-gray-300 py-4">
                   Geen facturen gevonden
                 </p>
               )}
@@ -1832,7 +1832,7 @@ const BankStatementImport: React.FC = () => {
             {grootboekrekeningen.length === 0 ? (
               <div className="text-center py-6">
                 <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 dark:text-gray-400 mb-3">
+                <p className="text-gray-600 dark:text-gray-300 mb-3">
                   Nog geen rekeningschema ingeladen
                 </p>
                 <Button onClick={handleImportTemplate} disabled={importingTemplate}>
@@ -1879,7 +1879,7 @@ const BankStatementImport: React.FC = () => {
                       }, {} as Record<string, Grootboekrekening[]>)
                   ).map(([category, accounts]) => (
                     <div key={category}>
-                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-2 py-1 bg-gray-50 dark:bg-gray-800 sticky top-0">
+                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-300 px-2 py-1 bg-gray-50 dark:bg-gray-800 sticky top-0">
                         {category}
                       </div>
                       {accounts.map((gb) => (

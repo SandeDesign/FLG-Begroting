@@ -300,7 +300,7 @@ export default function Payslips() {
       <div className="flex justify-between items-center">
         <div className="hidden lg:block">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Loonstroken</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
             {(userRole === 'admin' || userRole === 'co-admin') ? 'Bekijk en beheer loonstroken' : 'Bekijk en download uw loonstroken'}
           </p>
         </div>
@@ -372,7 +372,7 @@ export default function Payslips() {
                         <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                           {getMonthName(payslip.periodStartDate)}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-500 dark:text-gray-300">
                           {payslip.periodStartDate.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })} - {payslip.periodEndDate.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
                         </p>
                       </div>
@@ -384,14 +384,14 @@ export default function Payslips() {
 
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500 dark:text-gray-400">Gegenereerd:</span>
+                      <span className="text-gray-500 dark:text-gray-300">Gegenereerd:</span>
                       <span className="text-gray-900 dark:text-gray-100 font-medium">
                         {payslip.generatedAt.toLocaleDateString('nl-NL')}
                       </span>
                     </div>
                     {payslip.paymentDate && (
                       <div className="flex justify-between">
-                        <span className="text-gray-500 dark:text-gray-400">Uitbetaling:</span>
+                        <span className="text-gray-500 dark:text-gray-300">Uitbetaling:</span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
                           {payslip.paymentDate.toLocaleDateString('nl-NL')}
                         </span>
@@ -399,7 +399,7 @@ export default function Payslips() {
                     )}
                     {!payslip.paymentDate && status !== 'draft' && (
                       <div className="flex justify-between">
-                        <span className="text-gray-500 dark:text-gray-400">Uitbetaling:</span>
+                        <span className="text-gray-500 dark:text-gray-300">Uitbetaling:</span>
                         <span className="text-gray-400 dark:text-gray-500 italic">nog niet ingevuld</span>
                       </div>
                     )}

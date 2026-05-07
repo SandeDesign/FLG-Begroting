@@ -112,7 +112,7 @@ const Leave: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="hidden lg:block">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Verlof</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
             Beheer je verlofaanvragen en bekijk je saldo
           </p>
         </div>
@@ -133,7 +133,7 @@ const Leave: React.FC = () => {
               Mijn Verlofaanvragen
             </h2>
             <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <Filter className="h-4 w-4 text-gray-500 dark:text-gray-300" />
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
@@ -161,19 +161,19 @@ const Leave: React.FC = () => {
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Periode
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Dagen
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Aangevraagd op
                   </th>
                 </tr>
@@ -184,7 +184,7 @@ const Leave: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                       {formatLeaveType(request.type)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                       {request.startDate && request.endDate ? (
                         <>
                           {(request.startDate instanceof Date ? request.startDate : new Date(request.startDate)).toLocaleDateString('nl-NL')} -{' '}
@@ -192,7 +192,7 @@ const Leave: React.FC = () => {
                         </>
                       ) : 'Datum niet beschikbaar'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                       {request.totalDays || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -200,7 +200,7 @@ const Leave: React.FC = () => {
                         {getStatusText(request.status)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                       {request.createdAt ? (request.createdAt instanceof Date ? request.createdAt : new Date(request.createdAt)).toLocaleDateString('nl-NL') : '-'}
                     </td>
                   </tr>

@@ -39,7 +39,7 @@ const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
         </div>
 
         <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
             <Clock className="h-4 w-4" />
             <span>
               {startTime.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
@@ -49,7 +49,7 @@ const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
           </div>
 
           {microsoftEvent.location?.displayName && (
-            <div className="flex items-start gap-2 text-gray-600 dark:text-gray-400">
+            <div className="flex items-start gap-2 text-gray-600 dark:text-gray-300">
               <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
               <div>
                 <p>{microsoftEvent.location.displayName}</p>
@@ -64,7 +64,7 @@ const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
           )}
 
           {microsoftEvent.bodyPreview && (
-            <p className="text-gray-500 dark:text-gray-400 text-xs mt-2 line-clamp-3">
+            <p className="text-gray-500 dark:text-gray-300 text-xs mt-2 line-clamp-3">
               {microsoftEvent.bodyPreview}
             </p>
           )}
@@ -123,7 +123,7 @@ const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
 
       {/* Tijd */}
       {task.scheduledStartTime && task.scheduledEndTime && (
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2">
           <Clock className="h-4 w-4" />
           <span>{task.scheduledStartTime} - {task.scheduledEndTime}</span>
         </div>
@@ -131,7 +131,7 @@ const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
 
       {/* Beschrijving */}
       {task.description && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-3">
+        <p className="text-xs text-gray-500 dark:text-gray-300 mb-3 line-clamp-3">
           {task.description}
         </p>
       )}
@@ -139,7 +139,7 @@ const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
       {/* Checklist progress */}
       {task.checklist && task.checklist.length > 0 && (
         <div className="mb-3">
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-300 mb-1">
             <span>Subtaken</span>
             <span>{task.checklist.filter(s => s.completed).length}/{task.checklist.length}</span>
           </div>

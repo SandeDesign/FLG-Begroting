@@ -317,7 +317,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, onSucces
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Primaire werkgever</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Bedrijf *
               </label>
               <select
@@ -337,7 +337,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, onSucces
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Vestiging *
               </label>
               <select
@@ -364,7 +364,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, onSucces
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Projectbedrijven</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                 Selecteer optioneel voor welke projectbedrijven deze werknemer kan werken
               </p>
             </div>
@@ -385,7 +385,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, onSucces
                     <div className="font-medium text-gray-900 dark:text-gray-100">
                       {projectCompany.name}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-gray-500 dark:text-gray-300">
                       Project bedrijf
                     </div>
                   </div>
@@ -425,7 +425,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, onSucces
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Contracttype *
               </label>
               <select
@@ -469,7 +469,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, onSucces
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Salaris informatie</h3>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
               Betalingstype *
             </label>
             <select

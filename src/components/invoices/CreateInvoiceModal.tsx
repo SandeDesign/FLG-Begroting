@@ -303,7 +303,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* FACTUURNUMMER DISPLAY */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Factuurnummer
               </label>
               <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900 rounded-lg text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -313,7 +313,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
 
             {/* KLANTEN SELECTOR */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Klant Selecteren
               </label>
               <div className="relative">
@@ -322,7 +322,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
                   onClick={() => setIsRelationsOpen(!isRelationsOpen)}
                   className="w-full flex items-center justify-between p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100"
                 >
-                  <span className={formData.clientName ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}>
+                  <span className={formData.clientName ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-300'}>
                     {formData.clientName || 'Selecteer een klant...'}
                   </span>
                   <ChevronDown className={`h-4 w-4 transition-transform ${isRelationsOpen ? 'rotate-180' : ''}`} />
@@ -332,7 +332,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10">
                     <div className="max-h-48 overflow-y-auto">
                       {relations.length === 0 ? (
-                        <div className="p-3 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="p-3 text-sm text-gray-500 dark:text-gray-300">
                           Geen relaties gevonden
                         </div>
                       ) : (
@@ -344,7 +344,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
                             className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                           >
                             <div className="font-medium text-gray-900 dark:text-gray-100">{relation.name}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">{relation.email}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-300">{relation.email}</div>
                           </button>
                         ))
                       )}
@@ -370,7 +370,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
             {/* FACTUUR VELDEN */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Factuurdatum
                 </label>
                 <input
@@ -381,7 +381,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Vervaldatum
                 </label>
                 <input
@@ -451,11 +451,11 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
             <div className="border-t pt-4">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Subtotaal:</span>
+                  <span className="text-gray-600 dark:text-gray-300">Subtotaal:</span>
                   <span className="font-medium">€{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">BTW (21%):</span>
+                  <span className="text-gray-600 dark:text-gray-300">BTW (21%):</span>
                   <span className="font-medium">€{vatAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t">
@@ -467,7 +467,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
 
             {/* NOTITIES */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Opmerkingen
               </label>
               <textarea
@@ -480,7 +480,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
 
             {/* EXTRA ONTVANGERS */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Extra ontvangers (optioneel)
               </label>
               <div className="space-y-2">
@@ -531,7 +531,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({
                   </div>
                 )}
 
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-300">
                   Deze email adressen ontvangen ook een kopie van de factuur
                 </p>
               </div>
