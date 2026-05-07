@@ -224,7 +224,32 @@ const Tasks: React.FC = () => {
     if (!user) return;
 
     try {
-      await updateTask(task.id, user.uid, { status: newStatus });
+      // Voor taken met meerdere toegewezen personen: bijhouden per persoon
+      if (task.assignedTo && task.assignedTo.length > 1) {
+        const myId = user.uid;
+        const currentCompleted = task.completedByUsers || [];
+        let updatedCompleted: string[];
+
+        if (newStatus === 'completed') {
+          updatedCompleted = currentCompleted.includes(myId)
+            ? currentCompleted
+            : [...currentCompleted, myId];
+        } else {
+          updatedCompleted = currentCompleted.filter(id => id !== myId);
+        }
+
+        // Globale status: completed als alle toegewezen personen klaar zijn
+        const allDone = task.assignedTo.every(id => updatedCompleted.includes(id));
+        const globalStatus: TaskStatus = allDone ? 'completed' : (task.status === 'completed' ? 'pending' : task.status);
+
+        await updateTask(task.id, user.uid, {
+          completedByUsers: updatedCompleted,
+          status: globalStatus,
+        });
+      } else {
+        await updateTask(task.id, user.uid, { status: newStatus });
+      }
+
       success('Status bijgewerkt');
       loadTasks();
     } catch (err) {
@@ -542,10 +567,15 @@ const Tasks: React.FC = () => {
               {allPeople.map(person => {
                 const empName = person.name;
                 const empTasks = tasks.filter(t => t.assignedTo?.includes(person.id));
-                const completed = empTasks.filter(t => t.status === 'completed');
-                const scheduled = empTasks.filter(t => t.isScheduled && t.status !== 'completed' && t.status !== 'cancelled');
-                const unscheduled = empTasks.filter(t => !t.isScheduled && t.status !== 'completed' && t.status !== 'cancelled' && t.status !== 'overdue');
-                const overdue = empTasks.filter(t => t.status === 'overdue' || (!t.isScheduled && t.status !== 'completed' && t.status !== 'cancelled' && new Date(t.dueDate) < new Date()));
+                // Voltooiing per persoon: gebruik completedByUsers als beschikbaar
+                const isCompletedForPerson = (t: BusinessTask) =>
+                  t.assignedTo && t.assignedTo.length > 1
+                    ? (t.completedByUsers || []).includes(person.id)
+                    : t.status === 'completed';
+                const completed = empTasks.filter(t => isCompletedForPerson(t));
+                const scheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.isScheduled);
+                const unscheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.status !== 'overdue' && !t.isScheduled);
+                const overdue = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && (t.status === 'overdue' || (!t.isScheduled && new Date(t.dueDate) < new Date())));
 
                 const statGroups = [
                   { label: 'Voltooid', count: completed.length, tasks: completed, icon: CheckCircle, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800' },
@@ -665,19 +695,26 @@ const Tasks: React.FC = () => {
                   {/* Header */}
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1">
-                      <button
-                        onClick={() => {
-                          const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-                          handleStatusChange(task, newStatus);
-                        }}
-                        className="mt-1"
-                      >
-                        {task.status === 'completed' ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
-                        )}
-                      </button>
+                      {(() => {
+                        const isMultiAssignee = task.assignedTo && task.assignedTo.length > 1;
+                        const myDone = isMultiAssignee
+                          ? (task.completedByUsers || []).includes(user?.uid || '')
+                          : task.status === 'completed';
+                        const newStatus = myDone ? 'pending' : 'completed';
+                        return (
+                          <button
+                            onClick={() => handleStatusChange(task, newStatus)}
+                            className="mt-1 flex-shrink-0"
+                            title={isMultiAssignee ? (myDone ? 'Markeer als niet voltooid (voor jou)' : 'Markeer als voltooid (voor jou)') : undefined}
+                          >
+                            {myDone ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                            )}
+                          </button>
+                        );
+                      })()}
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -735,6 +772,20 @@ const Tasks: React.FC = () => {
                               {task.checklist.filter(s => s.completed).length}/{task.checklist.length}
                             </span>
                           )}
+
+                          {/* Toegewezen personen */}
+                          {task.assignedTo && task.assignedTo.length > 0 && (() => {
+                            const assignees = task.assignedTo!
+                              .map(id => allPeople.find(p => p.id === id))
+                              .filter(Boolean) as Array<{ id: string; name: string }>;
+                            if (assignees.length === 0) return null;
+                            return assignees.map(p => (
+                              <span key={p.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">
+                                <Users className="h-3 w-3" />
+                                {p.name.split(' ')[0]}
+                              </span>
+                            ));
+                          })()}
 
                         </div>
                       </div>

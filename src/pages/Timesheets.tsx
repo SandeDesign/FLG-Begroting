@@ -523,16 +523,18 @@ export default function Timesheets() {
       updatedAt: new Date()
     };
 
-    // Recalculate totals INCLUDING workActivities
+    // Recalculate totals INCLUDING non-riset workActivities
     let totalRegularHours = 0;
     let totalTravelKilometers = 0;
 
     updatedEntries.forEach(e => {
       totalRegularHours += e.regularHours || 0;
-      
+
       if (e.workActivities && e.workActivities.length > 0) {
         e.workActivities.forEach(activity => {
-          totalRegularHours += activity.hours || 0;
+          if (!activity.isITKnechtImport) {
+            totalRegularHours += activity.hours || 0;
+          }
         });
       }
 
@@ -576,7 +578,18 @@ export default function Timesheets() {
       hours: task?.estimatedHours ?? activities[activityIndex].hours,
     };
     updatedEntries[entryIndex] = { ...updatedEntries[entryIndex], workActivities: activities, updatedAt: new Date() };
-    setCurrentTimesheet({ ...currentTimesheet, entries: updatedEntries, updatedAt: new Date() });
+
+    let totalRegularHours = 0;
+    let totalTravelKilometers = 0;
+    updatedEntries.forEach(e => {
+      totalRegularHours += e.regularHours || 0;
+      (e.workActivities || []).forEach(wa => {
+        if (!wa.isITKnechtImport) totalRegularHours += wa.hours || 0;
+      });
+      totalTravelKilometers += e.travelKilometers || 0;
+    });
+
+    setCurrentTimesheet({ ...currentTimesheet, entries: updatedEntries, totalRegularHours, totalTravelKilometers, updatedAt: new Date() });
   };
 
   const removeWorkActivity = (entryIndex: number, activityIndex: number) => {

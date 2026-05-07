@@ -345,14 +345,19 @@ export const getAllPendingTimesheets = async (adminUserId: string): Promise<Week
 
 export const calculateWeekTotals = (entries: TimesheetEntry[]) => {
   return entries.reduce(
-    (totals, entry) => ({
-      regularHours: totals.regularHours + entry.regularHours,
-      overtimeHours: totals.overtimeHours + entry.overtimeHours,
-      eveningHours: totals.eveningHours + entry.eveningHours,
-      nightHours: totals.nightHours + entry.nightHours,
-      weekendHours: totals.weekendHours + entry.weekendHours,
-      travelKilometers: totals.travelKilometers + entry.travelKilometers
-    }),
+    (totals, entry) => {
+      const activityHours = (entry.workActivities || [])
+        .filter(wa => !wa.isITKnechtImport)
+        .reduce((sum, wa) => sum + (wa.hours || 0), 0);
+      return {
+        regularHours: totals.regularHours + entry.regularHours + activityHours,
+        overtimeHours: totals.overtimeHours + entry.overtimeHours,
+        eveningHours: totals.eveningHours + entry.eveningHours,
+        nightHours: totals.nightHours + entry.nightHours,
+        weekendHours: totals.weekendHours + entry.weekendHours,
+        travelKilometers: totals.travelKilometers + entry.travelKilometers
+      };
+    },
     {
       regularHours: 0,
       overtimeHours: 0,
