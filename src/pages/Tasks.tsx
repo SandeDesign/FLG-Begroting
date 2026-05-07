@@ -46,7 +46,7 @@ import { CATEGORY_CONFIG, PRIORITY_CONFIG, STATUS_CONFIG, FREQUENCY_LABELS, FREQ
 
 const Tasks: React.FC = () => {
   const { user, userRole, adminUserId } = useAuth();
-  const { selectedCompany, selectedYear, selectedQuarter, companies } = useApp();
+  const { selectedCompany, selectedYear, selectedQuarter, companies, queryUserId } = useApp();
   const { success, error } = useToast();
   usePageTitle('Taken');
 
@@ -87,8 +87,10 @@ const Tasks: React.FC = () => {
     if (user && selectedCompany) {
       loadTasks();
       const loadPeople = async () => {
-        // Gebruik adminUserId zodat co-admins ook medewerkers zien
-        const emps = await getEmployees(adminUserId, selectedCompany.id);
+        // Voor managers: gebruik queryUserId (company owner's UID) zodat medewerkers gevonden worden
+        // Voor admin/co-admin: adminUserId is al correct
+        const effectiveUserId = queryUserId || adminUserId;
+        const emps = await getEmployees(effectiveUserId, selectedCompany.id);
         const empPeople = emps.map(e => ({
           id: e.id!,
           name: [e.personalInfo?.firstName, e.personalInfo?.lastName].filter(Boolean).join(' ') || e.id!,
@@ -96,7 +98,7 @@ const Tasks: React.FC = () => {
         const empDocIds = emps.map(e => e.id!);
 
         // Admin, co-admins en managers — geen duplicaten met medewerkers
-        const nonEmpUsers = await getAdminNonEmployeeUsers(adminUserId, empDocIds);
+        const nonEmpUsers = await getAdminNonEmployeeUsers(effectiveUserId, empDocIds);
 
         // Admin zichzelf: gebruik auth context voor naam (altijd accuraat, ook zonder Firestore naam)
         const adminName = user.displayName || user.email || 'Admin';
@@ -115,7 +117,7 @@ const Tasks: React.FC = () => {
         setAllPeople([...empPeople, ...nonEmpPeople]);
       };
       loadPeople().catch(() => {});
-      getInternalProjects(adminUserId!, selectedCompany.id).then(setInternalProjects).catch(() => {});
+      getInternalProjects((queryUserId || adminUserId)!, selectedCompany.id).then(setInternalProjects).catch(() => {});
     }
   }, [user, selectedCompany]);
 
@@ -1075,6 +1077,27 @@ const Tasks: React.FC = () => {
                 );
               })}
             </div>
+
+            {formData.isRecurring && formData.frequency === 'weekly' && (
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Dag van de week
+                </label>
+                <select
+                  value={formData.recurrenceDay || 1}
+                  onChange={(e) => setFormData({ ...formData, recurrenceDay: parseInt(e.target.value) })}
+                  className="rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100 text-sm px-3 py-1.5"
+                >
+                  <option value={1}>Maandag</option>
+                  <option value={2}>Dinsdag</option>
+                  <option value={3}>Woensdag</option>
+                  <option value={4}>Donderdag</option>
+                  <option value={5}>Vrijdag</option>
+                  <option value={6}>Zaterdag</option>
+                  <option value={7}>Zondag</option>
+                </select>
+              </div>
+            )}
 
             {formData.isRecurring && (formData.frequency === 'monthly' || formData.frequency === 'quarterly') && (
               <div className="mt-3">

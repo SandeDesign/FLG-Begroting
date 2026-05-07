@@ -2408,6 +2408,13 @@ const calculateNextOccurrence = (
       break;
     case 'weekly':
       next.setDate(next.getDate() + 7);
+      if (recurrenceDay) {
+        // Verschuif naar de geconfigureerde weekdag (ISO: 1=ma, 7=zo)
+        const targetDay = recurrenceDay;
+        const currentDay = next.getDay() || 7; // 0 (zo) → 7
+        const diff = (targetDay - currentDay + 7) % 7;
+        if (diff !== 0) next.setDate(next.getDate() + diff);
+      }
       break;
     case 'monthly':
       next.setMonth(next.getMonth() + 1);
