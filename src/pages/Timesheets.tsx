@@ -135,7 +135,15 @@ export default function Timesheets() {
       setAssignedTasks(tasks as BusinessTask[]);
 
       if (sheets.length > 0) {
-        setCurrentTimesheet(sheets[0]);
+        const loaded = sheets[0];
+        // Herbereken weektotaal om werkactiviteitsuren altijd correct mee te tellen,
+        // ook voor opgeslagen sheets uit vóór de werkactiviteitsuren-fix.
+        const recalcTotals = calculateWeekTotals(loaded.entries);
+        setCurrentTimesheet({
+          ...loaded,
+          totalRegularHours: recalcTotals.regularHours,
+          totalTravelKilometers: recalcTotals.travelKilometers,
+        });
       } else {
         const weekDates = getWeekDates(selectedYear, selectedWeek);
         // ✅ FIX: Gebruik employee.companyId (employer/Buddy) ipv selectedCompany.id
@@ -719,7 +727,9 @@ export default function Timesheets() {
       const dow = new Date(e.date).getDay();
       if (dow === 0 || dow === 6) return false; // weekend
       const status = e.dayStatus || (e.regularHours > 0 ? 'worked' : '');
-      return status === 'worked' && (e.regularHours || 0) > 0 && (e.regularHours || 0) < 8 && !(e.effortNote && e.effortNote.trim());
+      const totalDayHours = (e.regularHours || 0) +
+        (e.workActivities || []).filter(wa => !wa.isITKnechtImport).reduce((sum, wa) => sum + (wa.hours || 0), 0);
+      return status === 'worked' && totalDayHours > 0 && totalDayHours < 8 && !(e.effortNote && e.effortNote.trim());
     });
     if (daysNeedingEffort.length > 0) {
       const dagen = daysNeedingEffort
