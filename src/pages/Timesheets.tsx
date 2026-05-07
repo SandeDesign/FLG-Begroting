@@ -1308,7 +1308,12 @@ export default function Timesheets() {
           const daySick = getDaySick(entry.date);
           const hasLeaveOrSick = dayLeave || daySick;
 
-          const meetsDailyTarget = (entry.regularHours || 0) >= 8;
+          const activityHours = (entry.workActivities || [])
+            .filter(wa => !wa.isITKnechtImport)
+            .reduce((sum, wa) => sum + (wa.hours || 0), 0);
+          const totalDayHours = (entry.regularHours || 0) + activityHours;
+
+          const meetsDailyTarget = totalDayHours >= 8;
 
           // Inline indicators op de collapsed card: monteur ziet vóór
           // openen al wat er ontbreekt.
@@ -1316,13 +1321,13 @@ export default function Timesheets() {
           const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6;
           const autoStatusBadge = daySick ? 'sick' : dayLeave ? 'holiday' : null;
           const effectiveStatusBadge =
-            autoStatusBadge || entry.dayStatus || (entry.regularHours > 0 ? 'worked' : '');
+            autoStatusBadge || entry.dayStatus || (totalDayHours > 0 ? 'worked' : '');
           const missingStatus = !isWeekendDay && !effectiveStatusBadge && !isReadOnly;
           const missingEffort =
             !isWeekendDay &&
             effectiveStatusBadge === 'worked' &&
-            (entry.regularHours || 0) > 0 &&
-            (entry.regularHours || 0) < 8 &&
+            totalDayHours > 0 &&
+            totalDayHours < 8 &&
             !(entry.effortNote && entry.effortNote.trim()) &&
             !isReadOnly;
 
@@ -1384,9 +1389,9 @@ export default function Timesheets() {
                         Ziek {daySick.workCapacityPercentage > 0 ? `(${daySick.workCapacityPercentage}%)` : ''}
                       </span>
                     )}
-                    {entry.regularHours > 0 && (
+                    {totalDayHours > 0 && (
                       <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">
-                        {entry.regularHours}u
+                        {totalDayHours}u
                       </span>
                     )}
                     {entry.travelKilometers > 0 && (
@@ -1466,14 +1471,14 @@ export default function Timesheets() {
                     const effectiveStatus =
                       autoStatus ||
                       entry.dayStatus ||
-                      (entry.regularHours > 0 ? 'worked' : '');
+                      (totalDayHours > 0 ? 'worked' : '');
                     const isFilled = !!effectiveStatus;
                     const isWorked = effectiveStatus === 'worked';
                     // Effort-note alleen op werkdagen (ma-vr).
-                    const needsEffortNote = !isWeekendDay && isWorked && entry.regularHours > 0 && entry.regularHours < 8;
+                    const needsEffortNote = !isWeekendDay && isWorked && totalDayHours > 0 && totalDayHours < 8;
 
                     // Weekend zonder uren/status → niks tonen, geen druk.
-                    if (isWeekendDay && !entry.dayStatus && entry.regularHours === 0 && !autoStatus) {
+                    if (isWeekendDay && !entry.dayStatus && totalDayHours === 0 && !autoStatus) {
                       return null;
                     }
                     return (
