@@ -658,7 +658,7 @@ const ProjectProduction: React.FC = () => {
 
       {/* Selected Employee Info */}
       {selectedEmployee && (
-        <Card className="bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800 p-3 sm:p-4">
+        <Card className="bg-primary-50 dark:bg-gray-700 border-primary-200 dark:border-primary-800 p-3 sm:p-4">
           <div className="flex items-center gap-3">
             <div className="bg-primary-100 dark:bg-primary-800/50 rounded-full p-2">
               <UserIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />

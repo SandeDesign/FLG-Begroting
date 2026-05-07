@@ -1076,7 +1076,7 @@ const Dashboard: React.FC = () => {
               purple: 'bg-purple-50 dark:bg-gray-800 border-purple-200 dark:border-gray-700 hover:bg-purple-100 dark:hover:bg-gray-700',
               green: 'bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700 hover:bg-green-100 dark:hover:bg-gray-700',
               gray: 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700',
-            }[action.color] || 'bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700';
+            }[action.color] || 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700';
 
             const iconColor = {
               blue: 'text-primary-600',

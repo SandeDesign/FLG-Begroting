@@ -373,7 +373,7 @@ export default function TimesheetApprovals() {
                       onClick={() => selectEmployee(emp.employeeId)}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all ${
                         isSelected
-                          ? 'bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-500'
+                          ? 'bg-primary-50 dark:bg-gray-700 border-l-4 border-primary-500'
                           : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border-l-4 border-transparent'
                       }`}
                     >
@@ -603,7 +603,7 @@ export default function TimesheetApprovals() {
 
                                     {/* Low Hours Warning */}
                                     {isUnder && (
-                                      <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                      <div className="p-3 bg-red-50 dark:bg-gray-700 border border-red-200 dark:border-red-800 rounded-lg">
                                         <div className="flex gap-2">
                                           <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
                                           <div>
@@ -623,7 +623,7 @@ export default function TimesheetApprovals() {
 
                                     {/* Low Hours Review Antwoorden */}
                                     {timesheet.lowHoursReview && (
-                                      <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg space-y-3">
+                                      <div className="p-3 bg-amber-50 dark:bg-gray-700 border border-amber-200 dark:border-amber-800 rounded-lg space-y-3">
                                         <p className="text-xs font-semibold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                                           <AlertCircle className="h-4 w-4 flex-shrink-0" />
                                           Antwoorden medewerker (weinig uren)
@@ -729,7 +729,7 @@ export default function TimesheetApprovals() {
 
                                     {/* Inline Rejection Form */}
                                     {isRejecting && (
-                                      <div className="space-y-3 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-lg">
+                                      <div className="space-y-3 p-4 bg-red-50 dark:bg-gray-700 border-2 border-red-200 dark:border-red-800 rounded-lg">
                                         <h4 className="font-semibold text-red-900 dark:text-red-300">Reden voor afkeuring</h4>
                                         <textarea
                                           value={rejectionReason}
@@ -889,7 +889,7 @@ export default function TimesheetApprovals() {
                                     </p>
                                   )}
                                   {timesheet.lowHoursReview && (
-                                    <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-[11px] space-y-1.5">
+                                    <div className="mt-2 p-2 bg-amber-50 dark:bg-gray-700 border border-amber-200 dark:border-amber-800 rounded text-[11px] space-y-1.5">
                                       <p className="font-semibold text-amber-800 dark:text-amber-300">Antwoorden medewerker ({timesheet.lowHoursReview.actualWeeklyHours}u)</p>
                                       <div>
                                         <span className="font-medium text-amber-700 dark:text-amber-400">Dagelijks contact: </span>

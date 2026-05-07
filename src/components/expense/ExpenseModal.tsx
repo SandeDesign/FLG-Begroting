@@ -140,7 +140,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ isOpen, onClose, onSuccess,
     <Modal isOpen={isOpen} onClose={handleClose} title="Nieuwe Declaratie" size="md">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {currentEmployee && (
-          <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-lg p-4">
+          <div className="bg-primary-50 dark:bg-gray-700 border border-primary-200 dark:border-primary-700 rounded-lg p-4">
             <div className="flex items-start">
               <User className="h-5 w-5 text-primary-600 dark:text-primary-400 mt-0.5 mr-3" />
               <div>
@@ -241,7 +241,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({ isOpen, onClose, onSuccess,
           )}
         </div>
 
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
+        <div className="bg-yellow-50 dark:bg-gray-700 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
           <p className="text-xs text-yellow-800 dark:text-yellow-200">
             De declaratie wordt opgeslagen als concept. Je kunt deze later nog bewerken voordat je deze indient ter goedkeuring.
           </p>

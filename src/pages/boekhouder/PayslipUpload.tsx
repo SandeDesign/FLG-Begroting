@@ -250,7 +250,7 @@ const PayslipUpload: React.FC = () => {
           </div>
 
           {/* Info voor boekhouder over approval-flow */}
-          <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs text-blue-800 dark:text-blue-200">
+          <div className="p-3 rounded-lg bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-800 text-xs text-blue-800 dark:text-blue-200">
             <p className="font-medium mb-1">Goedkeuringsflow</p>
             <p>
               Na upload staat de loonstrook als <strong>concept</strong>. De admin of co-admin van dit bedrijf

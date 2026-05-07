@@ -111,7 +111,7 @@ export const PushPromptBanner: React.FC = () => {
 
   if (phase === 'granted') {
     return (
-      <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-3 rounded-lg flex items-center gap-3">
+      <div className="bg-green-50 dark:bg-gray-700 border-l-4 border-green-500 p-3 rounded-lg flex items-center gap-3">
         <Bell className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0" />
         <p className="text-sm text-green-900 dark:text-green-200 flex-1">
           Push-notificaties staan aan voor dit apparaat.
@@ -122,7 +122,7 @@ export const PushPromptBanner: React.FC = () => {
 
   if (phase === 'ios_install') {
     return (
-      <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-lg">
+      <div className="bg-blue-50 dark:bg-gray-700 border-l-4 border-blue-500 p-4 rounded-lg">
         <div className="flex items-start gap-3">
           <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
@@ -151,7 +151,7 @@ export const PushPromptBanner: React.FC = () => {
 
   // prompt
   return (
-    <div className="bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-500 p-4 rounded-lg">
+    <div className="bg-primary-50 dark:bg-gray-700 border-l-4 border-primary-500 p-4 rounded-lg">
       <div className="flex items-start gap-3">
         <Bell className="h-5 w-5 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">

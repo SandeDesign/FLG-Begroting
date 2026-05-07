@@ -1057,7 +1057,7 @@ const IncomingInvoicesStats: React.FC = () => {
             <div className="p-6 space-y-4">
               {/* Status Selector - Only for admins */}
               {isAdmin && (
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+                <div className="bg-yellow-50 dark:bg-gray-700 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Status
                   </label>

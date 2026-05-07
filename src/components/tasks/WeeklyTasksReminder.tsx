@@ -479,7 +479,7 @@ const WeeklyTasksReminder = forwardRef<WeeklyTasksReminderRef, WeeklyTasksRemind
             </div>
             <div className="space-y-2">
               {overdueTasks.map(task => renderTaskCard(task, {
-                bg: 'bg-red-50 dark:bg-red-900/20',
+                bg: 'bg-red-50 dark:bg-gray-700',
                 border: 'border-red-200 dark:border-red-800',
                 checkbox: 'border-red-400 dark:border-red-600',
                 icon: 'text-red-500',
@@ -500,7 +500,7 @@ const WeeklyTasksReminder = forwardRef<WeeklyTasksReminderRef, WeeklyTasksRemind
             </div>
             <div className="space-y-2">
               {todayTasks.map(task => renderTaskCard(task, {
-                bg: 'bg-orange-50 dark:bg-orange-900/20',
+                bg: 'bg-orange-50 dark:bg-gray-700',
                 border: 'border-orange-200 dark:border-orange-800',
                 checkbox: 'border-orange-400 dark:border-orange-600',
                 icon: 'text-orange-500 dark:text-orange-400',
@@ -521,7 +521,7 @@ const WeeklyTasksReminder = forwardRef<WeeklyTasksReminderRef, WeeklyTasksRemind
             </div>
             <div className="space-y-2">
               {upcomingTasks.slice(0, 5).map(task => renderTaskCard(task, {
-                bg: 'bg-blue-50 dark:bg-blue-900/20',
+                bg: 'bg-blue-50 dark:bg-gray-700',
                 border: 'border-blue-200 dark:border-blue-800',
                 checkbox: 'border-blue-400 dark:border-blue-600',
                 icon: 'text-blue-400 dark:text-blue-500',

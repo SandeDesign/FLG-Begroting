@@ -54,7 +54,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balance, onRequestL
       </div>
 
       {showExpiryWarning && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg flex items-start space-x-2">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-gray-700 border border-red-200 dark:border-red-700 rounded-lg flex items-start space-x-2">
           <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-red-800 dark:text-red-200">

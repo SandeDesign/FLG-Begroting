@@ -1127,7 +1127,7 @@ const BankStatementImport: React.FC = () => {
             </div>
 
             {duplicateResults.length > 0 && (
-              <div className="flex items-start gap-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+              <div className="flex items-start gap-3 p-3 bg-orange-50 dark:bg-gray-700 border border-orange-200 dark:border-orange-800 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <span className="font-medium text-orange-800 dark:text-orange-300">
@@ -1192,7 +1192,7 @@ const BankStatementImport: React.FC = () => {
                       .map((result, index) => (
                         <div
                           key={index}
-                          className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
+                          className="p-4 bg-green-50 dark:bg-gray-700 border border-green-200 dark:border-green-800 rounded-lg"
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
@@ -1257,7 +1257,7 @@ const BankStatementImport: React.FC = () => {
                       .map((result, index) => (
                         <div
                           key={index}
-                          className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
+                          className="p-4 bg-yellow-50 dark:bg-gray-700 border border-yellow-200 dark:border-yellow-800 rounded-lg"
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">

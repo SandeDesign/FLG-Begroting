@@ -346,21 +346,21 @@ const ProjectStatistics: React.FC = () => {
       <Card>
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Performance Indicatoren</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+          <div className="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm font-medium text-blue-900 dark:text-blue-300">Uurtarief</p>
             <p className="text-2xl font-bold text-blue-600 mt-2">
               €{stats.hourlyRate.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
             <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">excl. BTW</p>
           </div>
-          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+          <div className="bg-green-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm font-medium text-green-900 dark:text-green-300">Productie Waarde (incl. BTW)</p>
             <p className="text-2xl font-bold text-green-600 mt-2">
               €{stats.productionValue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
             </p>
             <p className="text-xs text-green-700 dark:text-green-400 mt-1">{stats.totalProductionHours.toLocaleString('nl-NL')} uur × €{stats.hourlyRate.toLocaleString('nl-NL', { minimumFractionDigits: 2 })} excl. BTW</p>
           </div>
-          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+          <div className="bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm font-medium text-purple-900 dark:text-purple-300">Winstmarge</p>
             <p className={`text-2xl font-bold mt-2 ${profitMargin >= 0 ? 'text-purple-600' : 'text-red-600'}`}>{profitMargin.toFixed(1)}%</p>
             <p className="text-xs text-purple-700 dark:text-purple-400 mt-1">€{profit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })} winst</p>

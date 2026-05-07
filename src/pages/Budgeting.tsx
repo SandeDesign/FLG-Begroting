@@ -961,7 +961,7 @@ const Budgeting: React.FC = () => {
         <div className="space-y-6">
           {/* Variance Alerts */}
           {(Math.abs(incomeVariance / projectedYTDIncome) > 0.15 || Math.abs(costVariance / projectedYTDCosts) > 0.15) && (
-            <Card className="p-4 bg-amber-50 border-amber-200">
+            <Card className="p-4 bg-amber-50 dark:bg-gray-800 border-amber-200 dark:border-gray-700">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
@@ -987,7 +987,7 @@ const Budgeting: React.FC = () => {
 
           {/* Main Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
+            <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-800 dark:to-gray-800 border-emerald-200 dark:border-gray-700">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-emerald-600">Maandelijkse Inkomsten</p>
@@ -1005,7 +1005,7 @@ const Budgeting: React.FC = () => {
               </div>
             </Card>
 
-            <Card className="p-6 bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
+            <Card className="p-6 bg-gradient-to-br from-red-50 to-rose-50 dark:from-gray-800 dark:to-gray-800 border-red-200 dark:border-gray-700">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-red-600">Maandelijkse Kosten</p>
@@ -1023,7 +1023,7 @@ const Budgeting: React.FC = () => {
               </div>
             </Card>
 
-            <Card className={`p-6 ${monthlyProfit >= 0 ? 'bg-gradient-to-br from-primary-50 to-indigo-50 border-primary-200' : 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200'}`}>
+            <Card className={`p-6 dark:from-gray-800 dark:to-gray-800 dark:border-gray-700 ${monthlyProfit >= 0 ? 'bg-gradient-to-br from-primary-50 to-indigo-50 border-primary-200' : 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200'}`}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className={`text-sm font-medium ${monthlyProfit >= 0 ? 'text-primary-600' : 'text-orange-600'}`}>
@@ -1707,7 +1707,7 @@ const Budgeting: React.FC = () => {
               </div>
             </div>
 
-            <Card className="p-4 bg-gradient-to-r from-emerald-50 to-primary-50 border-l-4 border-l-emerald-500">
+            <Card className="p-4 bg-gradient-to-r from-emerald-50 to-primary-50 dark:from-gray-800 dark:to-gray-800 border-l-4 border-l-emerald-500">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -1734,7 +1734,7 @@ const Budgeting: React.FC = () => {
           {/* Vergelijking huidige jaar - met YTD, Forecast en Budget */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* YTD WERKELIJK */}
-            <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200">
+            <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-800 dark:to-gray-800 border-2 border-emerald-200 dark:border-gray-700">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-4 h-4 bg-emerald-500 rounded-full"></div>
                 <h3 className="text-lg font-bold text-emerald-900">📊 YTD {currentYear}</h3>
@@ -1764,7 +1764,7 @@ const Budgeting: React.FC = () => {
             </Card>
 
             {/* FORECAST VOLLEDIG JAAR */}
-            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200">
+            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 border-2 border-blue-200 dark:border-gray-700">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
                 <h3 className="text-lg font-bold text-blue-900">🔮 Forecast {currentYear}</h3>
@@ -1794,7 +1794,7 @@ const Budgeting: React.FC = () => {
             </Card>
 
             {/* BUDGET VOLLEDIG JAAR */}
-            <Card className="p-6 bg-gradient-to-br from-primary-50 to-purple-50 border-2 border-primary-200">
+            <Card className="p-6 bg-gradient-to-br from-primary-50 to-purple-50 dark:from-gray-800 dark:to-gray-800 border-2 border-primary-200 dark:border-gray-700">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-4 h-4 bg-primary-500 rounded-full"></div>
                 <h3 className="text-lg font-bold text-primary-900">📈 Budget {currentYear}</h3>
@@ -1826,7 +1826,7 @@ const Budgeting: React.FC = () => {
 
           {/* Variantie analyse */}
           {yearProgress > 0.1 && (
-            <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-l-orange-500">
+            <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-800 border-l-4 border-l-orange-500">
               <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-3">📊 Analyse vs Budget</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>

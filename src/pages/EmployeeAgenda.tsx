@@ -331,7 +331,7 @@ const EmployeeAgenda: React.FC = () => {
               title="Weekweergave"
               className={`px-2 py-1.5 flex items-center justify-center ${
                 currentView === 'timeGridWeek'
-                  ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                  ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
@@ -345,7 +345,7 @@ const EmployeeAgenda: React.FC = () => {
               title="Dagweergave"
               className={`px-2 py-1.5 flex items-center justify-center border-l border-gray-300 dark:border-gray-600 ${
                 currentView === 'timeGridDay'
-                  ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+                  ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
@@ -357,7 +357,7 @@ const EmployeeAgenda: React.FC = () => {
           {unscheduledTasks.length > 0 && (
             <button
               onClick={() => setShowMobileSidebar(!showMobileSidebar)}
-              className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-sm font-medium"
+              className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-600 bg-amber-50 dark:bg-gray-700 text-amber-700 dark:text-amber-400 text-sm font-medium"
             >
               <AlertTriangle className="h-4 w-4" />
               {unscheduledTasks.length}
@@ -370,10 +370,10 @@ const EmployeeAgenda: React.FC = () => {
       {schedulingReminder && (
         <div className={`rounded-lg p-3 flex items-center gap-3 ${
           schedulingReminder.level === 'overdue'
-            ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+            ? 'bg-red-50 dark:bg-gray-700 border border-red-200 dark:border-red-800'
             : schedulingReminder.level === 'strong'
-              ? 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800'
-              : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
+              ? 'bg-amber-50 dark:bg-gray-700 border border-amber-200 dark:border-amber-800'
+              : 'bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-800'
         }`}>
           <AlertTriangle className={`h-5 w-5 flex-shrink-0 ${
             schedulingReminder.level === 'overdue' ? 'text-red-600' : schedulingReminder.level === 'strong' ? 'text-amber-600' : 'text-blue-600'

@@ -469,7 +469,7 @@ export default function Payslips() {
         </div>
       )}
 
-      <Card className="bg-primary-50 border-primary-200">
+      <Card className="bg-primary-50 dark:bg-gray-800 border-primary-200 dark:border-gray-700">
         <div className="flex items-start gap-3">
           <div className="p-3 bg-primary-100 rounded-xl">
             <FileText className="h-5 w-5 text-primary-600" />

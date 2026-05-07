@@ -1405,7 +1405,16 @@ export default function Timesheets() {
 
               {/* Expanded Day Content */}
               {isExpanded && (
-                <Card className={`mt-1 p-3 sm:p-4 space-y-3 sm:space-y-4 ${isImported ? 'bg-primary-50 dark:!bg-gray-800 border-primary-200 dark:border-primary-700' : daySick ? 'bg-red-50 dark:!bg-gray-800 border-red-200 dark:border-red-700' : dayLeave ? 'bg-emerald-50 dark:!bg-gray-800 border-emerald-200 dark:border-emerald-700' : ''}`}>
+                <div className={`mt-1 rounded-xl shadow-md border hover:shadow-lg transition-shadow duration-200 ${
+                  isImported
+                    ? 'bg-primary-50 dark:bg-gray-800 border-primary-200 dark:border-primary-700'
+                    : daySick
+                    ? 'bg-red-50 dark:bg-gray-800 border-red-200 dark:border-red-700'
+                    : dayLeave
+                    ? 'bg-emerald-50 dark:bg-gray-800 border-emerald-200 dark:border-emerald-700'
+                    : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-600'
+                }`}>
+                <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                   {/* Verlof/Ziekte Details */}
                   {(dayLeave || daySick) && (
                     <div className={`p-3 rounded-lg ${daySick ? 'bg-red-100 dark:bg-gray-700 border border-red-200 dark:border-red-700' : 'bg-emerald-100 dark:bg-gray-700 border border-emerald-200 dark:border-emerald-700'}`}>
@@ -1729,7 +1738,8 @@ export default function Timesheets() {
                       );
                     })}
                   </div>
-                </Card>
+                </div>
+                </div>
               )}
             </div>
           );

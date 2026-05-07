@@ -128,7 +128,7 @@ const MicrosoftConnectionCard: React.FC = () => {
             <button
               onClick={handleDisconnect}
               disabled={msLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-red-50 dark:bg-gray-700 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-50"
             >
               <Link2Off className="h-4 w-4" />
               {msLoading ? 'Bezig...' : 'Ontkoppelen'}
@@ -137,7 +137,7 @@ const MicrosoftConnectionCard: React.FC = () => {
             <button
               onClick={handleConnect}
               disabled={msLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors disabled:opacity-50"
             >
               <Link2 className="h-4 w-4" />
               {msLoading ? 'Verbinden...' : 'Koppelen'}
@@ -987,7 +987,7 @@ const Settings: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <div className="bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                   <p className="text-sm text-blue-800 dark:text-blue-300">
                     <strong>Huidig geselecteerd jaar:</strong> {selectedYear}
                   </p>
@@ -1048,7 +1048,7 @@ const Settings: React.FC = () => {
                     </div>
 
                     {/* Info Box */}
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div className="bg-blue-50 dark:bg-gray-700 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                       <p className="text-sm text-blue-800 dark:text-blue-300">
                         <strong>Let op:</strong> Dit nummer wordt automatisch berekend op basis van de hoogste bestaande factuur met dezelfde prefix.
                       </p>
@@ -1216,7 +1216,7 @@ const Settings: React.FC = () => {
                   </div>
                 )}
 
-                <div className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                <div className="mt-4 p-3 bg-indigo-50 dark:bg-gray-700 rounded-lg">
                   <p className="text-xs text-indigo-800 dark:text-indigo-300">
                     <strong>Let op:</strong> Boekhouders zien verkoop en inkoop alleen read-only, maar hebben wel volledige toegang
                     tot BTW, grootboek, bankafschriften en uploads. Boekhouders zien geen werknemers- of verlofgegevens.

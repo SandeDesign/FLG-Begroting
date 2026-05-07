@@ -373,7 +373,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose, onSucces
               {projectCompanies.map((projectCompany) => (
                 <label 
                   key={projectCompany.id}
-                  className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${ selectedProjectCompanies.includes(projectCompany.id) ? 'bg-primary-50 border-primary-300 dark:bg-primary-900/20 dark:border-primary-600' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }`}
+                  className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${ selectedProjectCompanies.includes(projectCompany.id) ? 'bg-primary-50 border-primary-300 dark:bg-gray-700 dark:border-primary-600' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }`}
                 >
                   <input
                     type="checkbox"

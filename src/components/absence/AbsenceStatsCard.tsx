@@ -76,7 +76,7 @@ const AbsenceStatsCard: React.FC<AbsenceStatsCardProps> = ({ stats, previousYear
       </div>
 
       {(stats.longTermAbsence || stats.chronicAbsence) && (
-        <div className="mb-4 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg flex items-start space-x-2">
+        <div className="mb-4 p-3 bg-orange-50 dark:bg-gray-700 border border-orange-200 dark:border-orange-700 rounded-lg flex items-start space-x-2">
           <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-orange-800 dark:text-orange-200">

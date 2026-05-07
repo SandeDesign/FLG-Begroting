@@ -453,7 +453,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
                       className="block w-24 h-24 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
                     >
                       {post.fileName.endsWith('.pdf') ? (
-                        <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-red-900/20">
+                        <div className="w-full h-full flex items-center justify-center bg-red-50 dark:bg-gray-700">
                           <FileText className="h-8 w-8 text-red-600" />
                         </div>
                       ) : (
