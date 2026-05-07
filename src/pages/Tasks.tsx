@@ -46,7 +46,7 @@ import { CATEGORY_CONFIG, PRIORITY_CONFIG, STATUS_CONFIG, FREQUENCY_LABELS, FREQ
 
 const Tasks: React.FC = () => {
   const { user, userRole, adminUserId } = useAuth();
-  const { selectedCompany, selectedYear, selectedQuarter, companies, queryUserId } = useApp();
+  const { selectedCompany, selectedYear, selectedQuarter, companies, queryUserId, employees: contextEmployees } = useApp();
   const { success, error } = useToast();
   usePageTitle('Taken');
 
@@ -87,10 +87,11 @@ const Tasks: React.FC = () => {
     if (user && selectedCompany) {
       loadTasks();
       const loadPeople = async () => {
-        // Voor managers: gebruik queryUserId (company owner's UID) zodat medewerkers gevonden worden
-        // Voor admin/co-admin: adminUserId is al correct
         const effectiveUserId = queryUserId || adminUserId;
-        const emps = await getEmployees(effectiveUserId, selectedCompany.id);
+        // Gebruik medewerkers die AppContext al correct heeft geladen (juiste owner UID + company filter)
+        const emps = contextEmployees.length > 0
+          ? contextEmployees
+          : await getEmployees(effectiveUserId, selectedCompany.id);
         const empPeople = emps.map(e => ({
           id: e.id!,
           name: [e.personalInfo?.firstName, e.personalInfo?.lastName].filter(Boolean).join(' ') || e.id!,
@@ -119,7 +120,7 @@ const Tasks: React.FC = () => {
       loadPeople().catch(() => {});
       getInternalProjects((queryUserId || adminUserId)!, selectedCompany.id).then(setInternalProjects).catch(() => {});
     }
-  }, [user, selectedCompany, queryUserId]);
+  }, [user, selectedCompany, queryUserId, contextEmployees]);
 
   const loadTasks = async () => {
     if (!user || !selectedCompany) return;
