@@ -668,7 +668,7 @@ const IncomingInvoicesStats: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Inkoop Bonnen
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             Controleer alle inkoop bonnen.
           </p>
         </div>
@@ -779,13 +779,13 @@ const IncomingInvoicesStats: React.FC = () => {
                       <td className="px-6 py-4 text-gray-900 dark:text-gray-100 font-medium">
                         {invoice.supplierName}
                       </td>
-                      <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
+                      <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                         {invoice.invoiceNumber}
                       </td>
                       <td className="px-6 py-4 text-gray-900 dark:text-gray-100 font-semibold">
                         {formatCurrency(invoice.totalAmount)}
                       </td>
-                      <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
+                      <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
                         {formatDate(invoice.invoiceDate)}
                       </td>
                       <td className="px-6 py-4">
@@ -800,7 +800,7 @@ const IncomingInvoicesStats: React.FC = () => {
                           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                           title="Acties"
                         >
-                          <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                         </button>
                       </td>
                     </tr>
@@ -811,19 +811,19 @@ const IncomingInvoicesStats: React.FC = () => {
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Beschrijving</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">Beschrijving</p>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">
                                   {invoice.description}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">E-mail</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">E-mail</p>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">
                                   {invoice.supplierEmail || '-'}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Vervaldatum</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">Vervaldatum</p>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">
                                   {formatDate(invoice.dueDate)}
                                 </p>
@@ -832,13 +832,13 @@ const IncomingInvoicesStats: React.FC = () => {
 
                             <div className="grid grid-cols-3 gap-3">
                               <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
-                                <p className="text-xs text-gray-600 dark:text-gray-400">Excl. BTW</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-300">Excl. BTW</p>
                                 <p className="font-bold text-gray-900 dark:text-gray-100">
                                   {formatCurrency((invoice as any).subtotal || invoice.amount || 0)}
                                 </p>
                               </div>
                               <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
-                                <p className="text-xs text-gray-600 dark:text-gray-400">BTW</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-300">BTW</p>
                                 <p className="font-bold text-gray-900 dark:text-gray-100">
                                   {formatCurrency(invoice.vatAmount)}
                                 </p>
@@ -885,7 +885,7 @@ const IncomingInvoicesStats: React.FC = () => {
                   <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
                     {invoice.supplierName}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                  <p className="text-sm text-gray-500 dark:text-gray-300 mt-0.5">
                     {invoice.invoiceNumber}
                   </p>
                 </div>
@@ -930,7 +930,7 @@ const IncomingInvoicesStats: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between mt-3">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-gray-500 dark:text-gray-300">
                   {formatDate(invoice.invoiceDate)}
                 </span>
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
@@ -945,32 +945,32 @@ const IncomingInvoicesStats: React.FC = () => {
               {expandedRow === invoice.id && (
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Beschrijving</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300">Beschrijving</p>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {invoice.description}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">E-mail</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300">E-mail</p>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {invoice.supplierEmail || '-'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Vervaldatum</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300">Vervaldatum</p>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {formatDate(invoice.dueDate)}
                     </p>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Excl. BTW</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">Excl. BTW</p>
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {formatCurrency((invoice as any).subtotal || invoice.amount || 0)}
                       </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">BTW</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">BTW</p>
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {formatCurrency(invoice.vatAmount)}
                       </p>
@@ -1048,7 +1048,7 @@ const IncomingInvoicesStats: React.FC = () => {
                   setEditingInvoice(null);
                   setEditFormData(null);
                 }}
-                className="text-gray-500 dark:text-gray-400 hover:text-gray-700"
+                className="text-gray-500 dark:text-gray-300 hover:text-gray-700"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -1058,7 +1058,7 @@ const IncomingInvoicesStats: React.FC = () => {
               {/* Status Selector - Only for admins */}
               {isAdmin && (
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Status
                   </label>
                   <select
@@ -1071,7 +1071,7 @@ const IncomingInvoicesStats: React.FC = () => {
                     <option value="paid">Betaald</option>
                     <option value="rejected">Afgewezen</option>
                   </select>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
                     ℹ️ Je kunt de status aanpassen om bonnen terug te zetten (bijv. van betaald naar concept voor testen)
                   </p>
                 </div>
@@ -1080,13 +1080,13 @@ const IncomingInvoicesStats: React.FC = () => {
               {/* Status Display - For managers (read-only) */}
               {isManager && (
                 <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Status (alleen-lezen)
                   </label>
                   <div className="mt-2">
                     <StatusBadge status={editFormData.status ?? 'pending'} />
                   </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
                     ℹ️ Alleen admins kunnen de status wijzigen
                   </p>
                 </div>
@@ -1094,7 +1094,7 @@ const IncomingInvoicesStats: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Leverancier
                   </label>
                   <input
@@ -1106,7 +1106,7 @@ const IncomingInvoicesStats: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Factuurnummer
                   </label>
                   <input
@@ -1118,7 +1118,7 @@ const IncomingInvoicesStats: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Excl. BTW (€)
                   </label>
                   <input
@@ -1134,7 +1134,7 @@ const IncomingInvoicesStats: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     BTW (€)
                   </label>
                   <input
@@ -1147,7 +1147,7 @@ const IncomingInvoicesStats: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Incl. BTW (€)
                   </label>
                   <input
@@ -1160,7 +1160,7 @@ const IncomingInvoicesStats: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     E-mail
                   </label>
                   <input
@@ -1172,7 +1172,7 @@ const IncomingInvoicesStats: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Factuurdatum
                   </label>
                   <input
@@ -1188,7 +1188,7 @@ const IncomingInvoicesStats: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     Vervaldatum
                   </label>
                   <input
@@ -1205,7 +1205,7 @@ const IncomingInvoicesStats: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Beschrijving
                 </label>
                 <textarea
@@ -1217,16 +1217,16 @@ const IncomingInvoicesStats: React.FC = () => {
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded">
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Preview</p>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Preview</p>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-white dark:bg-gray-800 p-3 rounded">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Excl. BTW</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Excl. BTW</p>
                     <p className="font-bold text-gray-900 dark:text-gray-100">
                       {formatCurrency((editFormData as any).subtotal || editFormData.amount || 0)}
                     </p>
                   </div>
                   <div className="bg-white dark:bg-gray-800 p-3 rounded">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">BTW</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">BTW</p>
                     <p className="font-bold text-gray-900 dark:text-gray-100">
                       {formatCurrency(editFormData.vatAmount || 0)}
                     </p>

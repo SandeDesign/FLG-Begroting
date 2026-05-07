@@ -47,7 +47,7 @@ const Register: React.FC = () => {
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-gray-100">
             Account Aanmaken
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Start met het beheren van je loonadministratie
           </p>
         </div>
@@ -159,7 +159,7 @@ const Register: React.FC = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Al een account?{' '}
               <Link
                 to="/login"

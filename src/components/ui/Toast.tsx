@@ -61,7 +61,7 @@ const Toast: React.FC<ToastProps> = ({ toast, onRemove }) => {
                 {toast.title}
               </p>
             )}
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               {toast.message}
             </p>
           </div>

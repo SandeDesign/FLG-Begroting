@@ -166,7 +166,7 @@ const EmployeesNew: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">Werknemers</h1>
-          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1 md:mt-2">
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-1 md:mt-2">
             Beheer je werknemers en hun gegevens
           </p>
         </div>
@@ -188,7 +188,7 @@ const EmployeesNew: React.FC = () => {
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               Geen bedrijven gevonden
             </h3>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4">
               Je moet eerst een bedrijf aanmaken voordat je werknemers kunt toevoegen.
             </p>
             <Button onClick={() => window.location.href = '/companies'}>
@@ -219,7 +219,7 @@ const EmployeesNew: React.FC = () => {
                     <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {employee.personalInfo.firstName} {employee.personalInfo.lastName}
                     </h3>
-                    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 truncate">
+                    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300 truncate">
                       {employee.contractInfo.position}
                     </p>
                   </div>
@@ -231,7 +231,7 @@ const EmployeesNew: React.FC = () => {
 
               {/* Contact & Contract Info */}
               <div className="space-y-2 mb-4 text-xs md:text-sm flex-1">
-                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 truncate">
+                <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 truncate">
                   <Mail className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate" title={employee.personalInfo.contactInfo.email}>
                     {employee.personalInfo.contactInfo.email}
@@ -239,17 +239,17 @@ const EmployeesNew: React.FC = () => {
                 </div>
                 
                 {employee.personalInfo.contactInfo.phone && (
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 truncate">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 truncate">
                     <Phone className="h-4 w-4 flex-shrink-0" />
                     <span className="truncate">{employee.personalInfo.contactInfo.phone}</span>
                   </div>
                 )}
                 
-                <div className="text-gray-600 dark:text-gray-400">
+                <div className="text-gray-600 dark:text-gray-300">
                   <span className="font-medium">Contract:</span> {employee.contractInfo.type}
                 </div>
                 
-                <div className="text-gray-600 dark:text-gray-400">
+                <div className="text-gray-600 dark:text-gray-300">
                   <span className="font-medium">Uren/week:</span> {employee.contractInfo.hoursPerWeek}
                 </div>
               </div>

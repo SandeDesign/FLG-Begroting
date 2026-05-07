@@ -347,7 +347,7 @@ export const PushDiagnostics: React.FC = () => {
             <ShieldCheck className="h-4 w-4 text-primary-600" />
             Push Diagnostics
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500 dark:text-gray-300">
             Test elke stap van de push-flow en toon waar het hangt.
           </p>
         </div>
@@ -375,7 +375,7 @@ export const PushDiagnostics: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-900 dark:text-gray-100">{c.label}</p>
                 {c.detail && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 break-words">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 break-words">
                     {c.detail}
                   </p>
                 )}
@@ -387,7 +387,7 @@ export const PushDiagnostics: React.FC = () => {
 
       {/* Test-actieknoppen — werken ook zonder server-config */}
       <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 space-y-2">
-        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+        <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
           Harde tests (bypass de server)
         </p>
 
@@ -400,7 +400,7 @@ export const PushDiagnostics: React.FC = () => {
             <p className="font-semibold text-gray-900 dark:text-gray-100">
               1. Test Service Worker notificatie lokaal
             </p>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-300">
               Toont een notificatie via dezelfde SW-code die inkomende pushes gebruikt. Als deze werkt: de SW werkt.
             </p>
             {swTestResult && (
@@ -421,7 +421,7 @@ export const PushDiagnostics: React.FC = () => {
             <p className="font-semibold text-gray-900 dark:text-gray-100">
               2. Test echte push met app gesloten (via Firebase Console)
             </p>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-300">
               Kopieert token → opent Firebase Console in nieuwe tab. Plak token in "Test on device", sluit/minimize deze app, klik Test in Firebase → als push binnenkomt: alles werkt behalve onze server function.
             </p>
           </div>
@@ -431,7 +431,7 @@ export const PushDiagnostics: React.FC = () => {
       {token && (
         <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">FCM token</span>
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">FCM token</span>
             <button
               onClick={copyToken}
               className="text-xs text-primary-600 hover:underline flex items-center gap-1"
@@ -439,7 +439,7 @@ export const PushDiagnostics: React.FC = () => {
               <Copy className="h-3 w-3" /> Kopieer
             </button>
           </div>
-          <code className="block text-[10px] break-all text-gray-600 dark:text-gray-400 font-mono">
+          <code className="block text-[10px] break-all text-gray-600 dark:text-gray-300 font-mono">
             {token}
           </code>
         </div>

@@ -313,7 +313,7 @@ const EmployeeAgenda: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="hidden lg:block">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mijn Agenda</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             {unscheduledTasks.length > 0
               ? `${unscheduledTasks.length} ${unscheduledTasks.length === 1 ? 'taak' : 'taken'} nog in te plannen`
               : 'Alle taken zijn ingepland'}
@@ -486,7 +486,7 @@ const EmployeeAgenda: React.FC = () => {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Datum</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">Datum</label>
                 <input
                   type="date"
                   value={scheduleDate}
@@ -497,7 +497,7 @@ const EmployeeAgenda: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Begintijd</label>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">Begintijd</label>
                   <input
                     type="time"
                     value={scheduleStartTime}
@@ -506,7 +506,7 @@ const EmployeeAgenda: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Eindtijd</label>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">Eindtijd</label>
                   <input
                     type="time"
                     value={scheduleEndTime}
@@ -520,7 +520,7 @@ const EmployeeAgenda: React.FC = () => {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={() => setSchedulingTask(null)}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Annuleren
               </button>

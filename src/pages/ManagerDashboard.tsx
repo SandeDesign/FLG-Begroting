@@ -168,7 +168,7 @@ const ManagerDashboard: React.FC = () => {
   useEffect(() => { loadData(); }, [loadData]);
 
   if (!selectedCompany) {
-    return <div className="text-center py-12"><p className="text-gray-600 dark:text-gray-400">Selecteer een bedrijf</p></div>;
+    return <div className="text-center py-12"><p className="text-gray-600 dark:text-gray-300">Selecteer een bedrijf</p></div>;
   }
 
   if (loading) {
@@ -182,7 +182,7 @@ const ManagerDashboard: React.FC = () => {
         <div className="flex items-start justify-between mb-6">
           <div>
             <h1 className="text-4xl font-bold mb-2">{isProjectCompany ? 'Project Dashboard' : 'Manager Dashboard'}</h1>
-            <p className={`${isProjectCompany ? 'text-emerald-100' : 'text-indigo-100'} dark:text-gray-400 flex items-center gap-2`}>
+            <p className={`${isProjectCompany ? 'text-emerald-100' : 'text-indigo-100'} dark:text-gray-300 flex items-center gap-2`}>
               {isProjectCompany ? <Factory className="h-4 w-4" /> : <Users className="h-4 w-4" />}
               {selectedCompany?.name || 'Bedrijf'}
             </p>
@@ -240,7 +240,7 @@ const ManagerDashboard: React.FC = () => {
             <h3 className="text-sm font-semibold text-red-900 dark:text-gray-100">
               {pendingTimesheets.length + pendingLeave.length} items wachten op actie
             </h3>
-            <p className="text-xs text-red-700 dark:text-gray-400 mt-1">
+            <p className="text-xs text-red-700 dark:text-gray-300 mt-1">
               {pendingTimesheets.length} uren • {pendingLeave.length} verlof
             </p>
           </div>
@@ -261,7 +261,7 @@ const ManagerDashboard: React.FC = () => {
             <h3 className="text-sm font-semibold text-orange-900 dark:text-gray-100">
               {tasks.filter(t => t.status === 'overdue').length === 1 ? '1 taak verlopen' : `${tasks.filter(t => t.status === 'overdue').length} taken verlopen`}
             </h3>
-            <p className="text-xs text-orange-700 dark:text-gray-400 mt-1">
+            <p className="text-xs text-orange-700 dark:text-gray-300 mt-1">
               {tasks.filter(t => t.status === 'overdue').slice(0, 3).map(t => t.title).join(' • ')}
               {tasks.filter(t => t.status === 'overdue').length > 3 && ` • +${tasks.filter(t => t.status === 'overdue').length - 3} meer`}
             </p>
@@ -278,7 +278,7 @@ const ManagerDashboard: React.FC = () => {
             <h3 className="text-sm font-semibold text-green-900 dark:text-gray-100">
               {tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).length === 1 ? '1 taak afgerond deze week' : `${tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).length} taken afgerond deze week`}
             </h3>
-            <p className="text-xs text-green-700 dark:text-gray-400 mt-1">
+            <p className="text-xs text-green-700 dark:text-gray-300 mt-1">
               {tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).slice(0, 3).map(t => t.title).join(' • ')}
             </p>
           </div>
@@ -367,7 +367,7 @@ const ManagerDashboard: React.FC = () => {
                 <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                 Recente Productie
               </h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                 Target: {WEEKLY_HOURS_TARGET}u/week · uurtarief €{(selectedCompany?.hourlyRate || 0).toFixed(2)} excl. BTW
               </p>
             </div>
@@ -393,7 +393,7 @@ const ManagerDashboard: React.FC = () => {
                       </div>
                       <span className="font-semibold text-gray-900 dark:text-gray-100">Week {week.week}</span>
                     </div>
-                    <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                    <span className="text-[11px] text-gray-500 dark:text-gray-300">
                       {week.totalEntries || 0} regels
                     </span>
                   </div>
@@ -401,7 +401,7 @@ const ManagerDashboard: React.FC = () => {
                   {/* Uren vs target */}
                   <div className="space-y-1 mb-3">
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-500 dark:text-gray-400">Uren</span>
+                      <span className="text-gray-500 dark:text-gray-300">Uren</span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">
                         {hours.toFixed(1)} / {WEEKLY_HOURS_TARGET}u
                       </span>
@@ -413,7 +413,7 @@ const ManagerDashboard: React.FC = () => {
 
                   {/* Uursaldo */}
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Uursaldo</span>
+                    <span className="text-gray-500 dark:text-gray-300">Uursaldo</span>
                     <span className={`font-semibold ${saldoColor}`}>
                       {saldo >= 0 ? '+' : ''}{saldo.toFixed(1)}u
                     </span>
@@ -421,7 +421,7 @@ const ManagerDashboard: React.FC = () => {
 
                   {/* Omzet */}
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500 dark:text-gray-400">Omzet (incl. BTW)</span>
+                    <span className="text-gray-500 dark:text-gray-300">Omzet (incl. BTW)</span>
                     <span className="font-medium text-emerald-600 dark:text-emerald-400">
                       €{value.toLocaleString('nl-NL', { maximumFractionDigits: 0 })}
                     </span>
@@ -435,16 +435,16 @@ const ManagerDashboard: React.FC = () => {
           <Card className="mt-4 p-4 bg-emerald-50 dark:bg-gray-800 border-l-4 border-emerald-500">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <p className="text-xs text-emerald-700 dark:text-gray-400 uppercase tracking-wider">Totaal uren {selectedQuarter ? `Q${selectedQuarter}` : ''} {selectedYear}</p>
+                <p className="text-xs text-emerald-700 dark:text-gray-300 uppercase tracking-wider">Totaal uren {selectedQuarter ? `Q${selectedQuarter}` : ''} {selectedYear}</p>
                 <p className="text-xl font-bold text-emerald-900 dark:text-gray-100">{stats.totalProduction.toFixed(1)}u</p>
               </div>
               <div>
-                <p className="text-xs text-emerald-700 dark:text-gray-400 uppercase tracking-wider">Target</p>
+                <p className="text-xs text-emerald-700 dark:text-gray-300 uppercase tracking-wider">Target</p>
                 <p className="text-xl font-bold text-emerald-900 dark:text-gray-100">{(productionWeeks.length * WEEKLY_HOURS_TARGET).toFixed(0)}u</p>
-                <p className="text-[11px] text-emerald-700 dark:text-gray-400">{productionWeeks.length} weken × {WEEKLY_HOURS_TARGET}u</p>
+                <p className="text-[11px] text-emerald-700 dark:text-gray-300">{productionWeeks.length} weken × {WEEKLY_HOURS_TARGET}u</p>
               </div>
               <div>
-                <p className="text-xs text-emerald-700 dark:text-gray-400 uppercase tracking-wider">Omzet (incl. BTW)</p>
+                <p className="text-xs text-emerald-700 dark:text-gray-300 uppercase tracking-wider">Omzet (incl. BTW)</p>
                 <p className="text-xl font-bold text-emerald-900 dark:text-gray-100">€{stats.totalProductionValue.toLocaleString('nl-NL', { maximumFractionDigits: 0 })}</p>
               </div>
             </div>
@@ -470,7 +470,7 @@ const ManagerDashboard: React.FC = () => {
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {member.personalInfo?.firstName} {member.personalInfo?.lastName}
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{member.status === 'active' ? '✓ Actief' : 'Inactief'}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{member.status === 'active' ? '✓ Actief' : 'Inactief'}</p>
                   </div>
                 </div>
               </Card>
@@ -484,7 +484,7 @@ const ManagerDashboard: React.FC = () => {
         <Card className="p-8 text-center">
           <FileText className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Nog geen data</h3>
-          <p className="text-gray-500 dark:text-gray-400">Begin met het uploaden van facturen of het registreren van productie.</p>
+          <p className="text-gray-500 dark:text-gray-300">Begin met het uploaden van facturen of het registreren van productie.</p>
         </Card>
       )}
     </div>

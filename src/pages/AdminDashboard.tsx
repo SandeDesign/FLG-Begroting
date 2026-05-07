@@ -201,7 +201,7 @@ const AdminDashboard: React.FC = () => {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold">LoonMaatschappij</h1>
-            <p className="text-blue-100 dark:text-gray-400 mt-1">{selectedCompany.name}</p>
+            <p className="text-blue-100 dark:text-gray-300 mt-1">{selectedCompany.name}</p>
           </div>
           <Activity className="h-12 w-12 text-blue-200 dark:text-gray-500" />
         </div>
@@ -212,7 +212,7 @@ const AdminDashboard: React.FC = () => {
           <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-red-900 dark:text-gray-100">{totalPending} items wachten!</h3>
-            <p className="text-xs text-red-700 dark:text-gray-400 mt-1">
+            <p className="text-xs text-red-700 dark:text-gray-300 mt-1">
               {stats.pendingTimesheets} uren • {stats.pendingLeaveRequests} verlof • {stats.pendingExpenses} onkosten
             </p>
           </div>
@@ -235,7 +235,7 @@ const AdminDashboard: React.FC = () => {
                 ? '1 taak verlopen'
                 : `${tasks.filter(t => t.status === 'overdue').length} taken verlopen`}
             </h3>
-            <p className="text-xs text-orange-700 dark:text-gray-400 mt-1">
+            <p className="text-xs text-orange-700 dark:text-gray-300 mt-1">
               {tasks.filter(t => t.status === 'overdue').slice(0, 3).map(t => t.title).join(' • ')}
               {tasks.filter(t => t.status === 'overdue').length > 3 && ` • +${tasks.filter(t => t.status === 'overdue').length - 3} meer`}
             </p>
@@ -259,7 +259,7 @@ const AdminDashboard: React.FC = () => {
                 ? '1 taak afgerond deze week'
                 : `${tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).length} taken afgerond deze week`}
             </h3>
-            <p className="text-xs text-green-700 dark:text-gray-400 mt-1">
+            <p className="text-xs text-green-700 dark:text-gray-300 mt-1">
               {tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate)).slice(0, 3).map(t => t.title).join(' • ')}
             </p>
           </div>
@@ -276,7 +276,7 @@ const AdminDashboard: React.FC = () => {
         <Card className="p-6 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-blue-700 dark:text-gray-400">Actieve Medewerkers</p>
+              <p className="text-xs font-medium text-blue-700 dark:text-gray-300">Actieve Medewerkers</p>
               <p className="text-3xl font-bold text-blue-900 dark:text-gray-100 mt-2">{stats.activeEmployees}</p>
               <p className="text-xs text-blue-600 dark:text-gray-500 mt-1">van {stats.totalEmployees} totaal</p>
             </div>
@@ -290,7 +290,7 @@ const AdminDashboard: React.FC = () => {
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-orange-700 dark:text-gray-400">Uren Wachten</p>
+              <p className="text-xs font-medium text-orange-700 dark:text-gray-300">Uren Wachten</p>
               <p className="text-3xl font-bold text-orange-900 dark:text-gray-100 mt-2">{stats.pendingTimesheets}</p>
               <p className="text-xs text-orange-600 dark:text-gray-500 mt-1">te goedkeuren</p>
             </div>
@@ -311,7 +311,7 @@ const AdminDashboard: React.FC = () => {
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-purple-700 dark:text-gray-400">Verlof Wachten</p>
+              <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Verlof Wachten</p>
               <p className="text-3xl font-bold text-purple-900 dark:text-gray-100 mt-2">{stats.pendingLeaveRequests}</p>
               <p className="text-xs text-purple-600 dark:text-gray-500 mt-1">aanvragen</p>
             </div>
@@ -332,7 +332,7 @@ const AdminDashboard: React.FC = () => {
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-green-700 dark:text-gray-400">Onkosten</p>
+              <p className="text-xs font-medium text-green-700 dark:text-gray-300">Onkosten</p>
               <p className="text-3xl font-bold text-green-900 dark:text-gray-100 mt-2">€{(stats.totalPendingExpenseAmount / 100).toFixed(0)}</p>
               <p className="text-xs text-green-600 dark:text-gray-500 mt-1">{stats.pendingExpenses} in behandeling</p>
             </div>
@@ -413,15 +413,15 @@ const AdminDashboard: React.FC = () => {
           )}
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="text-center">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Inkomsten</p>
+              <p className="text-xs text-gray-600 dark:text-gray-300">Inkomsten</p>
               <p className="text-lg font-bold text-green-600">€{stats.monthlyBudgetIncome.toLocaleString('nl-NL', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Kosten</p>
+              <p className="text-xs text-gray-600 dark:text-gray-300">Kosten</p>
               <p className="text-lg font-bold text-red-600">€{stats.monthlyBudgetCosts.toLocaleString('nl-NL', { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Winst</p>
+              <p className="text-xs text-gray-600 dark:text-gray-300">Winst</p>
               <p className={`text-lg font-bold ${stats.monthlyBudgetProfit >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                 {stats.monthlyBudgetProfit >= 0 ? '+' : ''}€{stats.monthlyBudgetProfit.toLocaleString('nl-NL', { maximumFractionDigits: 0 })}
               </p>

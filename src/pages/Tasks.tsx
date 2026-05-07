@@ -403,7 +403,7 @@ const Tasks: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Taken</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             {selectedCompany?.name} - {tasks.length} taken
           </p>
         </div>
@@ -457,7 +457,7 @@ const Tasks: React.FC = () => {
         <Card>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Status
               </label>
               <select
@@ -475,7 +475,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Categorie
               </label>
               <select
@@ -493,7 +493,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Prioriteit
               </label>
               <select
@@ -511,7 +511,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Inplanning
               </label>
               <select
@@ -563,7 +563,7 @@ const Tasks: React.FC = () => {
                         </div>
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{empName}</span>
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">{empTasks.length} taken</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-300">{empTasks.length} taken</span>
                     </div>
 
                     {empTasks.length === 0 ? (
@@ -582,12 +582,18 @@ const Tasks: React.FC = () => {
                               {group.tasks.length > 0 && (
                                 <ul className="space-y-0.5">
                                   {group.tasks.slice(0, 3).map(t => (
-                                    <li key={t.id} className="text-[10px] text-gray-600 dark:text-gray-400 truncate leading-tight">
-                                      • {t.title}
+                                    <li key={t.id}>
+                                      <button
+                                        onClick={() => openEditModal(t)}
+                                        className="w-full text-left text-[10px] text-gray-600 dark:text-gray-300 truncate leading-tight hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                                        title={t.title}
+                                      >
+                                        • {t.title}
+                                      </button>
                                     </li>
                                   ))}
                                   {group.tasks.length > 3 && (
-                                    <li className="text-[10px] text-gray-400 dark:text-gray-500">+{group.tasks.length - 3} meer</li>
+                                    <li className="text-[10px] text-gray-400 dark:text-gray-300">+{group.tasks.length - 3} meer</li>
                                   )}
                                 </ul>
                               )}
@@ -608,7 +614,7 @@ const Tasks: React.FC = () => {
             if (unassigned.length === 0) return null;
             return (
               <div className="mt-2">
-                <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1.5">
+                <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 flex items-center gap-1.5">
                   <Users className="h-4 w-4" />
                   Niet toegewezen ({unassigned.length})
                 </h3>
@@ -676,7 +682,7 @@ const Tasks: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3
-                            className={`font-semibold text-gray-900 dark:text-gray-100 ${ task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-400 dark:text-gray-500' : '' }`}
+                            className={`font-semibold text-gray-900 dark:text-gray-100 ${ task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-300 dark:text-gray-500' : '' }`}
                           >
                             {task.title}
                           </h3>
@@ -740,16 +746,16 @@ const Tasks: React.FC = () => {
                         className="p-1 hover:bg-gray-100 rounded"
                       >
                         {isExpanded ? (
-                          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                         ) : (
-                          <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                          <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                         )}
                       </button>
                       <button
                         onClick={() => openEditModal(task)}
                         className="p-1 hover:bg-gray-100 rounded"
                       >
-                        <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                       </button>
                       <button
                         onClick={() => handleDeleteTask(task.id)}
@@ -765,14 +771,14 @@ const Tasks: React.FC = () => {
                     <div className="pl-8 pt-2 border-t border-gray-100 dark:border-gray-700 space-y-3">
                       {task.description && (
                         <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Beschrijving</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{task.description}</p>
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-1">Beschrijving</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
                         </div>
                       )}
 
                       {task.checklist && task.checklist.length > 0 && (
                         <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-2">
                             Subtaken ({task.checklist.filter(s => s.completed).length}/{task.checklist.length})
                           </h4>
                           <div className="space-y-1">
@@ -787,7 +793,7 @@ const Tasks: React.FC = () => {
                                   onChange={() => toggleTaskSubtask(task, subtask.id)}
                                   className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
                                 />
-                                <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                                <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
                                   {subtask.title}
                                 </span>
                               </label>
@@ -816,7 +822,7 @@ const Tasks: React.FC = () => {
       >
         <form onSubmit={editingTask ? handleUpdateTask : handleCreateTask} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Titel *
             </label>
             <input
@@ -830,7 +836,7 @@ const Tasks: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Beschrijving
             </label>
             <textarea
@@ -844,7 +850,7 @@ const Tasks: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Categorie *
               </label>
               <select
@@ -862,7 +868,7 @@ const Tasks: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Prioriteit *
               </label>
               <select
@@ -881,8 +887,8 @@ const Tasks: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Vervaldatum *
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+              Plandatum *
             </label>
             <input
               type="date"
@@ -896,7 +902,7 @@ const Tasks: React.FC = () => {
           {/* Toewijzen aan */}
           {allPeople.length > 0 && (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-1.5">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1.5">
                 <Users className="h-4 w-4" />
                 Toewijzen aan
               </label>
@@ -923,7 +929,7 @@ const Tasks: React.FC = () => {
               </div>
               {formData.assignedTo.length > 0 && (
                 <div className="mt-3">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-1.5">
                     <Clock className="h-4 w-4" />
                     Verwachte duur (uren)
                   </label>
@@ -936,7 +942,7 @@ const Tasks: React.FC = () => {
                     placeholder="bijv. 2.5"
                     className="w-32 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100"
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Hoelang de medewerker er mee bezig mag zijn</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Hoelang de medewerker er mee bezig mag zijn</p>
                 </div>
               )}
             </div>
@@ -945,7 +951,7 @@ const Tasks: React.FC = () => {
           {/* Intern project koppeling */}
           {internalProjects.length > 0 && (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Intern project (optioneel)
               </label>
               <select
@@ -980,7 +986,7 @@ const Tasks: React.FC = () => {
 
           {/* Subtaken sectie */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Subtaken
             </label>
 
@@ -995,7 +1001,7 @@ const Tasks: React.FC = () => {
                       onChange={() => toggleSubtask(subtask.id)}
                       className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
                     />
-                    <span className={`flex-1 text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                    <span className={`flex-1 text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-300' : 'text-gray-900 dark:text-gray-100'}`}>
                       {subtask.title}
                     </span>
                     <button
@@ -1038,7 +1044,7 @@ const Tasks: React.FC = () => {
 
           {/* Frequentie sectie - prominent */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
               Frequentie
             </label>
             <div className="flex flex-wrap gap-2">
@@ -1081,7 +1087,7 @@ const Tasks: React.FC = () => {
 
             {formData.isRecurring && formData.frequency === 'weekly' && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Dag van de week
                 </label>
                 <select
@@ -1102,7 +1108,7 @@ const Tasks: React.FC = () => {
 
             {formData.isRecurring && (formData.frequency === 'monthly' || formData.frequency === 'quarterly') && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Dag van de maand (1-31)
                 </label>
                 <input

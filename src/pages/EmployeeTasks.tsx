@@ -144,7 +144,7 @@ const EmployeeTasks: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mijn Taken</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
             {activeCount} openstaand{overdueCount > 0 && `, ${overdueCount} te laat`}
           </p>
         </div>
@@ -191,10 +191,10 @@ const EmployeeTasks: React.FC = () => {
               }`}
             >
               <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <Icon className="h-4 w-4 text-gray-500 dark:text-gray-300" />
                 <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{count}</span>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-left">{config.label}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 text-left">{config.label}</p>
             </button>
           );
         })}
@@ -205,7 +205,7 @@ const EmployeeTasks: React.FC = () => {
         <Card className="p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Categorie</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Categorie</label>
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value as TaskCategory | 'all')}
@@ -218,7 +218,7 @@ const EmployeeTasks: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prioriteit</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Prioriteit</label>
               <select
                 value={filterPriority}
                 onChange={(e) => setFilterPriority(e.target.value as TaskPriority | 'all')}
@@ -290,7 +290,7 @@ const EmployeeTasks: React.FC = () => {
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3
                             className={`font-semibold text-gray-900 dark:text-gray-100 ${
-                              task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-400' : ''
+                              task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-300' : ''
                             }`}
                           >
                             {task.title}
@@ -353,9 +353,9 @@ const EmployeeTasks: React.FC = () => {
                       className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                        <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                       ) : (
-                        <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                        <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                       )}
                     </button>
                   </div>
@@ -365,14 +365,14 @@ const EmployeeTasks: React.FC = () => {
                     <div className="pl-8 pt-2 border-t border-gray-100 dark:border-gray-700 space-y-3">
                       {task.description && (
                         <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Beschrijving</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">{task.description}</p>
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-1">Beschrijving</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
                         </div>
                       )}
 
                       {task.checklist && task.checklist.length > 0 && (
                         <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-2">
                             Subtaken ({task.checklist.filter(s => s.completed).length}/{task.checklist.length})
                           </h4>
                           <div className="space-y-1">
@@ -387,7 +387,7 @@ const EmployeeTasks: React.FC = () => {
                                   onChange={() => toggleTaskSubtask(task, subtask.id)}
                                   className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
                                 />
-                                <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                                <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
                                   {subtask.title}
                                 </span>
                               </label>
@@ -399,7 +399,7 @@ const EmployeeTasks: React.FC = () => {
                       {/* Voortgang balk */}
                       {task.progress !== undefined && task.progress > 0 && (
                         <div>
-                          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-300 mb-1">
                             <span>Voortgang</span>
                             <span>{task.progress}%</span>
                           </div>

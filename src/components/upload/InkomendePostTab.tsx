@@ -361,7 +361,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center gap-4">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           {posts.length} document{posts.length !== 1 ? 'en' : ''}
         </p>
         <div className="flex gap-2">
@@ -397,7 +397,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
         <Card>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Status
               </label>
               <select
@@ -425,7 +425,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
         }`}
       >
         <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-        <p className="text-gray-600 dark:text-gray-400 mb-2">
+        <p className="text-gray-600 dark:text-gray-300 mb-2">
           Sleep een foto of PDF hierheen of klik op "Upload Post"
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-500">
@@ -473,7 +473,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                         {post.subject}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Van: {post.sender}
                       </p>
                     </div>
@@ -482,7 +482,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       {formatDate(post.receivedDate)}
@@ -575,7 +575,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Afzender *
             </label>
             <input
@@ -588,7 +588,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Onderwerp/Beschrijving *
             </label>
             <textarea
@@ -602,7 +602,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Ontvangstdatum *
               </label>
               <input
@@ -614,7 +614,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Prioriteit
               </label>
               <select
@@ -632,7 +632,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Te betalen bedrag (optioneel)
               </label>
               <input
@@ -646,7 +646,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Vervaldatum (optioneel)
               </label>
               <input
@@ -666,7 +666,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
                 onChange={(e) => setFormData({ ...formData, requiresAction: e.target.checked })}
                 className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
               />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 Deze post vereist een handeling
               </span>
             </label>
@@ -674,7 +674,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
             {formData.requiresAction && (
               <div className="mt-4 space-y-3 pl-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Type handeling
                   </label>
                   <select
@@ -693,7 +693,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                     Beschrijving handeling
                   </label>
                   <textarea
@@ -735,11 +735,11 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Afzender</label>
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Afzender</label>
                 <p className="mt-1 text-gray-900 dark:text-gray-100">{selectedPost.sender}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Status</label>
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Status</label>
                 <p className="mt-1">
                   <span className={`px-2 py-1 rounded-md text-xs font-medium ${getStatusColor(selectedPost.status)}`}>
                     {getStatusLabel(selectedPost.status)}
@@ -749,17 +749,17 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Onderwerp</label>
+              <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Onderwerp</label>
               <p className="mt-1 text-gray-900 dark:text-gray-100">{selectedPost.subject}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Ontvangstdatum</label>
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Ontvangstdatum</label>
                 <p className="mt-1 text-gray-900 dark:text-gray-100">{formatDate(selectedPost.receivedDate)}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Upload datum</label>
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Upload datum</label>
                 <p className="mt-1 text-gray-900 dark:text-gray-100">{formatDate(selectedPost.uploadDate)}</p>
               </div>
             </div>
@@ -767,12 +767,12 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
             {selectedPost.amount && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Bedrag</label>
+                  <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Bedrag</label>
                   <p className="mt-1 text-gray-900 dark:text-gray-100">{formatCurrency(selectedPost.amount)}</p>
                 </div>
                 {selectedPost.dueDate && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Vervaldatum</label>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Vervaldatum</label>
                     <p className="mt-1 text-gray-900 dark:text-gray-100">{formatDate(selectedPost.dueDate)}</p>
                   </div>
                 )}
@@ -781,13 +781,13 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
 
             {selectedPost.actionDescription && (
               <div>
-                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">Benodigde handeling</label>
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-300">Benodigde handeling</label>
                 <p className="mt-1 text-gray-900 dark:text-gray-100">{selectedPost.actionDescription}</p>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Document</label>
+              <label className="block text-sm font-medium text-gray-500 dark:text-gray-300 mb-2">Document</label>
               <a
                 href={selectedPost.fileUrl}
                 target="_blank"
@@ -818,7 +818,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Titel *
             </label>
             <input
@@ -831,7 +831,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Beschrijving
             </label>
             <textarea
@@ -845,7 +845,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Prioriteit
               </label>
               <select
@@ -861,7 +861,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Vervaldatum
               </label>
               <input
@@ -874,7 +874,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Toewijzen aan
             </label>
             <select
@@ -893,7 +893,7 @@ const InkomendePostTab: React.FC<Props> = ({ selectedCompany }) => {
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">
               Houd Ctrl/Cmd ingedrukt om meerdere gebruikers te selecteren
             </p>
           </div>

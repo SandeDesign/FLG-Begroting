@@ -198,7 +198,7 @@ const TimesheetExport: React.FC = () => {
       case 'pending': return 'text-orange-600 bg-orange-100';
       case 'exported': return 'text-green-600 bg-green-100';
       case 'processed': return 'text-primary-600 bg-primary-100';
-      default: return 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800';
+      default: return 'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -230,7 +230,7 @@ const TimesheetExport: React.FC = () => {
       {/* Header */}
       <div className="hidden lg:block">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Uren Export</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-300">
           Exporteer urenregistraties naar loonadministratie voor {selectedCompany.name}
         </p>
       </div>
@@ -242,7 +242,7 @@ const TimesheetExport: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Startdatum
               </label>
               <input
@@ -254,7 +254,7 @@ const TimesheetExport: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Einddatum
               </label>
               <input
@@ -266,7 +266,7 @@ const TimesheetExport: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Formaat
               </label>
               <select
@@ -340,7 +340,7 @@ const TimesheetExport: React.FC = () => {
                               {period.status === 'processed' && 'Verwerkt'}
                             </span>
                           </div>
-                          <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-300">
                             <div className="flex items-center">
                               <Users className="h-4 w-4 mr-1" />
                               {period.employeeCount} werknemers
@@ -361,7 +361,7 @@ const TimesheetExport: React.FC = () => {
                             )}
                           </div>
                           {period.notes && (
-                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{period.notes}</p>
+                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{period.notes}</p>
                           )}
                         </div>
                       </div>
@@ -390,7 +390,7 @@ const TimesheetExport: React.FC = () => {
       <Card>
         <div className="p-6">
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Instructies voor Loonadministratie</h3>
-          <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
             <p>
               <strong>Stap 1:</strong> Selecteer de gewenste periode en genereer de export
             </p>

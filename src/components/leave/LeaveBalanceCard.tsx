@@ -38,7 +38,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balance, onRequestL
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Verlof Saldo
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Jaar {balance.year}
             </p>
           </div>
@@ -70,7 +70,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balance, onRequestL
       <div className="space-y-4">
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
               Vakantiedagen
             </span>
             <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
@@ -83,7 +83,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balance, onRequestL
               style={{ width: `${Math.min(holidayPercentage, 100)}%` }}
             />
           </div>
-          <div className="flex justify-between mt-1 text-xs text-gray-600 dark:text-gray-400">
+          <div className="flex justify-between mt-1 text-xs text-gray-600 dark:text-gray-300">
             <span>Opgenomen: {holidayDays.taken}</span>
             <span>Aangevraagd: {holidayDays.pending}</span>
           </div>
@@ -92,7 +92,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balance, onRequestL
         {advDays && advDays.entitled > 0 && (
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 ADV Dagen
               </span>
               <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
@@ -113,13 +113,13 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balance, onRequestL
             <div className="flex justify-between text-sm">
               {seniorDays > 0 && (
                 <div>
-                  <span className="text-gray-600 dark:text-gray-400">Seniorendagen: </span>
+                  <span className="text-gray-600 dark:text-gray-300">Seniorendagen: </span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{seniorDays}</span>
                 </div>
               )}
               {snipperDays > 0 && (
                 <div>
-                  <span className="text-gray-600 dark:text-gray-400">Snipperdagen: </span>
+                  <span className="text-gray-600 dark:text-gray-300">Snipperdagen: </span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{snipperDays}</span>
                 </div>
               )}
@@ -129,7 +129,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ balance, onRequestL
 
         <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
               Totaal Resterend
             </span>
             <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">

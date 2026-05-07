@@ -184,13 +184,13 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
                 <Zap className="h-5 w-5 text-primary-600 animate-pulse" />
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">OCR verwerking bezig...</h3>
               </div>
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-200">
                 {totalProcessed} / {totalFiles} voltooid
               </span>
             </div>
             <div className="space-y-2 mb-3">
               {processingFiles.map((fileName) => (
-                <div key={fileName} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <div key={fileName} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                   <LoadingSpinner size="sm" className="mr-2" />
                   <span>{fileName}</span>
                 </div>
@@ -202,7 +202,7 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
                 style={{ width: `${(totalProcessed / totalFiles) * 100}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-300 mt-2">
               {Math.round((totalProcessed / totalFiles) * 100)}% - Max 3 bestanden tegelijk
             </p>
           </div>
@@ -219,7 +219,7 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 Upload geslaagd!
               </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 {totalProcessed} {totalProcessed === 1 ? 'factuur is' : 'facturen zijn'} succesvol verwerkt met OCR en opgeslagen.
               </p>
               <div className="space-y-3">
@@ -260,7 +260,7 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
         onDragLeave={handleDragLeave}
       >
         <HardDrive className="mx-auto h-12 w-12 text-primary-400" />
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
           Sleep <strong>meerdere facturen</strong> hierheen of{' '}
           <label className="font-medium text-primary-600 hover:text-primary-500 cursor-pointer">
             selecteer bestanden
@@ -273,7 +273,7 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
             />
           </label>
         </p>
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">
           PDF, PNG, JPG tot 10MB - Automatische OCR verwerking
         </p>
         <p className="mt-1 text-xs font-medium text-primary-600">
@@ -289,32 +289,32 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Leverancier</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Leverancier</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{result.supplierName}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Factuurnummer</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Factuurnummer</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{result.invoiceNumber}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Factuurdatum</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Factuurdatum</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">
                       {result.invoiceDate.toLocaleDateString('nl-NL')}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">OCR Betrouwbaarheid</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">OCR Betrouwbaarheid</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{result.confidence.toFixed(1)}%</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Excl. BTW</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Excl. BTW</p>
                     <p className="text-lg font-bold text-gray-900 dark:text-gray-100">€{result.amount.toFixed(2)}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">BTW</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">BTW</p>
                     <p className="text-lg font-bold text-gray-900 dark:text-gray-100">€{result.vatAmount.toFixed(2)}</p>
                   </div>
                   <div className="bg-primary-50 p-3 rounded">

@@ -423,7 +423,7 @@ const Chat: React.FC = () => {
           <MessageSquare className="h-6 w-6 text-primary-600" />
           Berichten
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
           Real-time chat per bedrijf tussen admin-team en boekhouder
         </p>
       </div>
@@ -442,7 +442,7 @@ const Chat: React.FC = () => {
               {role === 'admin' ? 'Boekhouders & bedrijven' : 'Administraties & bedrijven'}
             </h2>
             {loadingContacts && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Laden…</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Laden…</p>
             )}
           </div>
           <div className="overflow-y-auto h-[calc(100%-50px)]">
@@ -450,11 +450,11 @@ const Chat: React.FC = () => {
               <div key={group.label} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
                 <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900/50 flex items-center gap-2">
                   {role === 'admin' ? (
-                    <User className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                    <User className="h-3.5 w-3.5 text-gray-500 dark:text-gray-300" />
                   ) : (
-                    <Handshake className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                    <Handshake className="h-3.5 w-3.5 text-gray-500 dark:text-gray-300" />
                   )}
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 truncate">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300 truncate">
                     {group.label}
                   </p>
                 </div>
@@ -495,12 +495,12 @@ const Chat: React.FC = () => {
                             {e.companyName}
                           </p>
                           {e.lastMessageAt && (
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 flex-shrink-0">
+                            <span className="text-[10px] text-gray-500 dark:text-gray-300 flex-shrink-0">
                               {formatTime(e.lastMessageAt)}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                        <p className="text-xs text-gray-500 dark:text-gray-300 truncate mt-0.5">
                           {e.hasMessages
                             ? `${e.lastSenderName ? e.lastSenderName + ': ' : ''}${e.lastMessage}`
                             : 'Nog geen berichten'}
@@ -535,7 +535,7 @@ const Chat: React.FC = () => {
         <Card className={`${!activeChatId ? 'hidden lg:flex' : 'flex'} flex-col overflow-hidden`}>
           {!activeChatId || !activeEntry ? (
             <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-gray-500 dark:text-gray-400">
+              <div className="text-center text-gray-500 dark:text-gray-300">
                 <MessageSquare className="h-10 w-10 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Selecteer een bedrijf om te chatten</p>
               </div>
@@ -552,7 +552,7 @@ const Chat: React.FC = () => {
                   }}
                   className="lg:hidden p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                 </button>
                 {activeEntry.companyLogoUrl ? (
                   <img
@@ -569,7 +569,7 @@ const Chat: React.FC = () => {
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                     {activeEntry.companyName}
                   </p>
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                  <p className="text-[11px] text-gray-500 dark:text-gray-300 truncate">
                     {role === 'admin' ? 'Boekhouder:' : 'Admin:'} {activeEntry.otherPartyLabel}
                   </p>
                 </div>
@@ -588,7 +588,7 @@ const Chat: React.FC = () => {
                     <LoadingSpinner />
                   </div>
                 ) : messages.length === 0 ? (
-                  <p className="text-center text-xs text-gray-500 dark:text-gray-400 py-8">
+                  <p className="text-center text-xs text-gray-500 dark:text-gray-300 py-8">
                     Stuur het eerste bericht om dit gesprek te starten.
                   </p>
                 ) : (
@@ -607,7 +607,7 @@ const Chat: React.FC = () => {
                         className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
                       >
                         {showSender && (
-                          <span className="text-[10px] text-gray-500 dark:text-gray-400 mb-0.5 px-1">
+                          <span className="text-[10px] text-gray-500 dark:text-gray-300 mb-0.5 px-1">
                             {m.senderName}
                           </span>
                         )}
@@ -621,7 +621,7 @@ const Chat: React.FC = () => {
                           <p className="whitespace-pre-wrap break-words">{m.text}</p>
                           <p
                             className={`text-[10px] mt-1 ${
-                              isMine ? 'text-white/70' : 'text-gray-500 dark:text-gray-400'
+                              isMine ? 'text-white/70' : 'text-gray-500 dark:text-gray-300'
                             }`}
                           >
                             {formatTime(m.createdAt)}

@@ -21,12 +21,12 @@ const Button: React.FC<ButtonProps> = ({
   
   const variantClasses = {
     primary: 'bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500 shadow-primary-200',
-    secondary: 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 focus:ring-gray-500 border border-gray-200 dark:border-gray-600',
+    secondary: 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-100 focus:ring-gray-500 border border-gray-200 dark:border-gray-600',
     success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 shadow-green-200',
     warning: 'bg-orange-600 hover:bg-orange-700 text-white focus:ring-orange-500 shadow-orange-200',
     danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-red-200',
-    ghost: 'bg-transparent hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border-0 shadow-none',
-    outline: 'border-2 border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800',
+    ghost: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border-0 shadow-none',
+    outline: 'border-2 border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800',
   };
 
   const sizeClasses = {

@@ -139,7 +139,7 @@ const AdminLeaveApprovals: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="hidden lg:block">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Verlof Goedkeuren</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{filteredRequests.length} aanvraag{filteredRequests.length !== 1 ? 'en' : ''} wachten</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{filteredRequests.length} aanvraag{filteredRequests.length !== 1 ? 'en' : ''} wachten</p>
         </div>
         <select
           value={filterCompany}
@@ -195,7 +195,7 @@ const AdminLeaveApprovals: React.FC = () => {
             </div>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Geen openstaande aanvragen</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Alle verlofaanvragen zijn afgehandeld!</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">Alle verlofaanvragen zijn afgehandeld!</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -229,7 +229,7 @@ const AdminLeaveApprovals: React.FC = () => {
                           {request.totalDays}d
                         </span>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                         <span className="font-medium">{formatLeaveType(request.type)}</span>
                         <span className="hidden sm:inline text-gray-400 dark:text-gray-500">•</span>
                         <span>{formatDate(request.startDate)} → {formatDate(request.endDate)}</span>
@@ -247,14 +247,14 @@ const AdminLeaveApprovals: React.FC = () => {
                     {/* Company & Type */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Bedrijf</p>
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1.5">Bedrijf</p>
                         <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-100">
                           <Building2 className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                           {getCompanyName(request.companyId)}
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Type Verlof</p>
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1.5">Type Verlof</p>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {formatLeaveType(request.type)}
                         </div>
@@ -264,15 +264,15 @@ const AdminLeaveApprovals: React.FC = () => {
                     {/* Dates */}
                     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Startdatum:</span>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-200">Startdatum:</span>
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatDate(request.startDate)}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Einddatum:</span>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-200">Einddatum:</span>
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatDate(request.endDate)}</span>
                       </div>
                       <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Totaal:</span>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-200">Totaal:</span>
                         <span className="text-base font-bold text-orange-600 dark:text-orange-400">{request.totalDays} dagen</span>
                       </div>
                     </div>

@@ -74,7 +74,7 @@ const ProjectTeam: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="hidden lg:block">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Project Team</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-300 mt-1">
             Team voor project: <span className="font-medium">{selectedCompany.name}</span>
           </p>
         </div>
@@ -93,7 +93,7 @@ const ProjectTeam: React.FC = () => {
               <Users className="h-6 w-6 text-primary-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Team Leden</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Team Leden</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{projectEmployees.length}</p>
             </div>
           </div>
@@ -105,7 +105,7 @@ const ProjectTeam: React.FC = () => {
               <Clock className="h-6 w-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Deze Week</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Deze Week</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {recentTimeEntries
                   .filter(entry => {
@@ -127,7 +127,7 @@ const ProjectTeam: React.FC = () => {
               <Target className="h-6 w-6 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Actieve Project</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Actieve Project</p>
               <p className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
                 {selectedCompany.name}
               </p>
@@ -155,18 +155,18 @@ const ProjectTeam: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="h-10 w-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                      <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     </div>
                     
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {employee.personalInfo.firstName} {employee.personalInfo.lastName}
                       </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{employee.contractInfo.position}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-300">{employee.contractInfo.position}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-300">
                     <div className="flex items-center space-x-1">
                       <Mail className="h-4 w-4" />
                       <span>{employee.personalInfo.contactInfo.email}</span>
@@ -220,7 +220,7 @@ const ProjectTeam: React.FC = () => {
                           'Onbekende werknemer'
                         }
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500 dark:text-gray-300">
                         {new Date(entry.date).toLocaleDateString('nl-NL')} - {entry.project || 'Algemeen werk'}
                       </p>
                     </div>
@@ -229,7 +229,7 @@ const ProjectTeam: React.FC = () => {
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {(entry.regularHours + entry.overtimeHours).toFixed(1)}h
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-300">
                         {entry.regularHours}h normaal
                         {entry.overtimeHours > 0 && ` + ${entry.overtimeHours}h overwerk`}
                       </p>

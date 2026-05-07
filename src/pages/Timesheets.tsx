@@ -1018,7 +1018,7 @@ export default function Timesheets() {
         <div className="hidden lg:block">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Urenregistratie</h1>
           {employeeData && (
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-2 flex items-center gap-2">
               <User className="h-4 w-4" />
               {employeeData.personalInfo.firstName} {employeeData.personalInfo.lastName}
             </p>
@@ -1033,18 +1033,18 @@ export default function Timesheets() {
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
               title="Vorige week"
             >
-              <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
             <div className="text-center px-4 min-w-[120px]">
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Week {selectedWeek}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{selectedYear}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300">{selectedYear}</p>
             </div>
             <button
               onClick={() => changeWeek(1)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
               title="Volgende week"
             >
-              <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
           </div>
 
@@ -1138,7 +1138,7 @@ export default function Timesheets() {
 
       {/* Week Summary */}
       {currentTimesheet && (
-        <Card className="bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 border-primary-200 dark:border-primary-800 p-4 sm:p-6">
+        <Card className="bg-gradient-to-br from-primary-50 to-primary-100/50 dark:bg-gray-800 dark:from-gray-800 dark:to-gray-800 border-primary-200 dark:border-gray-600 p-4 sm:p-6">
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">Week {selectedWeek} Overzicht</h3>
 
@@ -1155,19 +1155,19 @@ export default function Timesheets() {
             )}
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-2 sm:p-3 bg-white dark:bg-gray-700 rounded-lg text-center border border-gray-100 dark:border-gray-600">
+              <div className="p-2 sm:p-3 bg-white dark:bg-gray-900 rounded-lg text-center border border-gray-200 dark:border-gray-600">
                 <p className="text-xs text-gray-600 dark:text-gray-300 mb-1 font-medium">Totaal</p>
                 <p className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-primary-400">{currentTimesheet.totalRegularHours}u</p>
               </div>
-              <div className="p-2 sm:p-3 bg-white dark:bg-gray-700 rounded-lg text-center border border-gray-100 dark:border-gray-600">
+              <div className="p-2 sm:p-3 bg-white dark:bg-gray-900 rounded-lg text-center border border-gray-200 dark:border-gray-600">
                 <p className="text-xs text-gray-600 dark:text-gray-300 mb-1 font-medium">Kilometers</p>
                 <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{currentTimesheet.totalTravelKilometers}km</p>
               </div>
-              <div className="p-2 sm:p-3 bg-white dark:bg-gray-700 rounded-lg text-center border border-gray-100 dark:border-gray-600">
+              <div className="p-2 sm:p-3 bg-white dark:bg-gray-900 rounded-lg text-center border border-gray-200 dark:border-gray-600">
                 <p className="text-xs text-gray-600 dark:text-gray-300 mb-1 font-medium">Werkdagen</p>
                 <p className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{workDays}d</p>
               </div>
-              <div className="p-2 sm:p-3 bg-white dark:bg-gray-700 rounded-lg text-center border border-gray-100 dark:border-gray-600">
+              <div className="p-2 sm:p-3 bg-white dark:bg-gray-900 rounded-lg text-center border border-gray-200 dark:border-gray-600">
                 <p className="text-xs text-gray-600 dark:text-gray-300 mb-1 font-medium">Gem./dag</p>
                 <p className={`text-xl sm:text-2xl font-bold ${avgHours < 7 ? 'text-yellow-600 dark:text-yellow-400' : 'text-orange-600 dark:text-orange-400'}`}>
                   {avgHours.toFixed(1)}u
@@ -1178,7 +1178,7 @@ export default function Timesheets() {
             {/* Verlof & Ziekte Overzicht */}
             {(weekLeaveRequests.length > 0 || weekSickLeaves.length > 0) && (
               <div className="border-t border-primary-200 dark:border-primary-800 pt-3 mt-3">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Verlof & Verzuim deze week</h4>
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Verlof & Verzuim deze week</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {calculateWeekLeaveHours() > 0 && (
                     <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800">
@@ -1324,7 +1324,7 @@ export default function Timesheets() {
                     ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
                     : hasData
                     ? 'border-orange-300 dark:border-orange-600 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 shadow-sm'
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -1332,7 +1332,7 @@ export default function Timesheets() {
                     <p className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
                       {getDayName(entry.date)}
                     </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
                       {entry.date.toLocaleDateString('nl-NL')}
                     </p>
                   </div>
@@ -1377,7 +1377,7 @@ export default function Timesheets() {
                   </div>
                 </div>
 
-                <ChevronRight className={`h-5 w-5 text-gray-600 dark:text-gray-400 transition-transform flex-shrink-0 ml-2 ${isExpanded ? 'rotate-90' : ''}`} />
+                <ChevronRight className={`h-5 w-5 text-gray-600 dark:text-gray-300 transition-transform flex-shrink-0 ml-2 ${isExpanded ? 'rotate-90' : ''}`} />
               </button>
 
               {/* Expanded Day Content */}
@@ -1449,14 +1449,14 @@ export default function Timesheets() {
                         {autoStatus ? (
                           // Leave/sick = automatisch geregistreerd — laat zien dat
                           // het al gevuld is, geen keuze nodig.
-                          <div className="mb-3 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/60">
-                            <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          <div className="mb-3 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/60">
+                            <p className="text-xs font-medium text-gray-700 dark:text-gray-200">
                               Status van de dag
                             </p>
                             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-0.5">
                               {autoStatus === 'sick' ? 'Ziek' : 'Verlof'}
                             </p>
-                            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                            <p className="text-[11px] text-gray-500 dark:text-gray-300 mt-0.5">
                               Automatisch geregistreerd via {autoStatus === 'sick' ? 'Ziekteverzuim' : 'Verlof'}-module.
                             </p>
                           </div>
@@ -1476,7 +1476,7 @@ export default function Timesheets() {
                           </div>
                         ) : (
                           <div className="mb-3">
-                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                               Status van de dag <span className="text-red-500">*</span>
                             </label>
                             <select
@@ -1491,7 +1491,7 @@ export default function Timesheets() {
                                 }
                               }}
                               disabled={isReadOnly}
-                              className={`w-full px-3 py-2 rounded-lg border text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
+                              className={`w-full px-3 py-2 rounded-lg border text-sm font-medium bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors ${
                                 isFilled
                                   ? 'border-gray-300 dark:border-gray-600'
                                   : 'border-amber-400 dark:border-amber-600 ring-1 ring-amber-200 dark:ring-amber-900/40'
@@ -1516,7 +1516,7 @@ export default function Timesheets() {
                         {/* Reden bij niet-gewerkt (alleen voor handmatige statussen) */}
                         {!autoStatus && isFilled && !isWorked && (
                           <div className="mb-3">
-                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">
                               Korte toelichting (optioneel)
                             </label>
                             <Input
@@ -1532,7 +1532,7 @@ export default function Timesheets() {
                         {/* Verplichte effort-toelichting bij gewerkt < 8u */}
                         {needsEffortNote && (
                           <div className="mb-3">
-                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">
                               Minder dan 8 uur gewerkt — wat heb je gedaan? <span className="text-red-500">*</span>
                             </label>
                             <Input
@@ -1557,7 +1557,7 @@ export default function Timesheets() {
                   {/* Input Fields — alleen relevant als 'Gewerkt' */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Uren</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Uren</label>
                       <Input
                         type="number"
                         min="0"
@@ -1571,7 +1571,7 @@ export default function Timesheets() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kilometers</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Kilometers</label>
                       <Input
                         type="number"
                         min="0"
@@ -1587,7 +1587,7 @@ export default function Timesheets() {
 
                   {/* Notes */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notities</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Notities</label>
                     <Input
                       type="text"
                       value={entry.notes || ''}
@@ -1601,7 +1601,7 @@ export default function Timesheets() {
                   {/* Work Activities */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Werkzaamheden</label>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">Werkzaamheden</label>
                       {!isReadOnly && (
                         <Button
                           onClick={() => addWorkActivity(index)}
@@ -1627,7 +1627,7 @@ export default function Timesheets() {
                               <select
                                 value={activity.internalProjectId || ''}
                                 onChange={e => selectProjectForActivity(index, actIdx, e.target.value)}
-                                className="flex-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-1 px-1.5"
+                                className="flex-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-1 px-1.5"
                               >
                                 <option value="">— Kies project (optioneel) —</option>
                                 {internalProjects.map(p => (
@@ -1653,7 +1653,7 @@ export default function Timesheets() {
                                 <select
                                   value={activity.taskId || ''}
                                   onChange={e => selectTaskForActivity(index, actIdx, e.target.value)}
-                                  className="flex-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-1 px-1.5"
+                                  className="flex-1 text-xs rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-1 px-1.5"
                                 >
                                   <option value="">— Kies taak (optioneel) —</option>
                                   {relevantTasks.map(t => (
@@ -1814,7 +1814,7 @@ export default function Timesheets() {
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                 Minder dan 40 uur deze week
               </h3>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
                 Je hebt <strong>{currentTimesheet.totalRegularHours}u</strong> geregistreerd. Voordat je
                 kan indienen willen we 3 dingen van je weten — niet om je te pesten,
                 maar om samen beter te worden.
@@ -1823,7 +1823,7 @@ export default function Timesheets() {
 
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
                   1. Is er dagelijks contact geweest met kantoor? <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -1835,7 +1835,7 @@ export default function Timesheets() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
                   2. Heb jij zelf alle effort erin gestoken om effectief te zijn? <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -1847,7 +1847,7 @@ export default function Timesheets() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
                   3. Welke suggesties heb je om jouw tijd effectiever te maken — voor jezelf én voor het bedrijf? <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -1865,7 +1865,7 @@ export default function Timesheets() {
                   <div className="mb-1 p-2 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-200">
                     Je verwijst naar een opdrachtgever. Dat mag, maar focus ook op wat <strong>jij of het team</strong> zelf kunnen veranderen — daar heb je invloed op.
                   </div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
                     3b. Los van wat opdrachtgevers leveren — wat kun jij of het team zelf doen om beter bij te dragen? <span className="text-red-500">*</span>
                   </label>
                   <textarea

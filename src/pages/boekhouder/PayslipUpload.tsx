@@ -179,7 +179,7 @@ const PayslipUpload: React.FC = () => {
           <FileText className="h-6 w-6 text-primary-600" />
           Loonstroken uploaden
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
           Voor {selectedCompany.name} — kies een medewerker en upload de maandlooncheck als PDF.
         </p>
       </div>
@@ -188,15 +188,15 @@ const PayslipUpload: React.FC = () => {
         <div className="p-4 sm:p-6 space-y-4">
           {/* Werknemer */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
               Medewerker
             </label>
             {loadingEmployees ? (
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300">
                 <Loader2 className="h-4 w-4 animate-spin" /> Laden…
               </div>
             ) : employees.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-500 dark:text-gray-300">
                 Geen actieve medewerkers gevonden voor dit bedrijf.
               </p>
             ) : (
@@ -218,7 +218,7 @@ const PayslipUpload: React.FC = () => {
           {/* Periode */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
                 Maand
               </label>
               <select
@@ -234,7 +234,7 @@ const PayslipUpload: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
                 Jaar
               </label>
               <select
@@ -261,7 +261,7 @@ const PayslipUpload: React.FC = () => {
 
           {/* Bestand */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
               Loonstrook PDF
             </label>
             <label className="flex items-center gap-3 p-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary-400 transition-colors bg-gray-50 dark:bg-gray-900/40">
@@ -270,7 +270,7 @@ const PayslipUpload: React.FC = () => {
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                   {file ? file.name : 'Klik om een PDF te kiezen'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Max 5 MB, alleen PDF</p>
+                <p className="text-xs text-gray-500 dark:text-gray-300">Max 5 MB, alleen PDF</p>
               </div>
               <input type="file" accept="application/pdf" className="hidden" onChange={handleFile} />
             </label>
@@ -299,11 +299,11 @@ const PayslipUpload: React.FC = () => {
               Recente loonstroken van {selectedEmployee ? `${selectedEmployee.personalInfo.firstName} ${selectedEmployee.personalInfo.lastName}` : 'deze medewerker'}
             </h2>
             {loadingRecent ? (
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300">
                 <Loader2 className="h-4 w-4 animate-spin" /> Laden…
               </div>
             ) : recent.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400">Nog geen loonstroken geüpload.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300">Nog geen loonstroken geüpload.</p>
             ) : (
               <div className="space-y-2">
                 {recent.map((p) => {
@@ -335,7 +335,7 @@ const PayslipUpload: React.FC = () => {
                       ) : (
                         <div className="flex-1 min-w-0 flex items-center gap-3">
                           <FileText className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                          <span className="flex-1 min-w-0 truncate text-gray-500 dark:text-gray-400">
+                          <span className="flex-1 min-w-0 truncate text-gray-500 dark:text-gray-300">
                             {monthLabel} {p.periodStartDate.getFullYear()}
                           </span>
                           <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 flex-shrink-0">

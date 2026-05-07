@@ -384,7 +384,7 @@ const WeeklyTasksReminder = forwardRef<WeeklyTasksReminderRef, WeeklyTasksRemind
               )}
             </div>
             {task.isRecurring && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                 🔄 Terugkerend ({task.frequency})
               </p>
             )}
@@ -394,13 +394,13 @@ const WeeklyTasksReminder = forwardRef<WeeklyTasksReminderRef, WeeklyTasksRemind
               <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
                 {task.description && (
                   <div>
-                    <h5 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">Beschrijving</h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{task.description}</p>
+                    <h5 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-1">Beschrijving</h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
                   </div>
                 )}
                 {task.checklist && task.checklist.length > 0 && (
                   <div>
-                    <h5 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1">
+                    <h5 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-1">
                       Subtaken ({task.checklist.filter(s => s.completed).length}/{task.checklist.length})
                     </h5>
                     <div className="space-y-1">
@@ -461,7 +461,7 @@ const WeeklyTasksReminder = forwardRef<WeeklyTasksReminderRef, WeeklyTasksRemind
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                 {thisWeekTasks.length} {thisWeekTasks.length === 1 ? 'taak' : 'taken'} deze week
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 {selectedCompany?.name}
               </p>
             </div>
@@ -528,7 +528,7 @@ const WeeklyTasksReminder = forwardRef<WeeklyTasksReminderRef, WeeklyTasksRemind
                 text: 'text-blue-600'
               }, ChevronRight))}
               {upcomingTasks.length > 5 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+                <p className="text-sm text-gray-500 dark:text-gray-300 text-center py-2">
                   + {upcomingTasks.length - 5} meer
                 </p>
               )}

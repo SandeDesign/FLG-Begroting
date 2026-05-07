@@ -43,7 +43,7 @@ const Login: React.FC = () => {
           <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-gray-100">
             Welkom bij FLG-Administratie
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Log in om je loonadministratie te beheren
           </p>
         </div>

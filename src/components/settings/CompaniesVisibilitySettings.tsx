@@ -113,7 +113,7 @@ const CompaniesVisibilitySettings: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="text-sm text-gray-500 dark:text-gray-400">Laden...</div>;
+    return <div className="text-sm text-gray-500 dark:text-gray-300">Laden...</div>;
   }
 
   return (
@@ -123,7 +123,7 @@ const CompaniesVisibilitySettings: React.FC = () => {
           <Building2 className="h-5 w-5 text-primary-600" />
           Bedrijven Zichtbaarheid (Persoonlijk)
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           Kies welke bedrijven <strong>voor jou</strong> zichtbaar zijn in de bedrijfenkeuze. Deze instelling is persoonlijk - andere gebruikers (admin/co-admin) kunnen hun eigen voorkeuren instellen.
         </p>
       </div>
@@ -138,7 +138,7 @@ const CompaniesVisibilitySettings: React.FC = () => {
       {/* Visible Companies */}
       {visibleCompanies.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Zichtbare bedrijven</h3>
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200">Zichtbare bedrijven</h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {visibleCompanies.map(company => (
               <div
@@ -159,7 +159,7 @@ const CompaniesVisibilitySettings: React.FC = () => {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{company.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{company.companyType}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 capitalize">{company.companyType}</p>
                   </div>
                 </div>
                 <button
@@ -183,7 +183,7 @@ const CompaniesVisibilitySettings: React.FC = () => {
       {/* Hidden Companies */}
       {hiddenCompanies.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Verborgen bedrijven</h3>
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200">Verborgen bedrijven</h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {hiddenCompanies.map(company => (
               <div
@@ -203,8 +203,8 @@ const CompaniesVisibilitySettings: React.FC = () => {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{company.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{company.companyType}</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{company.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 capitalize">{company.companyType}</p>
                   </div>
                 </div>
                 <button
