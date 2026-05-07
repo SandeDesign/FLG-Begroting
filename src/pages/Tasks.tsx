@@ -119,7 +119,7 @@ const Tasks: React.FC = () => {
       loadPeople().catch(() => {});
       getInternalProjects((queryUserId || adminUserId)!, selectedCompany.id).then(setInternalProjects).catch(() => {});
     }
-  }, [user, selectedCompany]);
+  }, [user, selectedCompany, queryUserId]);
 
   const loadTasks = async () => {
     if (!user || !selectedCompany) return;
