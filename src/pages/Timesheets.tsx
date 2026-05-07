@@ -1119,9 +1119,9 @@ export default function Timesheets() {
       {/* Status Badge */}
       {currentTimesheet.status !== 'draft' && (
         <div className={`p-3 rounded-lg flex items-center justify-between text-sm border-l-4 ${
-          currentTimesheet.status === 'approved' ? 'bg-green-50 dark:bg-green-900/20 border-green-500' :
-          currentTimesheet.status === 'submitted' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500' :
-          currentTimesheet.status === 'rejected' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' :
+          currentTimesheet.status === 'approved' ? 'bg-green-50 dark:bg-gray-700 border-green-500' :
+          currentTimesheet.status === 'submitted' ? 'bg-blue-50 dark:bg-gray-700 border-blue-500' :
+          currentTimesheet.status === 'rejected' ? 'bg-red-50 dark:bg-gray-700 border-red-500' :
           'bg-gray-100 dark:bg-gray-800 border-gray-500'
         }`}>
           <span className={`font-medium ${
@@ -1143,7 +1143,7 @@ export default function Timesheets() {
 
       {/* Import Status */}
       {importing && (
-        <div className="p-3 sm:p-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-lg flex items-center gap-3 text-primary-600 dark:text-primary-400 text-sm">
+        <div className="p-3 sm:p-4 bg-primary-50 dark:bg-gray-700 border border-primary-200 dark:border-primary-700 rounded-lg flex items-center gap-3 text-primary-600 dark:text-primary-400 text-sm">
           <LoadingSpinner className="h-4 w-4 sm:h-5 sm:w-5" />
           <span>Bezig met ophalen van data...</span>
         </div>
@@ -1156,7 +1156,7 @@ export default function Timesheets() {
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">Week {selectedWeek} Overzicht</h3>
 
             {isUnderContract && (
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded text-sm text-yellow-700 dark:text-yellow-300 flex gap-2">
+              <div className="p-3 bg-yellow-50 dark:bg-gray-700 border border-yellow-200 dark:border-yellow-700 rounded text-sm text-yellow-700 dark:text-yellow-300 flex gap-2">
                 <span>⚠️</span>
                 <div>
                   <strong>Onder contract uren:</strong> {currentTimesheet.totalRegularHours}u van {contractHours}u
@@ -1194,7 +1194,7 @@ export default function Timesheets() {
                 <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Verlof & Verzuim deze week</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {calculateWeekLeaveHours() > 0 && (
-                    <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800">
+                    <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-gray-700 rounded-lg border border-emerald-100 dark:border-emerald-700">
                       <Palmtree className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
@@ -1207,7 +1207,7 @@ export default function Timesheets() {
                     </div>
                   )}
                   {calculateWeekSickHours() > 0 && (
-                    <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
+                    <div className="flex items-center gap-2 p-2 bg-red-50 dark:bg-gray-700 rounded-lg border border-red-100 dark:border-red-700">
                       <HeartPulse className="h-4 w-4 text-red-600 dark:text-red-400 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-red-700 dark:text-red-300">
@@ -1257,8 +1257,8 @@ export default function Timesheets() {
         return (
           <div className={`rounded-xl border-2 p-3 sm:p-4 ${
             allOk
-              ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20'
-              : 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20'
+              ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-gray-800'
+              : 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-gray-800'
           }`}>
             <p className={`text-sm font-semibold mb-2 ${
               allOk ? 'text-emerald-800 dark:text-emerald-200' : 'text-amber-900 dark:text-amber-200'
@@ -1324,20 +1324,20 @@ export default function Timesheets() {
                 disabled={isReadOnly && !hasData && !hasLeaveOrSick}
                 className={`w-full p-3 sm:p-4 rounded-lg border-2 transition-all text-left flex items-center justify-between ${
                   isExpanded
-                    ? 'border-primary-300 dark:border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                    ? 'border-primary-300 dark:border-primary-600 bg-primary-50 dark:bg-gray-700'
                     : missingStatus
-                    ? 'border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                    ? 'border-red-400 dark:border-red-600 bg-red-50 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-gray-600'
                     : missingEffort
-                    ? 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+                    ? 'border-amber-400 dark:border-amber-600 bg-amber-50 dark:bg-gray-700 hover:bg-amber-100 dark:hover:bg-gray-600'
                     : daySick
-                    ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                    ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-gray-600'
                     : dayLeave
-                    ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
+                    ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-gray-600'
                     : hasData && meetsDailyTarget
-                    ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30'
+                    ? 'border-emerald-300 dark:border-emerald-600 bg-emerald-50 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-gray-600'
                     : hasData
-                    ? 'border-orange-300 dark:border-orange-600 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30'
-                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 shadow-sm'
+                    ? 'border-orange-300 dark:border-orange-600 bg-orange-50 dark:bg-gray-700 hover:bg-orange-100 dark:hover:bg-gray-600'
+                    : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm'
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -1395,10 +1395,10 @@ export default function Timesheets() {
 
               {/* Expanded Day Content */}
               {isExpanded && (
-                <Card className={`mt-1 p-3 sm:p-4 space-y-3 sm:space-y-4 ${isImported ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-700' : daySick ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700' : dayLeave ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700' : ''}`}>
+                <Card className={`mt-1 p-3 sm:p-4 space-y-3 sm:space-y-4 ${isImported ? 'bg-primary-50 dark:!bg-gray-800 border-primary-200 dark:border-primary-700' : daySick ? 'bg-red-50 dark:!bg-gray-800 border-red-200 dark:border-red-700' : dayLeave ? 'bg-emerald-50 dark:!bg-gray-800 border-emerald-200 dark:border-emerald-700' : ''}`}>
                   {/* Verlof/Ziekte Details */}
                   {(dayLeave || daySick) && (
-                    <div className={`p-3 rounded-lg ${daySick ? 'bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700' : 'bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700'}`}>
+                    <div className={`p-3 rounded-lg ${daySick ? 'bg-red-100 dark:bg-gray-700 border border-red-200 dark:border-red-700' : 'bg-emerald-100 dark:bg-gray-700 border border-emerald-200 dark:border-emerald-700'}`}>
                       {dayLeave && (
                         <div className="flex items-start gap-2">
                           <Palmtree className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -1476,11 +1476,11 @@ export default function Timesheets() {
                         ) : isImported ? (
                           // ITKnecht-import: status is automatisch 'Gewerkt'.
                           // Geen dropdown — maar eigen uren toevoegen is WEL mogelijk.
-                          <div className="mb-3 p-3 rounded-lg border border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/20">
+                          <div className="mb-3 p-3 rounded-lg border border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-gray-700">
                             <p className="text-xs font-medium text-primary-700 dark:text-primary-300">
                               Status van de dag
                             </p>
-                            <p className="text-sm font-semibold text-primary-900 dark:text-primary-100 mt-0.5">
+                            <p className="text-sm font-semibold text-primary-900 dark:text-primary-200 mt-0.5">
                               Productie uren Riset
                             </p>
                             <p className="text-[11px] text-primary-600 dark:text-primary-400 mt-0.5">
@@ -1632,7 +1632,7 @@ export default function Timesheets() {
                         internalProjects.find(p => p.id === activity.internalProjectId)?.color
                       );
                       return (
-                        <div key={actIdx} className={`p-2 rounded space-y-1.5 ${activity.isITKnechtImport ? 'bg-primary-100 dark:bg-primary-900/20' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                        <div key={actIdx} className={`p-2 rounded space-y-1.5 ${activity.isITKnechtImport ? 'bg-primary-100 dark:bg-primary-900/50' : 'bg-gray-100 dark:bg-gray-800'}`}>
                           {/* Project selector — alleen voor handmatige entries */}
                           {!activity.isITKnechtImport && !isReadOnly && internalProjects.length > 0 && (
                             <div className="flex items-center gap-2">
@@ -1790,7 +1790,7 @@ export default function Timesheets() {
             </div>
 
             {missing.length > 0 && (
-              <div className="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4">
+              <div className="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-gray-700 p-4">
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-full bg-amber-500 text-white flex items-center justify-center flex-shrink-0">
                     <span className="text-sm font-bold">{missing.length}</span>
@@ -1875,7 +1875,7 @@ export default function Timesheets() {
               {/* Soft-check: opdrachtgever-blame in vraag 3 → extra zelfreflectie. */}
               {containsOpdrachtgeverBlame(reviewAnswers.suggestions) && (
                 <div>
-                  <div className="mb-1 p-2 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-200">
+                  <div className="mb-1 p-2 rounded-md bg-amber-50 dark:bg-gray-700 border border-amber-200 dark:border-amber-700 text-[11px] text-amber-800 dark:text-amber-200">
                     Je verwijst naar een opdrachtgever. Dat mag, maar focus ook op wat <strong>jij of het team</strong> zelf kunnen veranderen — daar heb je invloed op.
                   </div>
                   <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
