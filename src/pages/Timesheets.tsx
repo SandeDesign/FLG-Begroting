@@ -1129,10 +1129,10 @@ export default function Timesheets() {
       {/* Status Badge */}
       {currentTimesheet.status !== 'draft' && (
         <div className={`p-3 rounded-lg flex items-center justify-between text-sm border-l-4 ${
-          currentTimesheet.status === 'approved' ? 'bg-green-50 dark:bg-gray-700 border-green-500' :
-          currentTimesheet.status === 'submitted' ? 'bg-blue-50 dark:bg-gray-700 border-blue-500' :
-          currentTimesheet.status === 'rejected' ? 'bg-red-50 dark:bg-gray-700 border-red-500' :
-          'bg-gray-100 dark:bg-gray-800 border-gray-500'
+          currentTimesheet.status === 'approved' ? 'bg-green-50 dark:!bg-gray-700 border-green-500' :
+          currentTimesheet.status === 'submitted' ? 'bg-blue-50 dark:!bg-gray-700 border-blue-500' :
+          currentTimesheet.status === 'rejected' ? 'bg-red-50 dark:!bg-gray-700 border-red-500' :
+          'bg-gray-100 dark:!bg-gray-800 border-gray-500'
         }`}>
           <span className={`font-medium ${
             currentTimesheet.status === 'approved' ? 'text-green-700 dark:text-green-300' :
@@ -1339,7 +1339,7 @@ export default function Timesheets() {
                 disabled={isReadOnly && !hasData && !hasLeaveOrSick}
                 className={`w-full p-3 sm:p-4 rounded-lg border-2 transition-all text-left flex items-center justify-between ${
                   isExpanded
-                    ? 'border-primary-300 dark:border-primary-600 bg-primary-50 dark:bg-gray-700'
+                    ? 'border-primary-300 dark:border-primary-600 bg-primary-50 dark:!bg-gray-700'
                     : missingStatus
                     ? 'border-red-400 dark:border-red-600 bg-red-50 dark:bg-gray-700 hover:bg-red-100 dark:hover:bg-gray-600'
                     : missingEffort
@@ -1410,19 +1410,19 @@ export default function Timesheets() {
 
               {/* Expanded Day Content */}
               {isExpanded && (
-                <div className={`mt-1 rounded-xl shadow-md border hover:shadow-lg transition-shadow duration-200 ${
+                <div className={`mt-1 rounded-xl shadow-md border hover:shadow-lg transition-shadow duration-200 dark:!bg-gray-800 ${
                   isImported
-                    ? 'bg-primary-50 dark:bg-gray-800 border-primary-200 dark:border-primary-700'
+                    ? 'bg-primary-50 border-primary-200 dark:border-primary-700'
                     : daySick
-                    ? 'bg-red-50 dark:bg-gray-800 border-red-200 dark:border-red-700'
+                    ? 'bg-red-50 border-red-200 dark:border-red-700'
                     : dayLeave
-                    ? 'bg-emerald-50 dark:bg-gray-800 border-emerald-200 dark:border-emerald-700'
-                    : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-600'
+                    ? 'bg-emerald-50 border-emerald-200 dark:border-emerald-700'
+                    : 'bg-white border-gray-100 dark:border-gray-600'
                 }`}>
                 <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                   {/* Verlof/Ziekte Details */}
                   {(dayLeave || daySick) && (
-                    <div className={`p-3 rounded-lg ${daySick ? 'bg-red-100 dark:bg-gray-700 border border-red-200 dark:border-red-700' : 'bg-emerald-100 dark:bg-gray-700 border border-emerald-200 dark:border-emerald-700'}`}>
+                    <div className={`p-3 rounded-lg ${daySick ? 'bg-red-100 dark:!bg-gray-700 border border-red-200 dark:border-red-700' : 'bg-emerald-100 dark:!bg-gray-700 border border-emerald-200 dark:border-emerald-700'}`}>
                       {dayLeave && (
                         <div className="flex items-start gap-2">
                           <Palmtree className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -1486,7 +1486,7 @@ export default function Timesheets() {
                         {autoStatus ? (
                           // Leave/sick = automatisch geregistreerd — laat zien dat
                           // het al gevuld is, geen keuze nodig.
-                          <div className="mb-3 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/60">
+                          <div className="mb-3 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:!bg-gray-900">
                             <p className="text-xs font-medium text-gray-700 dark:text-gray-200">
                               Status van de dag
                             </p>
@@ -1500,7 +1500,7 @@ export default function Timesheets() {
                         ) : isImported ? (
                           // ITKnecht-import: status is automatisch 'Gewerkt'.
                           // Geen dropdown — maar eigen uren toevoegen is WEL mogelijk.
-                          <div className="mb-3 p-3 rounded-lg border border-primary-300 dark:border-primary-700 bg-primary-50 dark:bg-gray-700">
+                          <div className="mb-3 p-3 rounded-lg border border-primary-300 dark:border-primary-700 bg-primary-50 dark:!bg-gray-700">
                             <p className="text-xs font-medium text-primary-700 dark:text-primary-300">
                               Status van de dag
                             </p>
