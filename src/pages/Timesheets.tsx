@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, Save, Send, Download, ChevronLeft, ChevronRight, User, Palmtree, HeartPulse, FolderKanban, ListChecks, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Save, Send, Download, ChevronLeft, ChevronRight, User, Palmtree, HeartPulse, FolderKanban, ListChecks, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import Button from '../components/ui/Button';
@@ -756,6 +756,8 @@ export default function Timesheets() {
 
     setSaving(true);
     try {
+      // Sla eerst de actuele state op zodat werkactiviteiten niet verloren gaan
+      await updateWeeklyTimesheet(currentTimesheet.id, queryUserId, currentTimesheet);
       await submitWeeklyTimesheet(
         currentTimesheet.id,
         queryUserId,
@@ -827,12 +829,16 @@ export default function Timesheets() {
       review.suggestionsSelf = suggestionsSelf.trim();
     }
     try {
-      await updateWeeklyTimesheet(currentTimesheet.id, queryUserId, { lowHoursReview: review });
+      // Sla review + actuele entries op in één write
+      await updateWeeklyTimesheet(currentTimesheet.id, queryUserId, {
+        ...currentTimesheet,
+        lowHoursReview: review,
+      });
       const updated = { ...currentTimesheet, lowHoursReview: review };
       setCurrentTimesheet(updated);
       setShowLowHoursModal(false);
       setReviewAnswers({ dailyContact: '', effortInvested: '', suggestions: '', suggestionsSelf: '' });
-      // Direct indienen — review is nu opgeslagen.
+      // Direct indienen — review + entries zijn nu opgeslagen.
       setSaving(true);
       await submitWeeklyTimesheet(
         currentTimesheet.id,
@@ -1126,28 +1132,49 @@ export default function Timesheets() {
         </div>
       </div>
 
-      {/* Status Badge */}
-      {currentTimesheet.status !== 'draft' && (
-        <div className={`p-3 rounded-lg flex items-center justify-between text-sm border-l-4 ${
-          currentTimesheet.status === 'approved' ? 'bg-green-50 dark:!bg-gray-700 border-green-500' :
-          currentTimesheet.status === 'submitted' ? 'bg-blue-50 dark:!bg-gray-700 border-blue-500' :
-          currentTimesheet.status === 'rejected' ? 'bg-red-50 dark:!bg-gray-700 border-red-500' :
-          'bg-gray-100 dark:!bg-gray-800 border-gray-500'
-        }`}>
-          <span className={`font-medium ${
-            currentTimesheet.status === 'approved' ? 'text-green-700 dark:text-green-300' :
-            currentTimesheet.status === 'submitted' ? 'text-blue-700 dark:text-blue-300' :
-            currentTimesheet.status === 'rejected' ? 'text-red-700 dark:text-red-300' :
-            'text-gray-700 dark:text-gray-300'
-          }`}>
-            Status: {currentTimesheet.status === 'approved' ? 'Goedgekeurd' :
-                     currentTimesheet.status === 'submitted' ? 'Ingediend' :
-                     currentTimesheet.status === 'rejected' ? 'Afgekeurd' :
-                     currentTimesheet.status === 'processed' ? 'Verwerkt' : 'Concept'}
-          </span>
-          {currentTimesheet.rejectionReason && (
-            <span className="text-xs text-red-600 dark:text-red-400">Reden: {currentTimesheet.rejectionReason}</span>
-          )}
+      {/* Status Banner */}
+      {currentTimesheet.status === 'submitted' && (
+        <div className="p-4 rounded-xl border-2 border-blue-400 dark:border-blue-600 bg-blue-50 dark:!bg-gray-700 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+            <Send className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="font-semibold text-blue-800 dark:text-blue-200">Week ingediend — wacht op goedkeuring</p>
+            <p className="text-xs text-blue-600 dark:text-blue-300 mt-0.5">
+              Ingediend op {currentTimesheet.submittedAt ? new Date(currentTimesheet.submittedAt).toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : '—'}
+            </p>
+          </div>
+        </div>
+      )}
+      {currentTimesheet.status === 'approved' && (
+        <div className="p-4 rounded-xl border-2 border-green-400 dark:border-green-600 bg-green-50 dark:!bg-gray-700 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="font-semibold text-green-800 dark:text-green-200">Week goedgekeurd</p>
+            <p className="text-xs text-green-600 dark:text-green-300 mt-0.5">
+              Goedgekeurd door {currentTimesheet.approvedBy || 'beheerder'}
+            </p>
+          </div>
+        </div>
+      )}
+      {currentTimesheet.status === 'rejected' && (
+        <div className="p-4 rounded-xl border-2 border-red-400 dark:border-red-600 bg-red-50 dark:!bg-gray-700 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+            <AlertCircle className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <p className="font-semibold text-red-800 dark:text-red-200">Week afgekeurd — pas aan en dien opnieuw in</p>
+            {currentTimesheet.rejectionReason && (
+              <p className="text-xs text-red-600 dark:text-red-300 mt-0.5">Reden: {currentTimesheet.rejectionReason}</p>
+            )}
+          </div>
+        </div>
+      )}
+      {currentTimesheet.status === 'processed' && (
+        <div className="p-3 rounded-lg border-l-4 border-gray-500 bg-gray-100 dark:!bg-gray-800 text-sm text-gray-700 dark:text-gray-300 font-medium">
+          Week verwerkt
         </div>
       )}
 
