@@ -135,53 +135,54 @@ const EmployeeDashboard: React.FC = () => {
     return 'Goedenavond';
   };
 
-  const quickActions = [
-    {
-      title: 'Uren',
-      subtitle: 'Gewerkte uren',
-      icon: Clock,
-      href: '/employee-dashboard/timesheets',
-      bgGradient: 'from-amber-500 to-amber-600',
-      iconBg: 'bg-amber-100',
-      iconColor: 'text-amber-600'
-    },
-    {
-      title: 'Agenda',
-      subtitle: 'Taken inplannen',
-      icon: CalendarDays,
-      href: '/employee-dashboard/agenda',
-      bgGradient: 'from-blue-500 to-blue-600',
-      iconBg: 'bg-blue-100',
-      iconColor: 'text-blue-600'
-    },
-    {
-      title: 'Declaraties',
-      subtitle: 'Onkosten indienen',
-      icon: Receipt,
-      href: '/employee-dashboard/expenses',
-      bgGradient: 'from-emerald-500 to-emerald-600',
-      iconBg: 'bg-emerald-100',
-      iconColor: 'text-emerald-600'
-    },
-    {
-      title: 'Verlof',
-      subtitle: 'Aanvragen en saldo',
-      icon: Calendar,
-      href: '/employee-dashboard/leave',
-      bgGradient: 'from-primary-500 to-primary-600',
-      iconBg: 'bg-primary-100',
-      iconColor: 'text-primary-600'
-    },
-    {
-      title: 'Verzuim',
-      subtitle: 'Ziek- en betermelden',
-      icon: HeartPulse,
-      href: '/employee-dashboard/absence',
-      bgGradient: 'from-red-500 to-red-600',
-      iconBg: 'bg-red-100',
-      iconColor: 'text-red-600'
-    },
+  type Tone = 'bronze' | 'amber' | 'sky' | 'emerald' | 'red' | 'purple';
+  const toneClasses: Record<Tone, { iconBg: string; iconText: string }> = {
+    bronze:  { iconBg: 'bg-primary-50 dark:bg-primary-900/30',   iconText: 'text-primary-600 dark:text-primary-400' },
+    amber:   { iconBg: 'bg-amber-50 dark:bg-amber-900/30',       iconText: 'text-amber-600 dark:text-amber-400' },
+    sky:     { iconBg: 'bg-sky-50 dark:bg-sky-900/30',           iconText: 'text-sky-600 dark:text-sky-400' },
+    emerald: { iconBg: 'bg-emerald-50 dark:bg-emerald-900/30',   iconText: 'text-emerald-600 dark:text-emerald-400' },
+    red:     { iconBg: 'bg-red-50 dark:bg-red-900/30',           iconText: 'text-red-600 dark:text-red-400' },
+    purple:  { iconBg: 'bg-purple-50 dark:bg-purple-900/30',     iconText: 'text-purple-600 dark:text-purple-400' },
+  };
+
+  const quickActions: Array<{ title: string; subtitle: string; icon: any; href: string; tone: Tone }> = [
+    { title: 'Uren',        subtitle: 'Gewerkte uren',     icon: Clock,        href: '/employee-dashboard/timesheets', tone: 'amber' },
+    { title: 'Agenda',      subtitle: 'Taken inplannen',   icon: CalendarDays, href: '/employee-dashboard/agenda',     tone: 'sky' },
+    { title: 'Declaraties', subtitle: 'Onkosten indienen', icon: Receipt,      href: '/employee-dashboard/expenses',   tone: 'emerald' },
+    { title: 'Verlof',      subtitle: 'Aanvragen en saldo', icon: Calendar,     href: '/employee-dashboard/leave',      tone: 'bronze' },
+    { title: 'Verzuim',     subtitle: 'Ziek- en betermelden', icon: HeartPulse, href: '/employee-dashboard/absence',    tone: 'red' },
   ];
+
+  const NotificationBanner: React.FC<{
+    tone: 'danger' | 'success';
+    icon: React.ComponentType<{ className?: string }>;
+    title: string;
+    items: React.ReactNode;
+    actionLabel: string;
+    actionHref: string;
+  }> = ({ tone, icon: Icon, title, items, actionLabel, actionHref }) => {
+    const isDanger = tone === 'danger';
+    const c = isDanger
+      ? { border: 'border-l-red-500',     iconBg: 'bg-red-50 dark:bg-red-900/30',         iconText: 'text-red-600 dark:text-red-400',         btn: 'bg-red-500 hover:bg-red-600' }
+      : { border: 'border-l-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30', iconText: 'text-emerald-600 dark:text-emerald-400', btn: 'bg-emerald-500 hover:bg-emerald-600' };
+    return (
+      <div className={`bg-white dark:bg-gray-800 border-y border-r border-l-4 ${c.border} border-y-gray-100 border-r-gray-100 dark:border-y-gray-700 dark:border-r-gray-700 rounded-xl shadow-xs p-4 flex items-start gap-3`}>
+        <div className={`p-2 rounded-lg ${c.iconBg} flex-shrink-0`}>
+          <Icon className={`h-4 w-4 ${c.iconText}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight mb-1.5">{title}</h3>
+          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">{items}</div>
+        </div>
+        <Link
+          to={actionHref}
+          className={`flex-shrink-0 px-3 py-1.5 rounded-lg ${c.btn} text-white text-xs font-semibold transition-colors shadow-xs`}
+        >
+          {actionLabel}
+        </Link>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -191,200 +192,147 @@ const EmployeeDashboard: React.FC = () => {
     );
   }
 
+  const rejectedTimesheets = timesheets.filter(ts => ts.status === 'rejected');
+  const approvedRecentTimesheets = timesheets.filter(ts => ts.status === 'approved' && isRecentDate(ts.approvedAt));
+  const rejectedLeave = leaveRequests.filter(lr => lr.status === 'rejected');
+  const approvedRecentLeave = leaveRequests.filter(lr => lr.status === 'approved' && isRecentDate(lr.approvedAt));
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       {/* Gap-compliance waarschuwing — bovenaan voor maximale zichtbaarheid */}
       <IncompleteWeekBanner targetRoute="/employee-dashboard/timesheets" />
 
-      {/* Header Section */}
-      <div className="hidden lg:block bg-gradient-to-r from-primary-600 to-primary-700 dark:from-gray-800 dark:to-gray-800 dark:border dark:border-gray-700 rounded-2xl p-8 text-white shadow-lg">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">
-              {getGreeting()}, {getFirstName()}!
-            </h1>
-            <p className="text-primary-100 dark:text-gray-300 flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              {selectedCompany?.name || 'FLG-Administratie'}
-            </p>
-            {employeeData?.personalInfo?.firstName && (
-              <p className="text-primary-200 dark:text-gray-500 text-sm mt-2">
-                {getFullName()}
+      {/* Hero header */}
+      <div className="hidden lg:block relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-6 lg:p-8 text-white shadow-glow-primary-lg">
+        <div aria-hidden className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+        <div aria-hidden className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl" />
+        <div className="relative">
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
+                {getGreeting()}, {getFirstName()}
+              </h1>
+              <p className="text-white/80 mt-1.5 text-sm flex items-center gap-2 tracking-tight">
+                <Briefcase className="h-4 w-4" />
+                {selectedCompany?.name || 'FLG-Administratie'}
               </p>
-            )}
+              {employeeData?.personalInfo?.firstName && (
+                <p className="text-white/60 text-xs mt-1">{getFullName()}</p>
+              )}
+            </div>
+            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl ring-1 ring-white/25">
+              <User className="h-6 w-6 text-white" />
+            </div>
           </div>
-          <div className="h-16 w-16 rounded-full bg-white/20 dark:bg-gray-700 flex items-center justify-center">
-            <User className="h-8 w-8 text-white dark:text-gray-300" />
-          </div>
-        </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: 'Uren deze maand', value: stats.totalHours, icon: Clock },
-            { label: 'Kilometers', value: stats.totalKm, icon: TrendingUp },
-            { label: 'Goedgekeurd', value: stats.approvedWeeks, icon: CheckCircle },
-            { label: 'Contract/week', value: stats.contractHours, icon: Target }
-          ].map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div key={index} className="bg-white/20 dark:bg-gray-700/50 backdrop-blur-sm rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon className="h-4 w-4 text-white/80 dark:text-gray-300" />
-                  <p className="text-xs text-white/80 dark:text-gray-300">{stat.label}</p>
+          {/* Quick stats in hero */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: 'Uren deze maand', value: stats.totalHours, icon: Clock },
+              { label: 'Kilometers', value: stats.totalKm, icon: TrendingUp },
+              { label: 'Goedgekeurd', value: stats.approvedWeeks, icon: CheckCircle },
+              { label: 'Contract/week', value: stats.contractHours, icon: Target },
+            ].map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <div key={index} className="bg-white/12 backdrop-blur-sm rounded-xl p-3.5 ring-1 ring-white/20">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Icon className="h-3.5 w-3.5 text-white/80" />
+                    <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">{stat.label}</p>
+                  </div>
+                  <p className="text-xl font-bold text-white tracking-tight">{stat.value}</p>
                 </div>
-                <p className="text-2xl font-bold text-white">{stat.value}</p>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Afgekeurde weken waarschuwing */}
-      {timesheets.filter(ts => ts.status === 'rejected').length > 0 && (
-        <div className="rounded-xl border-2 border-red-300 dark:border-red-700 bg-red-50 dark:bg-gray-700 p-4">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-red-800 dark:text-red-300 text-sm mb-2">
-                {timesheets.filter(ts => ts.status === 'rejected').length === 1
-                  ? '1 week afgekeurd — actie vereist'
-                  : `${timesheets.filter(ts => ts.status === 'rejected').length} weken afgekeurd — actie vereist`}
-              </h3>
-              <div className="space-y-1.5">
-                {timesheets.filter(ts => ts.status === 'rejected').map(ts => (
-                  <div key={ts.id} className="text-xs text-red-700 dark:text-red-400">
-                    <span className="font-semibold">Week {ts.weekNumber} ({ts.year})</span>
-                    {ts.rejectionReason && (
-                      <span className="ml-1.5 text-red-600 dark:text-red-500">— {ts.rejectionReason}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
+      {/* Banners */}
+      {rejectedTimesheets.length > 0 && (
+        <NotificationBanner
+          tone="danger"
+          icon={AlertCircle}
+          title={rejectedTimesheets.length === 1 ? '1 week afgekeurd — actie vereist' : `${rejectedTimesheets.length} weken afgekeurd — actie vereist`}
+          items={rejectedTimesheets.map(ts => (
+            <div key={ts.id}>
+              <span className="font-semibold text-gray-900 dark:text-gray-100">Week {ts.weekNumber} ({ts.year})</span>
+              {ts.rejectionReason && <span className="ml-1.5">— {ts.rejectionReason}</span>}
             </div>
-            <Link
-              to="/employee-dashboard/timesheets"
-              className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors"
-            >
-              Bekijk en herstel
-            </Link>
-          </div>
-        </div>
+          ))}
+          actionLabel="Bekijk en herstel"
+          actionHref="/employee-dashboard/timesheets"
+        />
       )}
 
-      {/* Goedgekeurde uren melding */}
-      {timesheets.filter(ts => ts.status === 'approved' && isRecentDate(ts.approvedAt)).length > 0 && (
-        <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-gray-700 p-4">
-          <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-green-800 dark:text-green-300 text-sm mb-2">
-                {timesheets.filter(ts => ts.status === 'approved' && isRecentDate(ts.approvedAt)).length === 1
-                  ? '1 week goedgekeurd'
-                  : `${timesheets.filter(ts => ts.status === 'approved' && isRecentDate(ts.approvedAt)).length} weken goedgekeurd`}
-              </h3>
-              <div className="space-y-1.5">
-                {timesheets.filter(ts => ts.status === 'approved' && isRecentDate(ts.approvedAt)).map(ts => (
-                  <div key={ts.id} className="text-xs text-green-700 dark:text-green-400">
-                    <span className="font-semibold">Week {ts.weekNumber} ({ts.year})</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Link
-              to="/employee-dashboard/timesheets"
-              className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-semibold transition-colors"
-            >
-              Bekijk
-            </Link>
-          </div>
-        </div>
+      {approvedRecentTimesheets.length > 0 && (
+        <NotificationBanner
+          tone="success"
+          icon={CheckCircle}
+          title={approvedRecentTimesheets.length === 1 ? '1 week goedgekeurd' : `${approvedRecentTimesheets.length} weken goedgekeurd`}
+          items={approvedRecentTimesheets.map(ts => (
+            <div key={ts.id}><span className="font-semibold text-gray-900 dark:text-gray-100">Week {ts.weekNumber} ({ts.year})</span></div>
+          ))}
+          actionLabel="Bekijk"
+          actionHref="/employee-dashboard/timesheets"
+        />
       )}
 
-      {/* Afgekeurde verlof aanvragen */}
-      {leaveRequests.filter(lr => lr.status === 'rejected').length > 0 && (
-        <div className="rounded-xl border-2 border-red-300 dark:border-red-700 bg-red-50 dark:bg-gray-700 p-4">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-red-800 dark:text-red-300 text-sm mb-2">
-                {leaveRequests.filter(lr => lr.status === 'rejected').length === 1
-                  ? '1 verlofaanvraag afgekeurd'
-                  : `${leaveRequests.filter(lr => lr.status === 'rejected').length} verlofaanvragen afgekeurd`}
-              </h3>
-              <div className="space-y-1.5">
-                {leaveRequests.filter(lr => lr.status === 'rejected').map(lr => (
-                  <div key={lr.id} className="text-xs text-red-700 dark:text-red-400">
-                    <span className="font-semibold">{lr.leaveType || 'Verlof'}</span>
-                    {lr.startDate && <span className="ml-1.5">— {new Date(lr.startDate?.toDate ? lr.startDate.toDate() : lr.startDate).toLocaleDateString('nl-NL')}</span>}
-                    {lr.rejectedReason && <span className="ml-1.5 text-red-600 dark:text-red-500">— {lr.rejectedReason}</span>}
-                  </div>
-                ))}
-              </div>
+      {rejectedLeave.length > 0 && (
+        <NotificationBanner
+          tone="danger"
+          icon={AlertCircle}
+          title={rejectedLeave.length === 1 ? '1 verlofaanvraag afgekeurd' : `${rejectedLeave.length} verlofaanvragen afgekeurd`}
+          items={rejectedLeave.map(lr => (
+            <div key={lr.id}>
+              <span className="font-semibold text-gray-900 dark:text-gray-100">{lr.leaveType || 'Verlof'}</span>
+              {lr.startDate && <span className="ml-1.5">— {new Date(lr.startDate?.toDate ? lr.startDate.toDate() : lr.startDate).toLocaleDateString('nl-NL')}</span>}
+              {lr.rejectedReason && <span className="ml-1.5">— {lr.rejectedReason}</span>}
             </div>
-            <Link
-              to="/employee-dashboard/leave"
-              className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors"
-            >
-              Bekijk
-            </Link>
-          </div>
-        </div>
+          ))}
+          actionLabel="Bekijk"
+          actionHref="/employee-dashboard/leave"
+        />
       )}
 
-      {/* Goedgekeurde verlof aanvragen */}
-      {leaveRequests.filter(lr => lr.status === 'approved' && isRecentDate(lr.approvedAt)).length > 0 && (
-        <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-gray-700 p-4">
-          <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-green-800 dark:text-green-300 text-sm mb-2">
-                {leaveRequests.filter(lr => lr.status === 'approved' && isRecentDate(lr.approvedAt)).length === 1
-                  ? '1 verlofaanvraag goedgekeurd'
-                  : `${leaveRequests.filter(lr => lr.status === 'approved' && isRecentDate(lr.approvedAt)).length} verlofaanvragen goedgekeurd`}
-              </h3>
-              <div className="space-y-1.5">
-                {leaveRequests.filter(lr => lr.status === 'approved' && isRecentDate(lr.approvedAt)).map(lr => (
-                  <div key={lr.id} className="text-xs text-green-700 dark:text-green-400">
-                    <span className="font-semibold">{lr.leaveType || 'Verlof'}</span>
-                    {lr.startDate && <span className="ml-1.5">— {new Date(lr.startDate?.toDate ? lr.startDate.toDate() : lr.startDate).toLocaleDateString('nl-NL')}</span>}
-                  </div>
-                ))}
-              </div>
+      {approvedRecentLeave.length > 0 && (
+        <NotificationBanner
+          tone="success"
+          icon={CheckCircle}
+          title={approvedRecentLeave.length === 1 ? '1 verlofaanvraag goedgekeurd' : `${approvedRecentLeave.length} verlofaanvragen goedgekeurd`}
+          items={approvedRecentLeave.map(lr => (
+            <div key={lr.id}>
+              <span className="font-semibold text-gray-900 dark:text-gray-100">{lr.leaveType || 'Verlof'}</span>
+              {lr.startDate && <span className="ml-1.5">— {new Date(lr.startDate?.toDate ? lr.startDate.toDate() : lr.startDate).toLocaleDateString('nl-NL')}</span>}
             </div>
-            <Link
-              to="/employee-dashboard/leave"
-              className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-semibold transition-colors"
-            >
-              Bekijk
-            </Link>
-          </div>
-        </div>
+          ))}
+          actionLabel="Bekijk"
+          actionHref="/employee-dashboard/leave"
+        />
       )}
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <Zap className="h-6 w-6 text-amber-500" />
-          Snelle Acties
+        <h2 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2 tracking-tight">
+          <Zap className="h-4 w-4 text-amber-500" />
+          Snelle acties
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
+            const c = toneClasses[action.tone];
             return (
               <Link
                 key={index}
                 to={action.href}
-                className="group"
+                className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all p-5 flex flex-col items-start gap-3"
               >
-                <div className={`relative overflow-hidden rounded-xl p-6 h-full bg-gradient-to-br ${action.bgGradient} text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95`}>
-                  <div className="flex flex-col items-center text-center h-full justify-center">
-                    <div className={`inline-flex p-4 ${action.iconBg} rounded-xl mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                      <Icon className={`h-6 w-6 ${action.iconColor}`} />
-                    </div>
-                    <h3 className="font-bold text-sm mb-1">{action.title}</h3>
-                    <p className="text-xs text-white/80">{action.subtitle}</p>
-                  </div>
+                <div className={`w-11 h-11 rounded-xl ${c.iconBg} flex items-center justify-center`}>
+                  <Icon className={`h-5 w-5 ${c.iconText}`} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 tracking-tight">{action.title}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{action.subtitle}</p>
                 </div>
               </Link>
             );
@@ -392,55 +340,58 @@ const EmployeeDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
+      {/* Charts */}
       {hoursChartData.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Hours Chart */}
-          <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary-600" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 tracking-tight">
+                <span className="p-1.5 rounded-md bg-primary-50 dark:bg-primary-900/30">
+                  <TrendingUp className="h-3.5 w-3.5 text-primary-600 dark:text-primary-400" />
+                </span>
                 Uren overzicht
               </h3>
-              <span className="text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">Deze maand</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/40 px-2.5 py-1 rounded-md">Deze maand</span>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={280}>
               <LineChart data={hoursChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="week" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
+                <XAxis dataKey="week" stroke="#9ca3af" tick={{ fontSize: 11 }} />
+                <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} />
+                <Tooltip
+                  contentStyle={{
                     backgroundColor: '#fff',
                     border: '1px solid #e5e7eb',
-                    borderRadius: '0.5rem'
+                    borderRadius: '0.5rem',
+                    fontSize: '12px',
                   }}
                 />
-                <Legend />
-                <Line type="monotone" dataKey="hours" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} />
-                <Line type="monotone" dataKey="target" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line type="monotone" dataKey="hours" stroke="#cd853f" strokeWidth={2.5} dot={{ fill: '#cd853f', r: 4 }} name="Uren" />
+                <Line type="monotone" dataKey="target" stroke="#22c55e" strokeWidth={2} strokeDasharray="5 5" name="Target" />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Info Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <Award className="h-5 w-5 text-amber-600" />
-              Informatie
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs p-6">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2 tracking-tight">
+              <span className="p-1.5 rounded-md bg-amber-50 dark:bg-amber-900/30">
+                <Award className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              </span>
+              Overzicht
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Totale uren</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalHours}u</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500">Totale uren</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mt-0.5 tabular-nums">{stats.totalHours}<span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-0.5">u</span></p>
               </div>
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Reiskilometers</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.totalKm}km</p>
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500">Reiskilometers</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mt-0.5 tabular-nums">{stats.totalKm}<span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-0.5">km</span></p>
               </div>
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Weken ingediend</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{timesheets.length}</p>
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500">Weken ingediend</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mt-0.5 tabular-nums">{timesheets.length}</p>
               </div>
             </div>
           </div>
@@ -449,51 +400,28 @@ const EmployeeDashboard: React.FC = () => {
 
       {/* Status Cards */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <Target className="h-6 w-6 text-primary-600" />
-          Huidige Status
+        <h2 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2 tracking-tight">
+          <Target className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+          Huidige status
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            {
-              title: 'Bedrijf',
-              description: selectedCompany?.name || 'Geen bedrijf',
-              icon: Building2,
-              color: 'from-primary-50 to-primary-100',
-              iconColor: 'text-primary-600'
-            },
-            {
-              title: 'Contract uren',
-              description: `${employeeData?.contractInfo?.hoursPerWeek || 40}u per week`,
-              icon: Clock,
-              color: 'from-purple-50 to-purple-100',
-              iconColor: 'text-purple-600'
-            },
-            {
-              title: 'Ingediende weken',
-              description: `${timesheets.filter(t => t.status === 'submitted' || t.status === 'approved').length} weken`,
-              icon: CheckCircle,
-              color: 'from-emerald-50 to-emerald-100',
-              iconColor: 'text-emerald-600'
-            },
-            {
-              title: 'Status',
-              description: 'Alles is up-to-date',
-              icon: CheckCircle,
-              color: 'from-green-50 to-green-100',
-              iconColor: 'text-green-600'
-            }
+            { title: 'Bedrijf',           description: selectedCompany?.name || 'Geen bedrijf',                                                                       icon: Building2,    tone: 'bronze' as Tone },
+            { title: 'Contract uren',     description: `${employeeData?.contractInfo?.hoursPerWeek || 40}u per week`,                                                  icon: Clock,        tone: 'purple' as Tone },
+            { title: 'Ingediende weken',  description: `${timesheets.filter(t => t.status === 'submitted' || t.status === 'approved').length} weken`,                  icon: CheckCircle,  tone: 'emerald' as Tone },
+            { title: 'Status',            description: 'Alles is up-to-date',                                                                                          icon: ListChecks,   tone: 'sky' as Tone },
           ].map((item, index) => {
             const Icon = item.icon;
+            const c = toneClasses[item.tone];
             return (
-              <div key={index} className={`bg-gradient-to-br ${item.color} dark:from-gray-800 dark:to-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{item.title}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{item.description}</p>
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-xs p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3">
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-lg ${c.iconBg} flex items-center justify-center`}>
+                    <Icon className={`h-5 w-5 ${c.iconText}`} />
                   </div>
-                  <div className={`flex-shrink-0 p-3 rounded-lg bg-white dark:bg-gray-800`}>
-                    <Icon className={`h-5 w-5 ${item.iconColor}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500">{item.title}</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-0.5 tracking-tight truncate">{item.description}</p>
                   </div>
                 </div>
               </div>
