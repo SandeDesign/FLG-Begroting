@@ -38,7 +38,12 @@ const NavItem: React.FC<{ item: NavigationItem; collapsed: boolean; userRole: st
           {isActive && !collapsed && (
             <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500 dark:bg-primary-400" aria-hidden />
           )}
-          <item.icon className={`h-[18px] w-[18px] flex-shrink-0 ${ isActive ? 'text-primary-600 dark:text-primary-300' : 'text-gray-400 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200' } ${collapsed ? '' : 'mr-2.5'}`} />
+          <span
+            className={`flex-shrink-0 inline-flex items-center justify-center w-[20px] h-[20px] text-base leading-none ${collapsed ? '' : 'mr-2.5'}`}
+            aria-hidden
+          >
+            {item.emoji}
+          </span>
           {/* Collapsed state: small red dot als er een badge is */}
           {collapsed && badge && (
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800" />
