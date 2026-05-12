@@ -20,6 +20,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import StatTile from '../components/ui/StatTile';
+import PageHeader from '../components/ui/PageHeader';
 import { getEmployeeById, getLeaveRequests } from '../services/firebase';
 import { getWeeklyTimesheets, getWeekNumber } from '../services/timesheetService';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -202,50 +204,19 @@ const EmployeeDashboard: React.FC = () => {
       {/* Gap-compliance waarschuwing — bovenaan voor maximale zichtbaarheid */}
       <IncompleteWeekBanner targetRoute="/employee-dashboard/timesheets" />
 
-      {/* Hero header */}
-      <div className="hidden lg:block relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-6 lg:p-8 text-white shadow-glow-primary-lg">
-        <div aria-hidden className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-        <div aria-hidden className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl" />
-        <div className="relative">
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
-                {getGreeting()}, {getFirstName()}
-              </h1>
-              <p className="text-white/80 mt-1.5 text-sm flex items-center gap-2 tracking-tight">
-                <Briefcase className="h-4 w-4" />
-                {selectedCompany?.name || 'FLG-Administratie'}
-              </p>
-              {employeeData?.personalInfo?.firstName && (
-                <p className="text-white/60 text-xs mt-1">{getFullName()}</p>
-              )}
-            </div>
-            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl ring-1 ring-white/25">
-              <User className="h-6 w-6 text-white" />
-            </div>
-          </div>
+      {/* Header */}
+      <PageHeader
+        title={`${getGreeting()}, ${getFirstName()}`}
+        subtitle={selectedCompany?.name || 'FLG-Administratie'}
+        emoji="👋"
+      />
 
-          {/* Quick stats in hero */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: 'Uren deze maand', value: stats.totalHours, icon: Clock },
-              { label: 'Kilometers', value: stats.totalKm, icon: TrendingUp },
-              { label: 'Goedgekeurd', value: stats.approvedWeeks, icon: CheckCircle },
-              { label: 'Contract/week', value: stats.contractHours, icon: Target },
-            ].map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} className="bg-white/12 backdrop-blur-sm rounded-xl p-3.5 ring-1 ring-white/20">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Icon className="h-3.5 w-3.5 text-white/80" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">{stat.label}</p>
-                  </div>
-                  <p className="text-xl font-bold text-white tracking-tight">{stat.value}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatTile label="Uren deze maand" value={stats.totalHours}    sub="totaal" emoji="⏱️" tone="bronze" />
+        <StatTile label="Kilometers"      value={stats.totalKm}       sub="geregistreerd" emoji="🚗" tone="sky" />
+        <StatTile label="Goedgekeurd"     value={stats.approvedWeeks} sub="weken" emoji="✅" tone="emerald" />
+        <StatTile label="Contract/week"   value={stats.contractHours} sub="uur" emoji="📋" tone="purple" />
       </div>
 
       {/* Banners */}

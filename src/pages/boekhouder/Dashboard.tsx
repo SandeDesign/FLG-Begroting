@@ -13,6 +13,8 @@ import {
   Send,
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
+import StatTile from '../../components/ui/StatTile';
+import PageHeader from '../../components/ui/PageHeader';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { useApp } from '../../contexts/AppContext';
 import { usePageTitle } from '../../contexts/PageTitleContext';
@@ -81,25 +83,26 @@ const BoekhouderDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-6">
-      {/* Hero header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-6 lg:p-8 text-white shadow-glow-primary-lg">
-        <div aria-hidden className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-        <div aria-hidden className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Boekhouder Dashboard</h1>
-            <p className="mt-1.5 text-sm text-white/80 tracking-tight">
-              Je beheert {adminGroups.length} administratie{adminGroups.length === 1 ? '' : 's'}
-              {' '}met in totaal {companies.length} bedrij{companies.length === 1 ? 'f' : 'ven'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/25 self-start sm:self-center">
-            <Handshake className="h-4 w-4" />
-            <span className="text-xs font-medium tracking-tight">
+      {/* Header */}
+      <PageHeader
+        title="Boekhouder Dashboard"
+        subtitle={`Je beheert ${adminGroups.length} administratie${adminGroups.length === 1 ? '' : 's'} met in totaal ${companies.length} bedrij${companies.length === 1 ? 'f' : 'ven'}`}
+        emoji="🤝"
+        actions={
+          <div className="hidden sm:flex items-center gap-2 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-lg px-3 py-1.5">
+            <Handshake className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+            <span className="text-xs font-semibold text-primary-700 dark:text-primary-300 tracking-tight">
               {selectedCompany ? `Actief: ${selectedCompany.name}` : 'Kies een administratie'}
             </span>
           </div>
-        </div>
+        }
+      />
+
+      {/* Overzicht stat tiles */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <StatTile label="Administraties" value={adminGroups.length}   sub="onder beheer"           emoji="🤝" tone="bronze" />
+        <StatTile label="Bedrijven"      value={companies.length}     sub="in totaal"              emoji="🏢" tone="sky" />
+        <StatTile label="Werkgevers"     value={companies.filter(c => c.companyType === 'employer').length} sub="met loonadministratie" emoji="💼" tone="emerald" />
       </div>
 
       {/* Snelle acties */}

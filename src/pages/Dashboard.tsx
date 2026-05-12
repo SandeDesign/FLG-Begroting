@@ -27,6 +27,8 @@ import {
   CreditCard,
 } from 'lucide-react';
 import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
+import PageHeader from '../components/ui/PageHeader';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { useApp } from '../contexts/AppContext';
@@ -502,17 +504,8 @@ const Dashboard: React.FC = () => {
   if (isHoldingCompany && (userRole === 'admin' || userRole === 'co-admin' || userRole === 'manager')) {
     return (
       <div className="space-y-4 pb-24 sm:pb-6 px-4 sm:px-0">
-        {/* Hero Header */}
-        <div className="hidden lg:block bg-gradient-to-br from-primary-600 via-primary-500 to-primary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 dark:border dark:border-gray-700 rounded-xl p-6 text-white space-y-2">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Holding Dashboard</h1>
-              <p className="text-primary-50 dark:text-gray-300 mt-1">{selectedCompany?.name}</p>
-            </div>
-            <Briefcase className="h-12 w-12 text-primary-100 dark:text-gray-500" />
-          </div>
-        </div>
-
+        {/* Header */}
+        <PageHeader title="Holding Dashboard" subtitle={selectedCompany?.name} emoji="🏛️" />
 
         {/* Verlopen taken */}
         {tasks.filter(t => t.status === 'overdue').length > 0 && (
@@ -549,49 +542,10 @@ const Dashboard: React.FC = () => {
 
         {/* Key Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Card className="p-4 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-blue-700 dark:text-gray-300">Bedrijven</p>
-                <p className="text-2xl font-bold text-blue-900 dark:text-gray-100 mt-2">{companies?.length || 0}</p>
-                <p className="text-xs text-blue-600 dark:text-gray-500 mt-2">totaal</p>
-              </div>
-              <Briefcase className="h-8 w-8 text-blue-300 dark:text-blue-500" />
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-green-700 dark:text-gray-300">Verkoop</p>
-                <p className="text-2xl font-bold text-green-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal)}</p>
-                <p className="text-xs text-green-600 dark:text-gray-500 mt-2">{stats.outgoingInvoices} facturen</p>
-              </div>
-              <Send className="h-8 w-8 text-green-300 dark:text-green-500" />
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-purple-50 dark:bg-gray-800 border-purple-200 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Inkoop</p>
-                <p className="text-2xl font-bold text-purple-900 dark:text-gray-100 mt-2">{formatCurrency(stats.incomingTotal)}</p>
-                <p className="text-xs text-purple-600 dark:text-gray-500 mt-2">{stats.incomingInvoices} facturen</p>
-              </div>
-              <Upload className="h-8 w-8 text-purple-300 dark:text-purple-500" />
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-orange-50 dark:bg-gray-800 border-orange-200 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-orange-700 dark:text-gray-300">Marge</p>
-                <p className="text-2xl font-bold text-orange-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal - stats.incomingTotal)}</p>
-                <p className="text-xs text-orange-600 dark:text-gray-500 mt-2">verschil</p>
-              </div>
-              <Wallet className="h-8 w-8 text-orange-300 dark:text-orange-500" />
-            </div>
-          </Card>
+          <StatTile label="Bedrijven" value={companies?.length || 0} sub="totaal"                                emoji="🏢" tone="sky" />
+          <StatTile label="Verkoop"   value={formatCurrency(stats.outgoingTotal)} sub={`${stats.outgoingInvoices} facturen`} emoji="📤" tone="emerald" />
+          <StatTile label="Inkoop"    value={formatCurrency(stats.incomingTotal)} sub={`${stats.incomingInvoices} facturen`} emoji="📥" tone="purple" />
+          <StatTile label="Marge"     value={formatCurrency(stats.outgoingTotal - stats.incomingTotal)} sub="verschil" emoji="💼" tone="amber" />
         </div>
 
         {/* Action Cards */}
@@ -650,17 +604,8 @@ const Dashboard: React.FC = () => {
 
     return (
       <div className="space-y-4 pb-24 sm:pb-6 px-4 sm:px-0">
-        {/* Hero Header */}
-        <div className="hidden lg:block bg-gradient-to-br from-primary-600 via-primary-500 to-primary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 dark:border dark:border-gray-700 rounded-xl p-6 text-white space-y-2">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">WerkMaatschappij</h1>
-              <p className="text-primary-100 dark:text-gray-300 mt-1">{selectedCompany?.name}</p>
-            </div>
-            <Briefcase className="h-12 w-12 text-primary-200 dark:text-gray-500" />
-          </div>
-        </div>
-
+        {/* Header */}
+        <PageHeader title="WerkMaatschappij" subtitle={selectedCompany?.name} emoji="🏭" />
 
         {/* Alert Banner */}
         {totalPending > 0 && (
@@ -913,19 +858,12 @@ const Dashboard: React.FC = () => {
   if ((userRole === 'admin' || userRole === 'co-admin' || userRole === 'manager') && !isProjectCompany && !isHoldingCompany) {
     return (
       <div className="space-y-4 pb-24 sm:pb-6 px-4 sm:px-0">
-        {/* Hero Header */}
-        <div className="hidden lg:block bg-gradient-to-br from-primary-600 via-primary-500 to-primary-700 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 dark:border dark:border-gray-700 rounded-xl p-6 text-white space-y-2">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">
-                {(userRole === 'admin' || userRole === 'co-admin') ? 'Management Dashboard' : 'Team Dashboard'}
-              </h1>
-              <p className="text-primary-100 dark:text-gray-300 mt-1">{selectedCompany?.name || 'Loonadministratie'}</p>
-            </div>
-            <TrendingUp className="h-12 w-12 text-primary-200 dark:text-gray-500" />
-          </div>
-        </div>
-
+        {/* Header */}
+        <PageHeader
+          title={(userRole === 'admin' || userRole === 'co-admin') ? 'Management Dashboard' : 'Team Dashboard'}
+          subtitle={selectedCompany?.name || 'Loonadministratie'}
+          emoji="📊"
+        />
 
         {/* Alert Banner */}
         {totalPending > 0 && (
@@ -951,92 +889,18 @@ const Dashboard: React.FC = () => {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {/* Active Employees */}
-          <Card className="p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-200">Actieve Medewerkers</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">{stats.activeEmployees}</p>
-              </div>
-              <Users className="h-8 w-8 text-primary-400" />
-            </div>
-          </Card>
-
-          {/* Verkoop */}
-          <Card className="p-4 bg-green-50 dark:bg-gray-800 border-green-200 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-green-700 dark:text-gray-300">Verkoop</p>
-                <p className="text-2xl font-bold text-green-900 dark:text-gray-100 mt-2">{formatCurrency(stats.outgoingTotal)}</p>
-                <p className="text-xs text-green-600 dark:text-gray-500 mt-2">{stats.outgoingInvoices} facturen</p>
-              </div>
-              <Send className="h-8 w-8 text-green-300 dark:text-green-500" />
-            </div>
-          </Card>
-
-          {/* Inkoop */}
-          <Card className="p-4 bg-purple-50 dark:bg-gray-800 border-purple-200 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-purple-700 dark:text-gray-300">Inkoop</p>
-                <p className="text-2xl font-bold text-purple-900 dark:text-gray-100 mt-2">{formatCurrency(stats.incomingTotal)}</p>
-                <p className="text-xs text-purple-600 dark:text-gray-500 mt-2">{stats.incomingInvoices} facturen</p>
-              </div>
-              <Upload className="h-8 w-8 text-purple-300 dark:text-purple-500" />
-            </div>
-          </Card>
-
-          {/* Pending Expenses */}
-          <Card className="p-4 bg-orange-50 dark:bg-gray-800 border-orange-200 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-orange-700 dark:text-gray-300">Declaraties</p>
-                <p className="text-2xl font-bold text-orange-900 dark:text-gray-100 mt-2">€{stats.totalExpenses.toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-                <p className="text-xs text-orange-600 dark:text-gray-500 mt-2">{pendingExpenses.length} wachten</p>
-              </div>
-              <ArrowUpRight className="h-8 w-8 text-orange-300 dark:text-orange-500" />
-            </div>
-          </Card>
+          <StatTile label="Actieve medewerkers" value={stats.activeEmployees}                    emoji="👥" tone="sky" />
+          <StatTile label="Verkoop"             value={formatCurrency(stats.outgoingTotal)}      sub={`${stats.outgoingInvoices} facturen`} emoji="📤" tone="emerald" />
+          <StatTile label="Inkoop"              value={formatCurrency(stats.incomingTotal)}      sub={`${stats.incomingInvoices} facturen`} emoji="📥" tone="purple" />
+          <StatTile label="Declaraties"         value={`€${stats.totalExpenses.toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`} sub={`${pendingExpenses.length} wachten`} emoji="🧾" tone="amber" />
         </div>
 
         {/* Loonkosten Metrics - Only for employer companies */}
         {selectedCompany?.companyType === 'employer' && stats.payrollCount > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <Card className="p-4 bg-blue-50 dark:bg-gray-800 border-blue-200 dark:border-gray-700">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-medium text-blue-700 dark:text-gray-300">Loonkosten (bruto)</p>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-gray-100 mt-2">{formatCurrency(stats.totalGrossPay)}</p>
-                  <p className="text-xs text-blue-600 dark:text-gray-500 mt-2">deze maand</p>
-                </div>
-                <CreditCard className="h-8 w-8 text-blue-300 dark:text-blue-500" />
-              </div>
-            </Card>
-
-            <Card className="p-4 bg-cyan-50 dark:bg-gray-800 border-cyan-200 dark:border-gray-700">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-medium text-cyan-700 dark:text-gray-300">Netto Uitbetaald</p>
-                  <p className="text-2xl font-bold text-cyan-900 dark:text-gray-100 mt-2">{formatCurrency(stats.totalNetPay)}</p>
-                  <p className="text-xs text-cyan-600 dark:text-gray-500 mt-2">{stats.payrollCount} salarissen</p>
-                </div>
-                <Wallet className="h-8 w-8 text-cyan-300 dark:text-cyan-500" />
-              </div>
-            </Card>
-
-            <Card
-              className="p-4 bg-indigo-50 dark:bg-gray-800 border-indigo-200 dark:border-gray-700 cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => navigate('/payslips')}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-medium text-indigo-700 dark:text-gray-300">Loonstroken</p>
-                  <p className="text-2xl font-bold text-indigo-900 dark:text-gray-100 mt-2">→</p>
-                  <p className="text-xs text-indigo-600 dark:text-gray-500 mt-2">bekijk details</p>
-                </div>
-                <ChevronRight className="h-8 w-8 text-indigo-300 dark:text-indigo-500" />
-              </div>
-            </Card>
+            <StatTile label="Loonkosten (bruto)" value={formatCurrency(stats.totalGrossPay)} sub="deze maand"                emoji="💰" tone="sky" />
+            <StatTile label="Netto uitbetaald"   value={formatCurrency(stats.totalNetPay)}   sub={`${stats.payrollCount} salarissen`} emoji="💵" tone="teal" />
+            <StatTile label="Loonstroken"        value="→"                                    sub="bekijk details"            emoji="📄" tone="purple" onClick={() => navigate('/payslips')} />
           </div>
         )}
 
@@ -1140,20 +1004,8 @@ const Dashboard: React.FC = () => {
 
     return (
       <div className="space-y-4 pb-24 sm:pb-6 px-4 sm:px-0">
-        {/* Welcome Hero */}
-        <div className="hidden lg:block relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-6 lg:p-8 text-white shadow-glow-primary-lg">
-          <div aria-hidden className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-          <div aria-hidden className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl" />
-          <div className="relative flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Welkom terug</h1>
-              <p className="text-white/80 mt-1.5 text-sm tracking-tight">Hier is je overzicht</p>
-            </div>
-            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl ring-1 ring-white/25">
-              <CheckCircle className="h-6 w-6 text-white" />
-            </div>
-          </div>
-        </div>
+        {/* Header */}
+        <PageHeader title="Welkom terug" subtitle="Hier is je overzicht" emoji="👋" />
 
         {/* Key Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
