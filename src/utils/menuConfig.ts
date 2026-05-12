@@ -118,7 +118,7 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
 
   // SYSTEEM
   { id: 'upload', name: 'Upload', emoji: '📎', href: '/upload', hrefByRole: { boekhouder: '/boekhouder/upload' }, icon: Upload, roles: ['admin', 'co-admin', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
-  { id: 'tasks', name: 'Taken', emoji: '☑️', href: '/tasks', icon: ListChecks, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'tasks', name: 'Taken', emoji: '☑️', href: '/tasks', hrefByRole: { boekhouder: '/boekhouder/tasks' }, icon: ListChecks, roles: ['admin', 'co-admin', 'manager', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'companies', name: 'Bedrijven', emoji: '🏢', href: '/companies', icon: Building2, roles: ['admin', 'co-admin'], companyTypes: ['employer', 'holding', 'shareholder'] },
   { id: 'audit-log', name: 'Audit Log', emoji: '📜', href: '/audit-log', icon: Shield, roles: ['admin', 'co-admin'], companyTypes: ['employer', 'holding', 'shareholder'] },
   { id: 'users', name: 'Gebruikers Beheer', emoji: '👤', href: '/admin/users', icon: UserPlus, roles: ['admin'], companyTypes: ['employer', 'holding', 'shareholder'] },

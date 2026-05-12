@@ -465,15 +465,17 @@ const Tasks: React.FC = () => {
           >
             Filters
           </Button>
-          <Button
-            onClick={() => {
-              resetForm();
-              setShowTaskModal(true);
-            }}
-            icon={Plus}
-          >
-            Nieuwe taak
-          </Button>
+          {userRole !== 'boekhouder' && (
+            <Button
+              onClick={() => {
+                resetForm();
+                setShowTaskModal(true);
+              }}
+              icon={Plus}
+            >
+              Nieuwe taak
+            </Button>
+          )}
         </div>
       </div>
 
@@ -653,9 +655,11 @@ const Tasks: React.FC = () => {
                     <div key={t.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300">
                       <Circle className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
                       <span className="truncate">{t.title}</span>
-                      <button onClick={() => openEditModal(t)} className="ml-auto p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0">
-                        <Pencil className="h-3 w-3 text-gray-400" />
-                      </button>
+                      {userRole !== 'boekhouder' && (
+                        <button onClick={() => openEditModal(t)} className="ml-auto p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0">
+                          <Pencil className="h-3 w-3 text-gray-400" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -802,18 +806,22 @@ const Tasks: React.FC = () => {
                           <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-300" />
                         )}
                       </button>
-                      <button
-                        onClick={() => openEditModal(task)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-300" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </button>
+                      {userRole !== 'boekhouder' && (
+                        <>
+                          <button
+                            onClick={() => openEditModal(task)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-300" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTask(task.id)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
 

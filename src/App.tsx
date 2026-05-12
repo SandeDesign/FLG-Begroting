@@ -281,6 +281,7 @@ function App() {
                           <Route path="boekhouder/settings" element={<BoekhouderSettings />} />
                           <Route path="boekhouder/chat" element={<BoekhouderChat />} />
                           <Route path="boekhouder/payslip-upload" element={<BoekhouderPayslipUpload />} />
+                          <Route path="boekhouder/tasks" element={<Tasks />} />
                           <Route path="boekhouder/incoming-invoices" element={<Navigate to="/boekhouder/upload?tab=facturen" replace />} />
                           <Route path="boekhouder/incoming-post" element={<Navigate to="/boekhouder/upload?tab=post" replace />} />
 
