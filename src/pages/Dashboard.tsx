@@ -1141,13 +1141,17 @@ const Dashboard: React.FC = () => {
     return (
       <div className="space-y-4 pb-24 sm:pb-6 px-4 sm:px-0">
         {/* Welcome Hero */}
-        <div className="hidden lg:block bg-gradient-to-br from-green-500 via-green-400 to-emerald-600 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 dark:border dark:border-gray-700 rounded-xl p-6 text-white space-y-3">
-          <div className="flex items-start justify-between">
+        <div className="hidden lg:block relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-6 lg:p-8 text-white shadow-glow-primary-lg">
+          <div aria-hidden className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+          <div aria-hidden className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl" />
+          <div className="relative flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Welkom terug!</h1>
-              <p className="text-green-100 dark:text-gray-300 mt-1">Hier is je overzicht</p>
+              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Welkom terug</h1>
+              <p className="text-white/80 mt-1.5 text-sm tracking-tight">Hier is je overzicht</p>
             </div>
-            <CheckCircle className="h-12 w-12 text-green-200 dark:text-gray-500" />
+            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl ring-1 ring-white/25">
+              <CheckCircle className="h-6 w-6 text-white" />
+            </div>
           </div>
         </div>
 
@@ -1212,16 +1216,16 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Info Card */}
-        <Card>
-          <div className="p-4 bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800">
-            <div className="flex items-start gap-3">
-              <Target className="h-5 w-5 text-primary-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Tips</p>
-                <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
-                  Zorg dat je uren op tijd indient en verlof vooraf aanvraagt. Je loonstroken zijn beschikbaar na verwerking.
-                </p>
-              </div>
+        <Card accent="bronze">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-primary-50 dark:bg-primary-900/30 flex-shrink-0">
+              <Target className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm tracking-tight">Tips</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 leading-relaxed">
+                Zorg dat je uren op tijd indient en verlof vooraf aanvraagt. Je loonstroken zijn beschikbaar na verwerking.
+              </p>
             </div>
           </div>
         </Card>

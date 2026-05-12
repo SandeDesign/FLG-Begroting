@@ -1168,19 +1168,19 @@ const OutgoingInvoices: React.FC = () => {
           </Card>
 
           {/* Totals */}
-          <Card className="p-5 sm:p-6 bg-gradient-to-br from-primary-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 border-primary-200 dark:border-gray-700">
+          <Card accent="bronze">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-300">Subtotaal:</span>
-                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">€{subtotal.toFixed(2)}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Subtotaal</span>
+                <span className="text-base font-semibold text-gray-900 dark:text-gray-100 tabular-nums">€{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-300">BTW ({vatRate}%):</span>
-                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">€{vatAmount.toFixed(2)}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">BTW ({vatRate}%)</span>
+                <span className="text-base font-semibold text-gray-900 dark:text-gray-100 tabular-nums">€{vatAmount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center pt-3 border-t border-primary-200">
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Totaal:</span>
-                <span className="text-2xl font-bold text-primary-600">€{total.toFixed(2)}</span>
+              <div className="flex justify-between items-center pt-3 border-t border-gray-100 dark:border-gray-700">
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 tracking-tight">Totaal</span>
+                <span className="text-2xl font-bold text-primary-600 dark:text-primary-400 tracking-tightest tabular-nums">€{total.toFixed(2)}</span>
               </div>
             </div>
           </Card>
