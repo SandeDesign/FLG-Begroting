@@ -5,6 +5,8 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Building2, Euro, TrendingUp, TrendingDown, Package, Receipt } from 'lucide-react';
 import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
+import PageHeader from '../components/ui/PageHeader';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { usePageTitle } from '../contexts/PageTitleContext';
@@ -232,59 +234,15 @@ const HoldingStatistics: React.FC = () => {
     : `Overzicht van alle bedrijven onder ${selectedCompany.name}`;
 
   return (
-    <div className="space-y-6">
-      <div className="hidden lg:block">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pageTitle}</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">{pageDescription}</p>
-      </div>
+    <div className="space-y-5">
+      <PageHeader title={pageTitle} subtitle={pageDescription} emoji="🏛️" />
 
       {/* Totalen Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Omzet</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                €{totalStats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-green-600" />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Kosten</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                €{totalStats.totalCosts.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-            <TrendingDown className="h-8 w-8 text-red-600" />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Winst</p>
-              <p className={`text-2xl font-bold mt-1 ${totalStats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                €{totalStats.totalProfit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
-              </p>
-            </div>
-            <Euro className={`h-8 w-8 ${totalStats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`} />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Aantal Bedrijven</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalStats.totalCompanies}</p>
-            </div>
-            <Building2 className="h-8 w-8 text-blue-600" />
-          </div>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatTile label="Totale omzet"     value={`€${totalStats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}`} emoji="📈" tone="emerald" />
+        <StatTile label="Totale kosten"    value={`€${totalStats.totalCosts.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}`}   emoji="📉" tone="red" />
+        <StatTile label="Totale winst"     value={`€${totalStats.totalProfit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}`}  emoji="💰" tone={totalStats.totalProfit >= 0 ? 'emerald' : 'red'} />
+        <StatTile label="Aantal bedrijven" value={totalStats.totalCompanies}                                                            emoji="🏢" tone="sky" />
       </div>
 
       {/* Omzet vs Kosten per Bedrijf */}

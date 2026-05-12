@@ -55,6 +55,7 @@ import {
 import { outgoingInvoiceService, OutgoingInvoice } from '../services/outgoingInvoiceService';
 import { incomingInvoiceService } from '../services/incomingInvoiceService';
 import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
 import Button from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -987,60 +988,27 @@ const Budgeting: React.FC = () => {
 
           {/* Main Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="p-6 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-gray-800 dark:to-gray-800 border-emerald-200 dark:border-gray-700">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-emerald-600">Maandelijkse Inkomsten</p>
-                  <p className="text-3xl font-bold text-emerald-900 mt-1">
-                    {formatCurrency(monthlyIncome)}
-                  </p>
-                  <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    {activeIncomeItems.length} bronnen
-                  </p>
-                </div>
-                <div className="p-3 bg-emerald-100 rounded-xl">
-                  <ArrowUpRight className="h-6 w-6 text-emerald-600" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-gradient-to-br from-red-50 to-rose-50 dark:from-gray-800 dark:to-gray-800 border-red-200 dark:border-gray-700">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-red-600">Maandelijkse Kosten</p>
-                  <p className="text-3xl font-bold text-red-900 mt-1">
-                    {formatCurrency(monthlyCosts)}
-                  </p>
-                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
-                    <TrendingDown className="h-3 w-3" />
-                    {activeCostItems.length} posten
-                  </p>
-                </div>
-                <div className="p-3 bg-red-100 rounded-xl">
-                  <ArrowDownRight className="h-6 w-6 text-red-600" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className={`p-6 dark:from-gray-800 dark:to-gray-800 dark:border-gray-700 ${monthlyProfit >= 0 ? 'bg-gradient-to-br from-primary-50 to-indigo-50 border-primary-200' : 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200'}`}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className={`text-sm font-medium ${monthlyProfit >= 0 ? 'text-primary-600' : 'text-orange-600'}`}>
-                    Maandelijks Resultaat
-                  </p>
-                  <p className={`text-3xl font-bold mt-1 ${monthlyProfit >= 0 ? 'text-primary-900' : 'text-orange-900'}`}>
-                    {monthlyProfit >= 0 ? '+' : ''}{formatCurrency(monthlyProfit)}
-                  </p>
-                  <p className={`text-xs mt-2 ${monthlyProfit >= 0 ? 'text-primary-600' : 'text-orange-600'}`}>
-                    {formatCurrency(yearlyProfit)}/jaar
-                  </p>
-                </div>
-                <div className={`p-3 rounded-xl ${monthlyProfit >= 0 ? 'bg-primary-100' : 'bg-orange-100'}`}>
-                  <Wallet className={`h-6 w-6 ${monthlyProfit >= 0 ? 'text-primary-600' : 'text-orange-600'}`} />
-                </div>
-              </div>
-            </Card>
+            <StatTile
+              label="Maandelijkse inkomsten"
+              value={formatCurrency(monthlyIncome)}
+              delta={{ text: `${activeIncomeItems.length} bronnen`, direction: 'up' }}
+              emoji="📈"
+              tone="emerald"
+            />
+            <StatTile
+              label="Maandelijkse kosten"
+              value={formatCurrency(monthlyCosts)}
+              delta={{ text: `${activeCostItems.length} posten`, direction: 'down' }}
+              emoji="📉"
+              tone="red"
+            />
+            <StatTile
+              label="Maandelijks resultaat"
+              value={`${monthlyProfit >= 0 ? '+' : ''}${formatCurrency(monthlyProfit)}`}
+              sub={`${formatCurrency(yearlyProfit)}/jaar`}
+              emoji="💰"
+              tone={monthlyProfit >= 0 ? 'bronze' : 'amber'}
+            />
           </div>
 
           {/* Reality Check Section */}
