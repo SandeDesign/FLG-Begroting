@@ -11,22 +11,22 @@ interface EmployeeLayoutProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/employee-dashboard', icon: Home },
-  { name: 'Uren', href: '/employee-dashboard/timesheets', icon: Clock },
-  { name: 'Agenda', href: '/employee-dashboard/agenda', icon: CalendarDays },
-  { name: 'Mijn Taken', href: '/employee-dashboard/tasks', icon: ListChecks },
-  { name: 'Declaraties', href: '/employee-dashboard/expenses', icon: Receipt },
-  { name: 'Verlof', href: '/employee-dashboard/leave', icon: Calendar },
-  { name: 'Verzuim', href: '/employee-dashboard/absence', icon: HeartPulse },
+  { name: 'Dashboard',  href: '/employee-dashboard',            icon: Home,         emoji: '📊' },
+  { name: 'Uren',       href: '/employee-dashboard/timesheets', icon: Clock,        emoji: '⏱️' },
+  { name: 'Agenda',     href: '/employee-dashboard/agenda',     icon: CalendarDays, emoji: '📅' },
+  { name: 'Mijn Taken', href: '/employee-dashboard/tasks',      icon: ListChecks,   emoji: '☑️' },
+  { name: 'Declaraties', href: '/employee-dashboard/expenses',  icon: Receipt,      emoji: '🧾' },
+  { name: 'Verlof',     href: '/employee-dashboard/leave',      icon: Calendar,     emoji: '🌴' },
+  { name: 'Verzuim',    href: '/employee-dashboard/absence',    icon: HeartPulse,   emoji: '🏥' },
 ];
 
 // Mobile bottom nav - 5 main items
 const bottomNavItems = [
-  { name: 'Home', href: '/employee-dashboard', icon: Home },
-  { name: 'Uren', href: '/employee-dashboard/timesheets', icon: Clock },
-  { name: 'Agenda', href: '/employee-dashboard/agenda', icon: CalendarDays },
-  { name: 'Taken', href: '/employee-dashboard/tasks', icon: ListChecks },
-  { name: 'Profiel', href: '/settings', icon: Settings },
+  { name: 'Home',    href: '/employee-dashboard',            icon: Home,         emoji: '🏠' },
+  { name: 'Uren',    href: '/employee-dashboard/timesheets', icon: Clock,        emoji: '⏱️' },
+  { name: 'Agenda',  href: '/employee-dashboard/agenda',     icon: CalendarDays, emoji: '📅' },
+  { name: 'Taken',   href: '/employee-dashboard/tasks',      icon: ListChecks,   emoji: '☑️' },
+  { name: 'Profiel', href: '/settings',                      icon: Settings,     emoji: '⚙️' },
 ];
 
 const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
@@ -94,7 +94,6 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
               </p>
             </div>
             {navigation.map((item) => {
-              const Icon = item.icon;
               const isActive = location.pathname === item.href;
               return (
                 <NavLink
@@ -110,7 +109,9 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
                   {isActive && (
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500 dark:bg-primary-400" aria-hidden />
                   )}
-                  <Icon className={`h-[18px] w-[18px] flex-shrink-0 ${isActive ? 'text-primary-600 dark:text-primary-300' : 'text-gray-400 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200'}`} />
+                  <span className="flex-shrink-0 inline-flex items-center justify-center w-[20px] h-[20px] text-base leading-none" aria-hidden>
+                    {item.emoji}
+                  </span>
                   <span className="truncate">{item.name}</span>
                 </NavLink>
               );
@@ -161,7 +162,7 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40">
         <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700/60 shadow-xl">
           <div className="flex justify-around items-center px-2 py-2.5">
-            {bottomNavItems.map(({ href, icon: Icon, name }) => {
+            {bottomNavItems.map(({ href, emoji, name }) => {
               const isActive = location.pathname === href;
               return (
                 <NavLink
@@ -170,13 +171,15 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
                   className="flex flex-col items-center justify-center flex-1 transition-all duration-200 group"
                 >
                   <div
-                    className={`p-2.5 rounded-xl transition-all duration-200 ${
+                    className={`p-2 rounded-xl transition-all duration-200 ${
                       isActive
-                        ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-glow-primary'
-                        : 'bg-transparent text-gray-500 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700/60 group-hover:text-gray-700 dark:group-hover:text-gray-200'
+                        ? 'bg-gradient-to-br from-primary-500 to-primary-600 shadow-glow-primary'
+                        : 'bg-transparent group-hover:bg-gray-100 dark:group-hover:bg-gray-700/60'
                     }`}
                   >
-                    <Icon size={20} strokeWidth={2.2} />
+                    <span className={`inline-flex items-center justify-center w-5 h-5 text-lg leading-none ${isActive ? 'grayscale-0' : 'grayscale opacity-70 group-hover:opacity-100 group-hover:grayscale-0'}`} aria-hidden>
+                      {emoji}
+                    </span>
                   </div>
                   <span
                     className={`text-[10px] font-semibold mt-1 ${
