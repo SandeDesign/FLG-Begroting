@@ -5,6 +5,8 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { Users, Clock, Euro, TrendingUp, HeartPulse, AlertTriangle, Factory } from 'lucide-react';
 import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
+import PageHeader from '../components/ui/PageHeader';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, LineChart } from 'recharts';
 import { usePageTitle } from '../contexts/PageTitleContext';
@@ -298,84 +300,16 @@ const EmployerStatistics: React.FC = () => {
   const profit = stats.totalRevenue - stats.totalCosts;
 
   return (
-    <div className="space-y-6">
-      <div className="hidden lg:block">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Werkgeverstatistieken</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">Overzicht van {selectedCompany.name}</p>
-      </div>
+    <div className="space-y-5">
+      <PageHeader title="Werkgeverstatistieken" subtitle={`Overzicht van ${selectedCompany.name}`} emoji="📈" />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <Card>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Werknemers</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">{stats.activeEmployees}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">van {stats.totalEmployees} totaal</p>
-            </div>
-            <Users className="h-7 w-7 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Totaal Uren</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
-                {stats.totalHours.toLocaleString('nl-NL')}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
-                {stats.totalOvertime > 0 ? `+${stats.totalOvertime.toFixed(0)} overuren` : 'productie uren'}
-              </p>
-            </div>
-            <Clock className="h-7 w-7 sm:h-8 sm:w-8 text-purple-600 flex-shrink-0" />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Productiewaarde</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
-                {formatCurrency(stats.productionValue)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
-                {stats.hourlyRate > 0 ? `€${stats.hourlyRate}/uur` : 'geen tarief'}
-              </p>
-            </div>
-            <Factory className="h-7 w-7 sm:h-8 sm:w-8 text-indigo-600 flex-shrink-0" />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Loonkosten /mnd</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
-                {formatCurrency(stats.estimatedMonthlyPayroll)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
-                ~€{AVERAGE_MONTHLY_COST_PER_EMPLOYEE.toLocaleString('nl-NL')} p.p.
-              </p>
-            </div>
-            <Euro className="h-7 w-7 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
-          </div>
-        </Card>
-
-        <Card className={stats.sickPercentage > 5 ? 'border-red-300 dark:border-red-700' : ''}>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200 truncate">Ziekteverzuim</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1 break-words">
-                {(stats.sickPercentage || 0).toFixed(1)}%
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 truncate">
-                {stats.activeSickCount} ziek • {stats.totalSickDays} dagen totaal
-              </p>
-            </div>
-            <HeartPulse className={`h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 ${stats.sickPercentage > 5 ? 'text-red-600' : 'text-orange-500'}`} />
-          </div>
-        </Card>
+        <StatTile label="Werknemers"    value={stats.activeEmployees}                        sub={`van ${stats.totalEmployees} totaal`}                                          emoji="👥" tone="sky" />
+        <StatTile label="Totaal uren"   value={stats.totalHours.toLocaleString('nl-NL')}     sub={stats.totalOvertime > 0 ? `+${stats.totalOvertime.toFixed(0)} overuren` : 'productie uren'} emoji="⏱️" tone="purple" />
+        <StatTile label="Productiewaarde" value={formatCurrency(stats.productionValue)}      sub={stats.hourlyRate > 0 ? `€${stats.hourlyRate}/uur` : 'geen tarief'}             emoji="🏭" tone="bronze" />
+        <StatTile label="Loonkosten /mnd" value={formatCurrency(stats.estimatedMonthlyPayroll)} sub={`~€${AVERAGE_MONTHLY_COST_PER_EMPLOYEE.toLocaleString('nl-NL')} p.p.`}     emoji="💰" tone="emerald" />
+        <StatTile label="Ziekteverzuim"   value={`${(stats.sickPercentage || 0).toFixed(1)}%`} sub={`${stats.activeSickCount} ziek · ${stats.totalSickDays} dagen totaal`}      emoji="🏥" tone={stats.sickPercentage > 5 ? 'red' : 'amber'} />
       </div>
 
       {/* Financieel Overzicht */}

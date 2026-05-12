@@ -5,6 +5,8 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { Factory, Euro, TrendingUp, Package, Clock } from 'lucide-react';
 import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
+import PageHeader from '../components/ui/PageHeader';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { usePageTitle } from '../contexts/PageTitleContext';
@@ -225,56 +227,32 @@ const ProjectStatistics: React.FC = () => {
   const profitMargin = stats.totalRevenue > 0 ? (profit / stats.totalRevenue) * 100 : 0;
 
   return (
-    <div className="space-y-6">
-      <div className="hidden lg:block">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Projectstatistieken</h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-1">Overzicht van {selectedCompany.name}</p>
-      </div>
+    <div className="space-y-5">
+      <PageHeader title="Projectstatistieken" subtitle={`Overzicht van ${selectedCompany.name}`} emoji="📊" />
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Productie Uren</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {stats.totalProductionHours.toLocaleString('nl-NL')}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
-                {stats.totalOvertime > 0 && `+${stats.totalOvertime.toFixed(0)} overuren`}
-              </p>
-            </div>
-            <Clock className="h-8 w-8 text-blue-600" />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Totale Omzet</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">
-                €{stats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">{stats.totalInvoices} facturen</p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-green-600" />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Winstmarge</p>
-              <p className={`text-2xl font-bold mt-1 ${profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {profitMargin.toFixed(1)}%
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
-                €{profit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })} winst
-              </p>
-            </div>
-            <Factory className={`h-8 w-8 ${profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`} />
-          </div>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatTile
+          label="Productie uren"
+          value={stats.totalProductionHours.toLocaleString('nl-NL')}
+          sub={stats.totalOvertime > 0 ? `+${stats.totalOvertime.toFixed(0)} overuren` : 'totaal'}
+          emoji="⏱️"
+          tone="sky"
+        />
+        <StatTile
+          label="Totale omzet"
+          value={`€${stats.totalRevenue.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}`}
+          sub={`${stats.totalInvoices} facturen`}
+          emoji="📈"
+          tone="emerald"
+        />
+        <StatTile
+          label="Winstmarge"
+          value={`${profitMargin.toFixed(1)}%`}
+          sub={`€${profit.toLocaleString('nl-NL', { minimumFractionDigits: 2 })} winst`}
+          emoji="🏭"
+          tone={profitMargin >= 0 ? 'emerald' : 'red'}
+        />
       </div>
 
       {/* Financieel Overzicht */}
