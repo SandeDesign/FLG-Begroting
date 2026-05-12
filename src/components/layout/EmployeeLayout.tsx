@@ -4,7 +4,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import { getEmployeeById } from '../../services/firebase';
-import Button from '../ui/Button';
 import PushPromptBanner from '../notifications/PushPromptBanner';
 
 interface EmployeeLayoutProps {
@@ -21,7 +20,7 @@ const navigation = [
   { name: 'Verzuim', href: '/employee-dashboard/absence', icon: HeartPulse },
 ];
 
-// Mobile bottom nav - 4 main items (uren, agenda, declaraties, profiel)
+// Mobile bottom nav - 5 main items
 const bottomNavItems = [
   { name: 'Home', href: '/employee-dashboard', icon: Home },
   { name: 'Uren', href: '/employee-dashboard/timesheets', icon: Clock },
@@ -37,7 +36,6 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [employeeData, setEmployeeData] = useState<any>(null);
 
-  // Load employee data
   useEffect(() => {
     const loadEmployee = async () => {
       if (currentEmployeeId) {
@@ -62,36 +60,39 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 z-50">
-        <img src="/Logo_1.png" alt="FLG-Administratie Logo" className="h-8 w-auto" />
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700/60 shadow-xs flex items-center justify-between px-4 z-50">
+        <img src="/Logo_1.png" alt="FLG-Administratie" className="h-8 w-auto" />
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
         >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-          ) : (
-            <Menu className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-          )}
+          {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       <div className="flex h-screen md:h-auto md:min-h-screen">
-        {/* Desktop Sidebar */}
+        {/* Sidebar */}
         <div
-          className={`fixed md:fixed left-0 top-16 md:top-0 h-[calc(100vh-64px)] md:h-screen w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 z-50 md:z-0 overflow-hidden shadow-lg md:shadow-none ${ mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0' }`}
+          className={`fixed md:fixed left-0 top-16 md:top-0 h-[calc(100vh-64px)] md:h-screen w-80 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700/60 flex flex-col transition-transform duration-300 z-50 md:z-0 overflow-hidden shadow-lg md:shadow-xs ${
+            mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          }`}
         >
           {/* Logo */}
-          <div className="hidden md:flex items-center gap-3 px-6 py-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-            <img src="/Logo_1.png" alt="FLG-Administratie Logo" className="h-8 w-auto" />
-            <div>
-              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Administratie</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-300">{selectedCompany?.name || 'Dashboard'}</p>
+          <div className="hidden md:flex items-center gap-3 px-6 py-5 border-b border-gray-100 dark:border-gray-700/60 flex-shrink-0">
+            <img src="/Logo_1.png" alt="FLG-Administratie" className="h-9 w-auto" />
+            <div className="min-w-0">
+              <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">FLG Administratie</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{selectedCompany?.name || 'Mijn omgeving'}</p>
             </div>
           </div>
 
-          {/* Navigation - SCROLLABLE */}
-          <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
+          {/* Navigation */}
+          <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto overflow-x-hidden">
+            <div className="px-3 pb-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-gray-400 dark:text-gray-500">
+                Navigatie
+              </p>
+            </div>
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
@@ -100,43 +101,49 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
                   key={item.name}
                   to={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold text-base transition-all duration-200 ${ isActive ? 'bg-primary-50 text-primary-600 border-l-4 border-primary-600 shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-900 border-l-4 border-transparent hover:text-gray-900 dark:text-gray-100' }`}
+                  className={`group flex items-center gap-3 px-3 py-2.5 mx-1 rounded-lg text-[14px] font-medium transition-all duration-150 relative ${
+                    isActive
+                      ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200 font-semibold'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  <span>{item.name}</span>
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500 dark:bg-primary-400" aria-hidden />
+                  )}
+                  <Icon className={`h-[18px] w-[18px] flex-shrink-0 ${isActive ? 'text-primary-600 dark:text-primary-300' : 'text-gray-400 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200'}`} />
+                  <span className="truncate">{item.name}</span>
                 </NavLink>
               );
             })}
           </nav>
 
-          {/* User Info & Logout - STICKY BOTTOM */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-3 flex-shrink-0 bg-white dark:bg-gray-800">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0">
-                <User className="h-6 w-6 text-white" />
+          {/* User Info & Logout */}
+          <div className="border-t border-gray-100 dark:border-gray-700/60 p-3 flex-shrink-0 bg-white dark:bg-gray-800">
+            <div className="flex items-center gap-3 px-2 py-2">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center flex-shrink-0 shadow-glow-primary">
+                <User className="h-5 w-5 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate tracking-tight">
                   {getFirstName()}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-300 truncate">{user?.email}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
               </div>
             </div>
-            <Button
+            <button
               onClick={signOut}
-              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 rounded-lg transition-all"
-              size="sm"
+              className="mt-2 flex w-full items-center gap-3 px-3 py-2 text-[13px] font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Uitloggen
-            </Button>
+              <LogOut className="h-[18px] w-[18px]" />
+              <span>Uitloggen</span>
+            </button>
           </div>
         </div>
 
         {/* Mobile Overlay */}
         {mobileMenuOpen && (
           <div
-            className="fixed inset-0 bg-black/50 md:hidden z-40 top-16"
+            className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm md:hidden z-40 top-16"
             onClick={() => setMobileMenuOpen(false)}
           ></div>
         )}
@@ -152,20 +159,30 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40">
-        <div className="bg-white dark:bg-gray-800 backdrop-blur-xl border-t border-gray-200 dark:border-gray-700 shadow-2xl">
-          <div className="flex justify-around items-center px-2 py-3">
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700/60 shadow-xl">
+          <div className="flex justify-around items-center px-2 py-2.5">
             {bottomNavItems.map(({ href, icon: Icon, name }) => {
               const isActive = location.pathname === href;
               return (
                 <NavLink
                   key={href}
                   to={href}
-                  className="flex flex-col items-center justify-center flex-1 transition-all duration-300"
+                  className="flex flex-col items-center justify-center flex-1 transition-all duration-200 group"
                 >
-                  <div className={`p-3 rounded-2xl transition-all duration-300 ${ isActive ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-300 dark:text-gray-500' }`}>
+                  <div
+                    className={`p-2.5 rounded-xl transition-all duration-200 ${
+                      isActive
+                        ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-glow-primary'
+                        : 'bg-transparent text-gray-500 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700/60 group-hover:text-gray-700 dark:group-hover:text-gray-200'
+                    }`}
+                  >
                     <Icon size={20} strokeWidth={2.2} />
                   </div>
-                  <span className={`text-xs font-semibold mt-1.5 ${ isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-300 dark:text-gray-500' }`}>
+                  <span
+                    className={`text-[10px] font-semibold mt-1 ${
+                      isActive ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                  >
                     {name}
                   </span>
                 </NavLink>

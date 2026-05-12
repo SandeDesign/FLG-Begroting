@@ -86,78 +86,58 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onMenuClick })
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
-      {/* Backdrop blur separator */}
-      <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-      {/* Modern glasmorphism nav */}
-      <div className="bg-white dark:bg-gray-800 backdrop-blur-xl border-t border-white/20 shadow-2xl">
-        <div className="flex justify-around items-center px-2 py-3 max-w-full">
+      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700/60 shadow-xl">
+        <div className="flex justify-around items-center px-2 py-2.5 max-w-full">
           {finalNavItems.map(({ href, icon: Icon, label, gradient }) => {
-            // Badge: tonen als dit item naar de chat-pagina verwijst én er
-            // ongelezen berichten zijn (werkt voor zowel /chat als /boekhouder/chat).
             const isChatEntry = href === '/chat' || href === '/boekhouder/chat';
             const showBadge = isChatEntry && chatUnread > 0;
             return (
-            <NavLink
-              key={href}
-              to={href}
-              title={label}
-              className={({ isActive }) =>
-                `flex flex-col items-center justify-center flex-1 transition-all duration-300 group relative ${
-                  isActive ? 'scale-110' : 'hover:scale-105'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  {/* Background glow on active */}
-                  {isActive && (
-                    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-full blur-md opacity-20 scale-150`} />
-                  )}
-
-                  {/* Icon container */}
-                  <div className={`relative p-3 rounded-2xl transition-all duration-300 ${
-                    isActive
-                      ? `bg-gradient-to-br ${gradient} text-white shadow-lg shadow-${gradient.split('-')[1]}-500/50`
-                      : 'bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200/50 dark:group-hover:bg-gray-600/50 group-hover:text-gray-800 dark:group-hover:text-gray-100'
-                  }`}>
-                    <Icon
-                      size={20}
-                      strokeWidth={2.2}
-                      className="transition-all duration-300"
-                    />
-                    {showBadge && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow">
-                        {chatUnread > 99 ? '99+' : chatUnread}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Label */}
-                  <span className={`text-xs font-semibold mt-1.5 transition-all duration-300 ${ isActive ? 'text-gray-900 dark:text-gray-100 scale-100 opacity-100' : 'text-gray-600 dark:text-gray-300 scale-95 opacity-75 group-hover:opacity-100' }`}>
-                    {label}
-                  </span>
-                </>
-              )}
-            </NavLink>
+              <NavLink
+                key={href}
+                to={href}
+                title={label}
+                className="flex flex-col items-center justify-center flex-1 transition-all duration-200 group"
+              >
+                {({ isActive }) => (
+                  <>
+                    <div
+                      className={`relative p-2.5 rounded-xl transition-all duration-200 ${
+                        isActive
+                          ? `bg-gradient-to-br ${gradient} text-white shadow-glow-primary`
+                          : 'bg-transparent text-gray-500 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700/60 group-hover:text-gray-700 dark:group-hover:text-gray-200'
+                      }`}
+                    >
+                      <Icon size={20} strokeWidth={2.2} />
+                      {showBadge && (
+                        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 ring-2 ring-white dark:ring-gray-800">
+                          {chatUnread > 99 ? '99+' : chatUnread}
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={`text-[10px] font-semibold mt-1 transition-colors ${
+                        isActive
+                          ? 'text-gray-900 dark:text-gray-100'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </>
+                )}
+              </NavLink>
             );
           })}
 
-          {/* Menu button */}
           <button
             onClick={onMenuClick}
             title="Menu"
-            className="flex flex-col items-center justify-center flex-1 transition-all duration-300 group hover:scale-105"
+            className="flex flex-col items-center justify-center flex-1 transition-all duration-200 group"
           >
-            <div className="relative p-3 rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200/50 dark:group-hover:bg-gray-700/50 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-all duration-300">
-              <MoreVertical
-                size={20}
-                strokeWidth={2.2}
-              />
+            <div className="relative p-2.5 rounded-xl bg-transparent text-gray-500 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700/60 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-all duration-200">
+              <MoreVertical size={20} strokeWidth={2.2} />
             </div>
-            <span className="text-xs font-semibold mt-1.5 text-gray-600 dark:text-gray-300 scale-95 opacity-75 group-hover:opacity-100 transition-all duration-300">
-              Menu
-            </span>
+            <span className="text-[10px] font-semibold mt-1 text-gray-500 dark:text-gray-400">Menu</span>
           </button>
         </div>
       </div>
