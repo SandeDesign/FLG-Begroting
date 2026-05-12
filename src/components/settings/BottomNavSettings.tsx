@@ -8,59 +8,36 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { useToast } from '../../hooks/useToast';
 import { getBottomNavDefaults, CompanyType } from '../../utils/menuConfig';
-import {
-  Clock,
-  Users,
-  Send,
-  Upload,
-  CheckCircle2,
-  TrendingUp,
-  Wallet,
-  Cpu,
-  Settings,
-  Save,
-  RotateCcw,
-  Home,
-  MoreVertical,
-  ListTodo,
-  PieChart,
-  BookOpen,
-  FileInput,
-  Handshake,
-  Receipt,
-  MessageSquare,
-} from 'lucide-react';
+import { Save, RotateCcw } from 'lucide-react';
 
-type IconOption = { name: string; icon: any; label: string; gradient: string };
+type IconOption = { name: string; emoji: string; label: string };
 
-// Icons voor admin / manager (de originele set)
 const ADMIN_ICONS: IconOption[] = [
-  { name: 'Clock', icon: Clock, label: 'Uren', gradient: 'from-blue-500 to-blue-600' },
-  { name: 'Users', icon: Users, label: 'Team', gradient: 'from-purple-500 to-purple-600' },
-  { name: 'Send', icon: Send, label: 'Verkoop', gradient: 'from-green-500 to-green-600' },
-  { name: 'Upload', icon: Upload, label: 'Upload', gradient: 'from-orange-500 to-orange-600' },
-  { name: 'PieChart', icon: PieChart, label: 'Inkoop', gradient: 'from-orange-500 to-orange-600' },
-  { name: 'CheckCircle2', icon: CheckCircle2, label: 'Goedkeuren', gradient: 'from-emerald-500 to-emerald-600' },
-  { name: 'TrendingUp', icon: TrendingUp, label: 'Stats', gradient: 'from-indigo-500 to-indigo-600' },
-  { name: 'Wallet', icon: Wallet, label: 'Begroting', gradient: 'from-pink-500 to-pink-600' },
-  { name: 'Cpu', icon: Cpu, label: 'Productie', gradient: 'from-cyan-500 to-cyan-600' },
-  { name: 'ListTodo', icon: ListTodo, label: 'Taken', gradient: 'from-amber-500 to-amber-600' },
-  { name: 'MessageSquare', icon: MessageSquare, label: 'Berichten', gradient: 'from-sky-500 to-sky-600' },
-  { name: 'Settings', icon: Settings, label: 'Profiel', gradient: 'from-gray-500 to-gray-600' },
+  { name: 'Clock',        emoji: '⏱️', label: 'Uren' },
+  { name: 'Users',        emoji: '👥', label: 'Team' },
+  { name: 'Send',         emoji: '📤', label: 'Verkoop' },
+  { name: 'Upload',       emoji: '📎', label: 'Upload' },
+  { name: 'PieChart',     emoji: '📊', label: 'Inkoop' },
+  { name: 'CheckCircle2', emoji: '✅', label: 'Goedkeuren' },
+  { name: 'TrendingUp',   emoji: '📈', label: 'Stats' },
+  { name: 'Wallet',       emoji: '💼', label: 'Begroting' },
+  { name: 'Cpu',          emoji: '🏭', label: 'Productie' },
+  { name: 'ListTodo',     emoji: '☑️', label: 'Taken' },
+  { name: 'MessageSquare',emoji: '💬', label: 'Berichten' },
+  { name: 'Settings',     emoji: '⚙️', label: 'Profiel' },
 ];
 
-// Icons voor boekhouder — alleen pagina's waar zij toegang tot hebben
 const BOEKHOUDER_ICONS: IconOption[] = [
-  { name: 'Send', icon: Send, label: 'Verkoop', gradient: 'from-green-500 to-green-600' },
-  { name: 'PieChart', icon: PieChart, label: 'Inkoop', gradient: 'from-orange-500 to-orange-600' },
-  { name: 'BookOpen', icon: BookOpen, label: 'Grootboek', gradient: 'from-purple-500 to-purple-600' },
-  { name: 'Wallet', icon: Wallet, label: 'BTW', gradient: 'from-amber-500 to-amber-600' },
-  { name: 'FileInput', icon: FileInput, label: 'Bank', gradient: 'from-cyan-500 to-cyan-600' },
-  { name: 'Upload', icon: Upload, label: 'Upload', gradient: 'from-orange-500 to-orange-600' },
-  { name: 'Handshake', icon: Handshake, label: 'Relaties', gradient: 'from-indigo-500 to-indigo-600' },
-  { name: 'Receipt', icon: Receipt, label: 'Declaraties', gradient: 'from-pink-500 to-pink-600' },
-  { name: 'MessageSquare', icon: MessageSquare, label: 'Berichten', gradient: 'from-sky-500 to-sky-600' },
-  { name: 'Settings', icon: Settings, label: 'Profiel', gradient: 'from-gray-500 to-gray-600' },
+  { name: 'Send',         emoji: '📤', label: 'Verkoop' },
+  { name: 'PieChart',     emoji: '📊', label: 'Inkoop' },
+  { name: 'BookOpen',     emoji: '📒', label: 'Grootboek' },
+  { name: 'Wallet',       emoji: '🧮', label: 'BTW' },
+  { name: 'FileInput',    emoji: '🏦', label: 'Bank' },
+  { name: 'Upload',       emoji: '📎', label: 'Upload' },
+  { name: 'Handshake',    emoji: '🤝', label: 'Relaties' },
+  { name: 'Receipt',      emoji: '🧾', label: 'Declaraties' },
+  { name: 'MessageSquare',emoji: '💬', label: 'Berichten' },
+  { name: 'Settings',     emoji: '⚙️', label: 'Profiel' },
 ];
 
 const getAvailableIcons = (role: string | null): IconOption[] =>
@@ -133,16 +110,13 @@ export const BottomNavSettings: React.FC = () => {
     try {
       setSaving(true);
 
-      // Prefix boekhouder paden
       const prefix = userRole === 'boekhouder' ? '/boekhouder' : '';
       const isBoekhouder = userRole === 'boekhouder';
 
-      // Map icon names naar BottomNavItem objecten
       const bottomNavItems: BottomNavItem[] = selectedIcons.map(iconName => {
         const iconConfig = availableIcons.find(i => i.name === iconName);
         if (!iconConfig) throw new Error(`Icon ${iconName} not found`);
 
-        // Bepaal href op basis van icon naam
         let href = '/';
         if (iconName === 'Clock') href = '/timesheets';
         else if (iconName === 'Users') href = '/employees';
@@ -156,7 +130,6 @@ export const BottomNavSettings: React.FC = () => {
         else if (iconName === 'ListTodo') href = '/tasks';
         else if (iconName === 'Settings') href = `${prefix}/settings`;
         else if (iconName === 'MessageSquare') href = `${prefix}/chat`;
-        // Boekhouder-only icons
         else if (iconName === 'BookOpen') href = '/boekhouder/grootboekrekeningen';
         else if (iconName === 'FileInput') href = '/boekhouder/bank-statement-import';
         else if (iconName === 'Handshake') href = '/boekhouder/invoice-relations';
@@ -166,7 +139,7 @@ export const BottomNavSettings: React.FC = () => {
           href,
           icon: iconName,
           label: iconConfig.label,
-          gradient: iconConfig.gradient,
+          gradient: 'from-primary-500 to-primary-600',
         };
       });
 
@@ -181,9 +154,7 @@ export const BottomNavSettings: React.FC = () => {
       } else {
         await setDoc(settingsRef, {
           userId: user.uid,
-          bottomNavItems: {
-            [selectedCompany.id]: bottomNavItems,
-          },
+          bottomNavItems: { [selectedCompany.id]: bottomNavItems },
           createdAt: new Date(),
           updatedAt: new Date(),
         });
@@ -221,68 +192,67 @@ export const BottomNavSettings: React.FC = () => {
         ) : (
           <>
             {/* Preview */}
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">Preview:</p>
-              <div className="flex items-center justify-around gap-2">
-                {/* Dashboard - altijd fixed */}
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white mb-1">
-                    <Home size={20} />
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Preview</p>
+              <div className="flex items-end justify-around gap-2">
+                {/* Dashboard — fixed */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-glow-primary">
+                    <span className="text-xl leading-none" aria-hidden>🏠</span>
                   </div>
-                  <span className="text-xs text-gray-600 dark:text-gray-300 font-semibold">Dashboard</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 block">(fixed)</span>
+                  <span className="text-[10px] font-semibold text-gray-700 dark:text-gray-200">Dashboard</span>
+                  <span className="text-[9px] text-gray-400">(fixed)</span>
                 </div>
 
-                {/* 3 custom iconen */}
+                {/* 3 custom icons */}
                 {selectedIcons.map((iconName, index) => {
                   const iconConfig = availableIcons.find(i => i.name === iconName);
-                  const Icon = iconConfig?.icon;
                   return (
-                    <div key={index} className="text-center">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${iconConfig?.gradient} flex items-center justify-center text-white mb-1`}>
-                        {Icon && <Icon size={20} />}
+                    <div key={index} className="flex flex-col items-center gap-1">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-glow-primary">
+                        <span className="text-xl leading-none" aria-hidden>{iconConfig?.emoji ?? '?'}</span>
                       </div>
-                      <span className="text-xs text-gray-600 dark:text-gray-300">{iconConfig?.label}</span>
+                      <span className="text-[10px] font-semibold text-gray-700 dark:text-gray-200">{iconConfig?.label}</span>
                     </div>
                   );
                 })}
 
-                {/* Menu - altijd fixed */}
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center text-gray-600 dark:text-gray-300 mb-1">
-                    <MoreVertical size={20} />
+                {/* Menu — fixed */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-11 h-11 rounded-xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-xl leading-none" aria-hidden>☰</span>
                   </div>
-                  <span className="text-xs text-gray-600 dark:text-gray-300 font-semibold">Menu</span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500 block">(fixed)</span>
+                  <span className="text-[10px] font-semibold text-gray-700 dark:text-gray-200">Menu</span>
+                  <span className="text-[9px] text-gray-400">(fixed)</span>
                 </div>
               </div>
             </div>
 
             {/* Icon selectors */}
-            <div className="space-y-4">
+            <div className="space-y-5">
               {[0, 1, 2].map((index) => (
                 <div key={index}>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Icon {index + 1}
-                  </label>
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                    Positie {index + 1}
+                  </p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                     {availableIcons.map((iconConfig) => {
-                      const Icon = iconConfig.icon;
                       const isSelected = selectedIcons[index] === iconConfig.name;
-
                       return (
                         <button
                           key={iconConfig.name}
                           type="button"
                           onClick={() => handleIconSelect(iconConfig.name, index)}
-                          className={`p-3 rounded-lg border-2 transition-all ${ isSelected ? 'border-primary-500 bg-primary-50' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800' }`}
+                          className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                            isSelected
+                              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500'
+                          }`}
                         >
-                          <div className={`w-12 h-12 mx-auto rounded-xl bg-gradient-to-br ${iconConfig.gradient} flex items-center justify-center text-white mb-2`}>
-                            <Icon size={20} />
-                          </div>
-                          <p className="text-xs text-center font-medium text-gray-700 dark:text-gray-200">
+                          <span className="text-2xl leading-none" aria-hidden>{iconConfig.emoji}</span>
+                          <span className="text-[11px] font-medium text-gray-700 dark:text-gray-200 text-center leading-tight">
                             {iconConfig.label}
-                          </p>
+                          </span>
                         </button>
                       );
                     })}
@@ -292,21 +262,11 @@ export const BottomNavSettings: React.FC = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <Button
-                type="button"
-                variant="secondary"
-                icon={RotateCcw}
-                onClick={handleReset}
-              >
+            <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
+              <Button type="button" variant="secondary" icon={RotateCcw} onClick={handleReset}>
                 Reset naar standaard
               </Button>
-              <Button
-                type="button"
-                icon={Save}
-                onClick={handleSave}
-                disabled={saving}
-              >
+              <Button type="button" icon={Save} onClick={handleSave} disabled={saving}>
                 {saving ? 'Opslaan...' : 'Opslaan'}
               </Button>
             </div>
