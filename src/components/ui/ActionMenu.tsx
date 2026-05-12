@@ -49,14 +49,14 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions, className = '' }) => {
       <button
         ref={buttonRef}
         onClick={handleToggle}
-        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/30"
       >
-        <MoreVertical className="h-4 w-4 text-gray-500 dark:text-gray-300" />
+        <MoreVertical className="h-4 w-4" />
       </button>
 
       {isOpen && (
         <div
-          className={`absolute right-0 z-50 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 ${
+          className={`absolute right-0 z-50 w-48 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg py-1.5 ${
             openUpward ? 'bottom-full mb-1' : 'top-full mt-1'
           }`}
         >
@@ -71,11 +71,12 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ actions, className = '' }) => {
                   action.onClick();
                 }}
                 disabled={action.disabled}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors text-left ${
+                className={`w-full flex items-center gap-2.5 px-3 py-2 mx-1 rounded-lg text-sm font-medium transition-colors text-left ${
                   action.variant === 'danger'
                     ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/60'
                 } ${action.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                style={{ width: 'calc(100% - 0.5rem)' }}
               >
                 {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
                 {action.label}

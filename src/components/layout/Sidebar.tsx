@@ -25,26 +25,29 @@ const NavItem: React.FC<{ item: NavigationItem; collapsed: boolean; userRole: st
     <NavLink
       to={item.href}
       className={({ isActive }) =>
-        `group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 ${
+        `group flex items-center px-3 py-2 mx-2 text-[13px] font-medium rounded-lg transition-all duration-150 relative ${
           isActive
-            ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border-l-3 border-primary-500 dark:border-primary-400'
-            : 'text-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
-        } ${collapsed ? 'justify-center' : ''} relative`
+            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200 font-semibold'
+            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-gray-100'
+        } ${collapsed ? 'justify-center' : ''}`
       }
       title={collapsed ? getItemDisplayName(item, userRole) : undefined}
     >
       {({ isActive }) => (
         <>
-          <item.icon className={`h-5 w-5 flex-shrink-0 ${ isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-300 group-hover:text-gray-600 dark:hover:text-gray-400 dark:group-hover:text-gray-300' } ${collapsed ? '' : 'mr-3'}`} />
+          {isActive && !collapsed && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500 dark:bg-primary-400" aria-hidden />
+          )}
+          <item.icon className={`h-[18px] w-[18px] flex-shrink-0 ${ isActive ? 'text-primary-600 dark:text-primary-300' : 'text-gray-400 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200' } ${collapsed ? '' : 'mr-2.5'}`} />
           {/* Collapsed state: small red dot als er een badge is */}
           {collapsed && badge && (
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800" />
           )}
           {!collapsed && (
             <>
               <span className="truncate">{getItemDisplayName(item, userRole)}</span>
               {badge && (
-                <span className="ml-auto bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-medium min-w-[18px] text-center">
+                <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none flex items-center justify-center">
                   {badge}
                 </span>
               )}
@@ -67,8 +70,8 @@ const SectionHeader: React.FC<{
 }> = ({ title, icon: Icon, collapsed, isExpanded, onToggle, color }) => {
   if (collapsed) {
     return (
-      <div className="flex justify-center py-1.5">
-        <div className="w-6 h-px bg-gray-200"></div>
+      <div className="flex justify-center py-2">
+        <div className="w-6 h-px bg-gray-200 dark:bg-gray-700"></div>
       </div>
     );
   }
@@ -76,15 +79,16 @@ const SectionHeader: React.FC<{
   return (
     <button
       onClick={onToggle}
-      className="flex items-center w-full px-3 py-2 mt-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+      className="flex items-center w-full px-3 py-2 mt-2 mx-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors group"
+      style={{ width: 'calc(100% - 1rem)' }}
     >
-      <div className={`p-1.5 rounded-md ${color} mr-2`}>
-        <Icon className="h-3.5 w-3.5 text-white" />
+      <div className={`p-1 rounded-md ${color} mr-2 shadow-xs`}>
+        <Icon className="h-3 w-3 text-white" />
       </div>
-      <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wide flex-1 text-left">
+      <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em] flex-1 text-left">
         {title}
       </span>
-      <ChevronRight className={`h-3.5 w-3.5 text-gray-400 dark:text-gray-300 transition-transform duration-150 ${isExpanded ? 'rotate-90' : ''}`} />
+      <ChevronRight className={`h-3.5 w-3.5 text-gray-400 dark:text-gray-500 transition-transform duration-150 ${isExpanded ? 'rotate-90' : ''}`} />
     </button>
   );
 };
@@ -173,9 +177,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
   const sections = getNavigationSections(userRole, companyType);
 
   return (
-    <div className={`hidden lg:flex lg:flex-col lg:bg-white dark:bg-gray-800 lg:border-r lg:border-gray-200 dark:border-gray-600 transition-all duration-200 ${ collapsed ? 'lg:w-16' : 'lg:w-64' }`}>
+    <div className={`hidden lg:flex lg:flex-col lg:bg-white dark:lg:bg-gray-800 lg:border-r lg:border-gray-100 dark:lg:border-gray-700/60 lg:shadow-xs transition-all duration-200 relative z-10 ${ collapsed ? 'lg:w-16' : 'lg:w-64' }`}>
       {/* Header - Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-gray-100 dark:border-gray-700 px-3 relative">
+      <div className="flex h-16 items-center justify-center border-b border-gray-100 dark:border-gray-700/60 px-3 relative">
         <button
           onClick={onLogoClick}
           className="hover:opacity-80 transition-opacity focus:outline-none"
@@ -203,24 +207,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
 
         <button
           onClick={handleToggleCollapsed}
-          className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm z-10"
+          className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center hover:bg-primary-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 hover:text-primary-600 shadow-sm z-10 transition-colors"
         >
           <ChevronLeft className={`h-3 w-3 text-gray-500 dark:text-gray-300 transition-transform duration-150 ${collapsed ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-4 overflow-y-auto space-y-1">
+      <nav className="flex-1 py-3 overflow-y-auto">
         {/* Dashboard - Solo */}
         {dashboardItem && (
-          <div className="pb-3 mb-2 border-b border-gray-100">
+          <div className="pb-3 mb-2 border-b border-gray-100 dark:border-gray-700/60">
             <NavItem item={dashboardItem} collapsed={collapsed} userRole={userRole} />
           </div>
         )}
 
         {/* Favorites Section - Only for admin */}
         {favoriteItems.length > 0 && (
-          <div className="pb-3 mb-2">
+          <div className="pb-2 mb-1">
             <SectionHeader
               title="Favorieten"
               icon={Star}
@@ -230,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
               color="bg-amber-500"
             />
             {(collapsed || expandedSections.includes('Favorieten')) && (
-              <div className={`space-y-0.5 ${collapsed ? '' : 'ml-2 pl-3 border-l border-gray-100 dark:border-gray-700 mt-1'}`}>
+              <div className={`space-y-0.5 ${collapsed ? '' : 'mt-1'}`}>
                 {favoriteItems.map((item) => (
                   <NavItem key={item.id} item={item} collapsed={collapsed} userRole={userRole} dynamicBadge={dynamicBadgeFor(item)} />
                 ))}
@@ -248,9 +252,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
           </div>
         ) : (
           /* Admin/Employee: Sections with dropdowns */
-          <div className="space-y-1">
+          <div>
             {sections.map((section) => (
-              <div key={section.title}>
+              <div key={section.title} className="mb-1">
                 <SectionHeader
                   title={section.title}
                   icon={section.icon}
@@ -261,7 +265,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
                 />
 
                 {(collapsed || expandedSections.includes(section.title)) && (
-                  <div className={`space-y-0.5 ${collapsed ? '' : 'ml-2 pl-3 border-l border-gray-100 dark:border-gray-700'}`}>
+                  <div className={`space-y-0.5 ${collapsed ? '' : 'mt-1'}`}>
                     {section.items.map((item) => (
                       <NavItem key={item.id} item={item} collapsed={collapsed} userRole={userRole} dynamicBadge={dynamicBadgeFor(item)} />
                     ))}
@@ -274,13 +278,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-gray-100 p-2">
+      <div className="border-t border-gray-100 dark:border-gray-700/60 p-2">
         <button
           onClick={signOut}
-          className={`flex w-full items-center px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ${ collapsed ? 'justify-center' : '' }`}
+          className={`flex w-full items-center px-3 py-2 text-[13px] font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ${ collapsed ? 'justify-center' : '' }`}
           title={collapsed ? 'Uitloggen' : undefined}
         >
-          <LogOut className={`h-5 w-5 ${collapsed ? '' : 'mr-3'}`} />
+          <LogOut className={`h-[18px] w-[18px] ${collapsed ? '' : 'mr-2.5'}`} />
           {!collapsed && <span>Uitloggen</span>}
         </button>
       </div>
