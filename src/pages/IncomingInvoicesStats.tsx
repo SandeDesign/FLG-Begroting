@@ -998,42 +998,49 @@ const IncomingInvoicesStats: React.FC = () => {
             amount: statistics.total,
             count: statistics.count,
             icon: TrendingUp,
-            color: 'bg-gradient-to-br from-primary-500 to-primary-600',
+            stripe: 'from-primary-400 to-primary-600',
+            iconBg: 'bg-primary-50 dark:bg-primary-900/30',
+            iconText: 'text-primary-600 dark:text-primary-400',
           },
           {
-            label: 'In Behandeling',
+            label: 'In behandeling',
             amount: statistics.pending,
             count: statistics.pendingCount,
             icon: Clock,
-            color: 'bg-gradient-to-br from-yellow-500 to-yellow-600',
+            stripe: 'from-amber-400 to-amber-600',
+            iconBg: 'bg-amber-50 dark:bg-amber-900/30',
+            iconText: 'text-amber-600 dark:text-amber-400',
           },
           {
             label: 'Goedgekeurd',
             amount: statistics.approved,
             count: statistics.approvedCount,
             icon: CheckCircle,
-            color: 'bg-gradient-to-br from-primary-500 to-cyan-600',
+            stripe: 'from-sky-400 to-sky-600',
+            iconBg: 'bg-sky-50 dark:bg-sky-900/30',
+            iconText: 'text-sky-600 dark:text-sky-400',
           },
           {
             label: 'Betaald',
             amount: statistics.paid,
             count: statistics.paidCount,
             icon: CheckCircle,
-            color: 'bg-gradient-to-br from-green-500 to-emerald-600',
+            stripe: 'from-emerald-400 to-emerald-600',
+            iconBg: 'bg-emerald-50 dark:bg-emerald-900/30',
+            iconText: 'text-emerald-600 dark:text-emerald-400',
           },
         ].map((stat, index) => (
-          <Card key={index} className="overflow-hidden">
-            <div className={`${stat.color} p-4 text-white`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium opacity-90">{stat.label}</p>
-                  <p className="text-2xl font-bold mt-1">{formatCurrency(stat.amount)}</p>
-                  <p className="text-xs opacity-75 mt-2">{stat.count} facturen</p>
-                </div>
-                <stat.icon className="w-12 h-12 opacity-20" />
-              </div>
-            </div>
-          </Card>
+          <div key={index} className="relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs hover:shadow-md transition-all p-5 overflow-hidden">
+            <div aria-hidden className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${stat.stripe}`} />
+            <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-1.5">
+              <span className={`w-5 h-5 rounded-md ${stat.iconBg} flex items-center justify-center`}>
+                <stat.icon className={`h-3 w-3 ${stat.iconText}`} />
+              </span>
+              {stat.label}
+            </p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tightest leading-none tabular-nums">{formatCurrency(stat.amount)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{stat.count} facturen</p>
+          </div>
         ))}
       </div>
 

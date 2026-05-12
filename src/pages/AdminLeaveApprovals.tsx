@@ -155,35 +155,29 @@ const AdminLeaveApprovals: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-orange-50 dark:from-orange-900/20 to-amber-50 dark:to-amber-900/20 border border-orange-200 dark:border-orange-700 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-orange-700 dark:text-orange-300">Te Behandelen</p>
-              <p className="text-3xl font-bold text-orange-900 dark:text-orange-100 mt-1">{pendingRequests.length}</p>
+        {[
+          { label: 'Te behandelen', value: pendingRequests.length, icon: Clock,     stripe: 'from-amber-400 to-amber-600',     iconBg: 'bg-amber-50 dark:bg-amber-900/30',     iconText: 'text-amber-600 dark:text-amber-400' },
+          { label: 'Werknemers',    value: employees.length,       icon: User,      stripe: 'from-sky-400 to-sky-600',         iconBg: 'bg-sky-50 dark:bg-sky-900/30',         iconText: 'text-sky-600 dark:text-sky-400' },
+          { label: 'Bedrijven',     value: companies.length,       icon: Building2, stripe: 'from-emerald-400 to-emerald-600', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30', iconText: 'text-emerald-600 dark:text-emerald-400' },
+        ].map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <div key={i} className="relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs hover:shadow-md transition-all p-5 overflow-hidden">
+              <div aria-hidden className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${stat.stripe}`} />
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-1.5">
+                    <span className={`w-5 h-5 rounded-md ${stat.iconBg} flex items-center justify-center`}>
+                      <Icon className={`h-3 w-3 ${stat.iconText}`} />
+                    </span>
+                    {stat.label}
+                  </p>
+                  <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tightest leading-none tabular-nums">{stat.value}</p>
+                </div>
+              </div>
             </div>
-            <Clock className="h-10 w-10 text-orange-300 dark:text-orange-600" />
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-indigo-50 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Werknemers</p>
-              <p className="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-1">{employees.length}</p>
-            </div>
-            <User className="h-10 w-10 text-blue-300 dark:text-blue-600" />
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-50 dark:from-green-900/20 to-emerald-50 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-green-700 dark:text-green-300">Bedrijven</p>
-              <p className="text-3xl font-bold text-green-900 dark:text-green-100 mt-1">{companies.length}</p>
-            </div>
-            <Building2 className="h-10 w-10 text-green-300 dark:text-green-600" />
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       {/* Requests List */}
@@ -215,8 +209,8 @@ const AdminLeaveApprovals: React.FC = () => {
                 >
                   <div className="p-4 sm:p-5 flex items-center gap-4 hover:bg-gray-50 dark:bg-gray-900 transition-colors">
                     {/* Status Icon */}
-                    <div className="p-3 bg-gradient-to-br from-orange-100 dark:from-orange-900/30 to-amber-100 dark:to-amber-900/30 rounded-lg flex-shrink-0">
-                      <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                    <div className="p-2.5 bg-amber-50 dark:bg-amber-900/30 rounded-lg flex-shrink-0">
+                      <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                     </div>
 
                     {/* Info - Desktop & Mobile */}
@@ -243,7 +237,7 @@ const AdminLeaveApprovals: React.FC = () => {
 
                 {/* Expanded Details */}
                 {isExpanded && (
-                  <div className="border-t border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 dark:from-gray-900/20 to-white dark:to-gray-800 p-4 sm:p-5 space-y-4">
+                  <div className="border-t border-gray-100 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/30 p-4 sm:p-5 space-y-4">
                     {/* Company & Type */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>

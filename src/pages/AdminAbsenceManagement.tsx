@@ -117,58 +117,26 @@ const AdminAbsenceManagement: React.FC = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-6 bg-gradient-to-br from-red-50 dark:from-red-900/20 to-red-100 dark:to-red-900/30">
-          <div className="flex items-center">
-            <div className="p-3 bg-red-600 rounded-xl mr-4">
-              <HeartPulse className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Actief Verzuim</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {activeSickLeave.length}
+        {[
+          { label: 'Actief verzuim',    value: activeSickLeave.length,  icon: HeartPulse,     stripe: 'from-red-400 to-red-600',         iconBg: 'bg-red-50 dark:bg-red-900/30',         iconText: 'text-red-600 dark:text-red-400' },
+          { label: 'Langdurig (>6 wk)', value: longTermCases.length,    icon: AlertTriangle,  stripe: 'from-amber-400 to-amber-600',     iconBg: 'bg-amber-50 dark:bg-amber-900/30',     iconText: 'text-amber-600 dark:text-amber-400' },
+          { label: 'Poortwachter',      value: poortwachterCases.length, icon: Clock,         stripe: 'from-primary-400 to-primary-600', iconBg: 'bg-primary-50 dark:bg-primary-900/30', iconText: 'text-primary-600 dark:text-primary-400' },
+          { label: 'Werknemers',        value: employees.length,         icon: User,          stripe: 'from-emerald-400 to-emerald-600', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30', iconText: 'text-emerald-600 dark:text-emerald-400' },
+        ].map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <div key={i} className="relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs hover:shadow-md transition-all p-5 overflow-hidden">
+              <div aria-hidden className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${stat.stripe}`} />
+              <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-1.5">
+                <span className={`w-5 h-5 rounded-md ${stat.iconBg} flex items-center justify-center`}>
+                  <Icon className={`h-3 w-3 ${stat.iconText}`} />
+                </span>
+                {stat.label}
               </p>
+              <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tightest leading-none tabular-nums">{stat.value}</p>
             </div>
-          </div>
-        </Card>
-        <Card className="p-6 bg-gradient-to-br from-orange-50 dark:from-orange-900/20 to-orange-100 dark:to-orange-900/30">
-          <div className="flex items-center">
-            <div className="p-3 bg-orange-600 rounded-xl mr-4">
-              <AlertTriangle className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Langdurig (&gt;6 weken)</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {longTermCases.length}
-              </p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-6 bg-gradient-to-br from-primary-50 dark:from-primary-900/20 to-primary-100 dark:to-primary-900/30">
-          <div className="flex items-center">
-            <div className="p-3 bg-primary-600 rounded-xl mr-4">
-              <Clock className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Poortwachter</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {poortwachterCases.length}
-              </p>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-6 bg-gradient-to-br from-green-50 dark:from-green-900/20 to-green-100 dark:to-green-900/30">
-          <div className="flex items-center">
-            <div className="p-3 bg-green-600 rounded-xl mr-4">
-              <User className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-200">Werknemers</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {employees.length}
-              </p>
-            </div>
-          </div>
-        </Card>
+          );
+        })}
       </div>
 
       <Card>

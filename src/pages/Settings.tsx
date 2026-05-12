@@ -1033,14 +1033,14 @@ const Settings: React.FC = () => {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         Eerstvolgende factuurnummer
                       </label>
-                      <div className="px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <div className="px-4 py-3 bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
                         {loadingInvoiceNumber ? (
                           <div className="flex items-center gap-2">
                             <LoadingSpinner className="h-4 w-4" />
                             <p className="text-sm text-gray-600 dark:text-gray-300">Laden...</p>
                           </div>
                         ) : (
-                          <p className="text-lg font-bold font-mono text-green-700 dark:text-green-300">
+                          <p className="text-lg font-bold font-mono text-emerald-700 dark:text-emerald-300 tracking-tight">
                             {nextInvoiceNumber || 'N/A'}
                           </p>
                         )}

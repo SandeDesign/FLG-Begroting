@@ -1764,26 +1764,26 @@ const Budgeting: React.FC = () => {
             </Card>
 
             {/* FORECAST VOLLEDIG JAAR */}
-            <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-800 border-2 border-blue-200 dark:border-gray-700">
+            <Card accent="info">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                <h3 className="text-lg font-bold text-blue-900">🔮 Forecast {currentYear}</h3>
-                <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">
+                <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 tracking-tight">Forecast {currentYear}</h3>
+                <span className="text-[10px] font-bold uppercase tracking-[0.06em] bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 px-2 py-0.5 rounded-md">
                   Volledig jaar
                 </span>
               </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg">
-                  <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">Inkomsten</span>
-                  <span className="font-bold text-emerald-600">{formatCurrency(forecastFullYearIncome)}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/40 border border-gray-100 dark:border-gray-700 rounded-lg">
+                  <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Inkomsten</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(forecastFullYearIncome)}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg">
-                  <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">Kosten</span>
-                  <span className="font-bold text-red-600">{formatCurrency(forecastFullYearCosts)}</span>
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/40 border border-gray-100 dark:border-gray-700 rounded-lg">
+                  <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Kosten</span>
+                  <span className="font-bold text-red-600 dark:text-red-400 tabular-nums">{formatCurrency(forecastFullYearCosts)}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-blue-100 rounded-lg border-2 border-blue-300">
-                  <span className="text-blue-900 font-bold text-sm">Resultaat</span>
-                  <span className={`font-bold ${(forecastFullYearIncome - forecastFullYearCosts) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                <div className="flex justify-between items-center p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
+                  <span className="text-sky-900 dark:text-sky-200 font-bold text-sm tracking-tight">Resultaat</span>
+                  <span className={`font-bold tabular-nums ${(forecastFullYearIncome - forecastFullYearCosts) >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
                     {formatCurrency(forecastFullYearIncome - forecastFullYearCosts)}
                   </span>
                 </div>
