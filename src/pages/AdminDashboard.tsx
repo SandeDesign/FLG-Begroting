@@ -18,6 +18,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
+import PageHeader from '../components/ui/PageHeader';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { useToast } from '../hooks/useToast';
 import { useNavigate } from 'react-router-dom';
@@ -199,50 +201,11 @@ const AdminDashboard: React.FC = () => {
   const completedRecent = tasks.filter(t => t.status === 'completed' && isRecentDate(t.completedDate));
 
   type StatTone = 'bronze' | 'sky' | 'purple' | 'emerald';
-  const toneClasses: Record<StatTone, { stripe: string; iconBg: string; iconText: string }> = {
-    bronze:  { stripe: 'from-primary-400 to-primary-600',  iconBg: 'bg-primary-50 dark:bg-primary-900/30',  iconText: 'text-primary-600 dark:text-primary-400' },
-    sky:     { stripe: 'from-sky-400 to-sky-600',          iconBg: 'bg-sky-50 dark:bg-sky-900/30',          iconText: 'text-sky-600 dark:text-sky-400' },
-    purple:  { stripe: 'from-purple-400 to-purple-600',    iconBg: 'bg-purple-50 dark:bg-purple-900/30',    iconText: 'text-purple-600 dark:text-purple-400' },
-    emerald: { stripe: 'from-emerald-400 to-emerald-600',  iconBg: 'bg-emerald-50 dark:bg-emerald-900/30',  iconText: 'text-emerald-600 dark:text-emerald-400' },
-  };
-
-  const StatTile: React.FC<{
-    label: string;
-    value: React.ReactNode;
-    sub?: string;
-    icon: React.ComponentType<{ className?: string }>;
-    tone: StatTone;
-    badgeCount?: number;
-    onClick?: () => void;
-  }> = ({ label, value, sub, icon: Icon, tone, badgeCount, onClick }) => {
-    const c = toneClasses[tone];
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={!onClick}
-        className={`relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs p-5 text-left overflow-hidden transition-all duration-200 ${onClick ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer' : 'cursor-default'}`}
-      >
-        <div aria-hidden className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${c.stripe}`} />
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-1.5">
-              <span className={`w-5 h-5 rounded-md ${c.iconBg} flex items-center justify-center`}>
-                <Icon className={`h-3 w-3 ${c.iconText}`} />
-              </span>
-              {label}
-            </p>
-            <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tightest leading-none">{value}</p>
-            {sub && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{sub}</p>}
-          </div>
-          {typeof badgeCount === 'number' && badgeCount > 0 && (
-            <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center flex-shrink-0 ring-2 ring-white dark:ring-gray-800">
-              {badgeCount}
-            </span>
-          )}
-        </div>
-      </button>
-    );
+  const quickActionToneClasses: Record<StatTone, { iconBg: string; iconText: string }> = {
+    bronze:  { iconBg: 'bg-primary-50 dark:bg-primary-900/30',   iconText: 'text-primary-600 dark:text-primary-400' },
+    sky:     { iconBg: 'bg-sky-50 dark:bg-sky-900/30',           iconText: 'text-sky-600 dark:text-sky-400' },
+    purple:  { iconBg: 'bg-purple-50 dark:bg-purple-900/30',     iconText: 'text-purple-600 dark:text-purple-400' },
+    emerald: { iconBg: 'bg-emerald-50 dark:bg-emerald-900/30',   iconText: 'text-emerald-600 dark:text-emerald-400' },
   };
 
   const AlertBanner: React.FC<{
@@ -280,20 +243,8 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-5 pb-24 sm:pb-6">
-      {/* Hero */}
-      <div className="hidden lg:block relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-6 lg:p-8 text-white shadow-glow-primary-lg">
-        <div aria-hidden className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-        <div aria-hidden className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl" />
-        <div className="relative flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">LoonMaatschappij</h1>
-            <p className="text-white/80 mt-1.5 text-sm tracking-tight">{selectedCompany.name}</p>
-          </div>
-          <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl ring-1 ring-white/25">
-            <Activity className="h-6 w-6 text-white" />
-          </div>
-        </div>
-      </div>
+      {/* Header */}
+      <PageHeader title="LoonMaatschappij" subtitle={selectedCompany.name} />
 
       {/* Banners */}
       {totalPending > 0 && (
@@ -335,14 +286,14 @@ const AdminDashboard: React.FC = () => {
           label="Actieve medewerkers"
           value={stats.activeEmployees}
           sub={`van ${stats.totalEmployees} totaal`}
-          icon={Users}
+          emoji="👥"
           tone="sky"
         />
         <StatTile
           label="Uren wachtend"
           value={stats.pendingTimesheets}
           sub="te goedkeuren"
-          icon={Clock}
+          emoji="⏱️"
           tone="bronze"
           badgeCount={stats.pendingTimesheets}
           onClick={() => navigate('/timesheet-approvals')}
@@ -351,7 +302,7 @@ const AdminDashboard: React.FC = () => {
           label="Verlof wachtend"
           value={stats.pendingLeaveRequests}
           sub="aanvragen"
-          icon={Calendar}
+          emoji="🌴"
           tone="purple"
           badgeCount={stats.pendingLeaveRequests}
           onClick={() => navigate('/admin/leave-approvals')}
@@ -360,7 +311,7 @@ const AdminDashboard: React.FC = () => {
           label="Onkosten"
           value={<span>€{(stats.totalPendingExpenseAmount / 100).toFixed(0)}</span>}
           sub={`${stats.pendingExpenses} in behandeling`}
-          icon={Receipt}
+          emoji="🧾"
           tone="emerald"
           badgeCount={stats.pendingExpenses}
           onClick={() => navigate('/admin-expenses')}
@@ -469,7 +420,7 @@ const AdminDashboard: React.FC = () => {
             { title: 'Begroting',         icon: Wallet,   path: '/budgeting',                                                tone: 'emerald' as StatTone },
           ].map((action) => {
             const Icon = action.icon;
-            const c = toneClasses[action.tone];
+            const c = quickActionToneClasses[action.tone];
             return (
               <button
                 key={action.title}

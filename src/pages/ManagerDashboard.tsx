@@ -15,6 +15,8 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
+import PageHeader from '../components/ui/PageHeader';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
@@ -235,61 +237,40 @@ const ManagerDashboard: React.FC = () => {
 
   return (
     <div className="space-y-5 pb-24 sm:pb-0">
-      {/* Hero header */}
-      <div className="hidden lg:block relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 p-6 lg:p-8 text-white shadow-glow-primary-lg">
-        <div aria-hidden className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-        <div aria-hidden className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-300/20 rounded-full blur-3xl" />
-        <div className="relative">
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">{isProjectCompany ? 'Project Dashboard' : 'Manager Dashboard'}</h1>
-              <p className="text-white/80 mt-1.5 text-sm flex items-center gap-2 tracking-tight">
-                {isProjectCompany ? <Factory className="h-4 w-4" /> : <Users className="h-4 w-4" />}
-                {selectedCompany?.name || 'Bedrijf'}
-              </p>
-            </div>
-            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-xl ring-1 ring-white/25">
-              {isProjectCompany ? <Factory className="h-6 w-6 text-white" /> : <Users className="h-6 w-6 text-white" />}
-            </div>
-          </div>
+      {/* Header */}
+      <PageHeader
+        title={isProjectCompany ? 'Project Dashboard' : 'Manager Dashboard'}
+        subtitle={selectedCompany?.name || 'Bedrijf'}
+        emoji={isProjectCompany ? '🏭' : '👥'}
+      />
 
-          {/* Inline stats in hero */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-white/12 backdrop-blur-sm rounded-xl p-3.5 ring-1 ring-white/20">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Users className="h-3.5 w-3.5 text-white/80" />
-                <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">Team</p>
-              </div>
-              <p className="text-xl font-bold text-white tracking-tight">{stats.totalTeam}</p>
-            </div>
-            <div className="bg-white/12 backdrop-blur-sm rounded-xl p-3.5 ring-1 ring-white/20">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <CheckCircle className="h-3.5 w-3.5 text-white/80" />
-                <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">Actief</p>
-              </div>
-              <p className="text-xl font-bold text-white tracking-tight">{stats.activeMembers}</p>
-            </div>
-            {isProjectCompany && (
-              <>
-                <div className="bg-white/12 backdrop-blur-sm rounded-xl p-3.5 ring-1 ring-white/20">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Package className="h-3.5 w-3.5 text-white/80" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">Uren</p>
-                  </div>
-                  <p className="text-xl font-bold text-white tracking-tight">{stats.totalProduction.toFixed(1)}u</p>
-                  <p className="text-[10px] text-white/60 mt-0.5">Target: {(productionWeeks.length * WEEKLY_HOURS_TARGET).toFixed(0)}u</p>
-                </div>
-                <div className="bg-white/12 backdrop-blur-sm rounded-xl p-3.5 ring-1 ring-white/20">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Euro className="h-3.5 w-3.5 text-white/80" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-white/70">Omzet (incl. BTW)</p>
-                  </div>
-                  <p className="text-xl font-bold text-white tracking-tight">€{stats.totalProductionValue.toLocaleString('nl-NL', { maximumFractionDigits: 0 })}</p>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatTile label="Team"   value={stats.totalTeam}     emoji="👥" tone="sky" />
+        <StatTile label="Actief" value={stats.activeMembers} sub="leden" emoji="✅" tone="emerald" />
+        {isProjectCompany && (
+          <>
+            <StatTile
+              label="Uren"
+              value={<>{stats.totalProduction.toFixed(1)}<span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-0.5">u</span></>}
+              sub={`Target: ${(productionWeeks.length * WEEKLY_HOURS_TARGET).toFixed(0)}u`}
+              emoji="🏭"
+              tone="amber"
+            />
+            <StatTile
+              label="Omzet (incl. BTW)"
+              value={`€${stats.totalProductionValue.toLocaleString('nl-NL', { maximumFractionDigits: 0 })}`}
+              emoji="💰"
+              tone="emerald"
+            />
+          </>
+        )}
+        {!isProjectCompany && (
+          <>
+            <StatTile label="Openstaande uren"  value={pendingTimesheets.length} sub="wachten op actie" emoji="⏱️" tone="bronze" badgeCount={pendingTimesheets.length} onClick={() => navigate('/timesheet-approvals')} />
+            <StatTile label="Openstaand verlof" value={pendingLeave.length}      sub="aanvragen"        emoji="🌴" tone="purple" badgeCount={pendingLeave.length}      onClick={() => navigate('/admin/leave-approvals')} />
+          </>
+        )}
       </div>
 
       {/* Banners */}
