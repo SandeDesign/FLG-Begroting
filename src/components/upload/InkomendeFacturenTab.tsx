@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Upload,
   Zap,
@@ -7,6 +7,8 @@ import {
   CheckCircle,
   ArrowRight,
   RotateCw,
+  History,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +16,7 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useToast } from '../../hooks/useToast';
-import { uploadAndSaveInvoice } from '../../services/incomingInvoiceService';
+import { uploadAndSaveInvoice, incomingInvoiceService, IncomingInvoice } from '../../services/incomingInvoiceService';
 import { processInvoiceFile } from '../../services/ocrService';
 import { Company } from '../../types';
 
@@ -40,6 +42,8 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
   const navigate = useNavigate();
 
   const [uploading, setUploading] = useState(false);
+  const [history, setHistory] = useState<IncomingInvoice[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [processingFiles, setProcessingFiles] = useState<string[]>([]);
   const [ocrProgress, setOcrProgress] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -47,6 +51,25 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [totalProcessed, setTotalProcessed] = useState(0);
   const [totalFiles, setTotalFiles] = useState(0);
+
+  useEffect(() => {
+    if (selectedCompany?.userId) {
+      loadHistory();
+    }
+  }, [selectedCompany?.id]);
+
+  const loadHistory = async () => {
+    if (!selectedCompany?.userId) return;
+    setHistoryLoading(true);
+    try {
+      const invoices = await incomingInvoiceService.getInvoices(selectedCompany.userId, selectedCompany.id);
+      setHistory(invoices.slice(0, 20));
+    } catch {
+      // silently fail — history is non-critical
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const handleFileUpload = async (files: FileList) => {
     if (!files.length || !selectedCompany || !user) return;
@@ -132,6 +155,7 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
       if (results.length > 0) {
         setOcrResults(prev => [...results, ...prev]);
         setShowSuccessModal(true);
+        loadHistory();
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -281,9 +305,74 @@ const InkomendeFacturenTab: React.FC<Props> = ({ selectedCompany }) => {
         </p>
       </div>
 
+      {/* Upload history */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+            <History className="h-4 w-4" />
+            Upload geschiedenis
+          </h2>
+          {history.length > 0 && (
+            <button
+              onClick={() => navigate('/incoming-invoices-stats')}
+              className="text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+            >
+              Alle inkoop <ExternalLink className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+        {historyLoading ? (
+          <div className="flex justify-center py-6"><LoadingSpinner size="sm" /></div>
+        ) : history.length === 0 ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500 py-4 text-center">Nog geen facturen geüpload voor {selectedCompany.name}</p>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-800/60 text-left">
+                  <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Leverancier</th>
+                  <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Factuurnr.</th>
+                  <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">Datum</th>
+                  <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-right">Totaal</th>
+                  <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 text-center">Status</th>
+                  <th className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider text-gray-400"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {history.map((inv) => (
+                  <tr key={inv.id} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 truncate max-w-[160px]">{inv.supplierName || '—'}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300 font-mono text-xs">{inv.invoiceNumber || '—'}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300 tabular-nums">{inv.invoiceDate.toLocaleDateString('nl-NL')}</td>
+                    <td className="px-4 py-3 text-right font-semibold tabular-nums text-gray-900 dark:text-gray-100">€ {inv.totalAmount.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                        inv.status === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' :
+                        inv.status === 'approved' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' :
+                        inv.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' :
+                        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                      }`}>
+                        {inv.status === 'paid' ? 'Betaald' : inv.status === 'approved' ? 'Goedgekeurd' : inv.status === 'rejected' ? 'Afgewezen' : 'In behandeling'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {inv.fileUrl && (
+                        <button onClick={() => window.open(inv.fileUrl, '_blank')} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Bekijk bestand">
+                          <Download className="h-3.5 w-3.5 text-gray-400" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
       {ocrResults.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Verwerkte facturen</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Verwerkte facturen (deze sessie)</h2>
           {ocrResults.map((result) => (
             <Card key={result.id} className="p-6">
               <div className="space-y-4">
