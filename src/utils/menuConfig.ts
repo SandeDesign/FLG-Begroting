@@ -197,6 +197,7 @@ export interface BottomNavDefault {
   href: string;
   icon: string;
   iconComponent: React.ComponentType<{ className?: string }>;
+  emoji: string;
   label: string;
   gradient: string;
 }
@@ -238,60 +239,60 @@ export const getBottomNavDefaults = (
   // HOLDING
   if (companyType === 'holding') {
     return [
-      { href: '/statistics/holding', icon: 'TrendingUp', iconComponent: TrendingUp, label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
-      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, label: 'Verkoop', gradient: 'from-primary-500 to-primary-600' },
-      { href: '/budgeting', icon: 'Wallet', iconComponent: Wallet, label: 'Begroting', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/statistics/holding', icon: 'TrendingUp', iconComponent: TrendingUp, emoji: '📈', label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, emoji: '📤', label: 'Verkoop', gradient: 'from-primary-500 to-primary-600' },
+      { href: '/budgeting', icon: 'Wallet', iconComponent: Wallet, emoji: '💼', label: 'Begroting', gradient: 'from-primary-600 to-primary-700' },
     ];
   }
 
   // SHAREHOLDER
   if (companyType === 'shareholder') {
     return [
-      { href: '/statistics/holding', icon: 'TrendingUp', iconComponent: TrendingUp, label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
-      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, label: 'Facturen', gradient: 'from-primary-500 to-primary-600' },
-      { href: '/incoming-invoices', icon: 'Upload', iconComponent: Upload, label: 'Inkoop', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/statistics/holding', icon: 'TrendingUp', iconComponent: TrendingUp, emoji: '📈', label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, emoji: '📤', label: 'Facturen', gradient: 'from-primary-500 to-primary-600' },
+      { href: '/incoming-invoices', icon: 'Upload', iconComponent: Upload, emoji: '📎', label: 'Inkoop', gradient: 'from-primary-600 to-primary-700' },
     ];
   }
 
   // PROJECT
   if (companyType === 'project') {
     return [
-      { href: '/statistics/project', icon: 'TrendingUp', iconComponent: TrendingUp, label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
-      { href: '/project-production', icon: 'Cpu', iconComponent: Cpu, label: 'Productie', gradient: 'from-primary-500 to-primary-600' },
-      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, label: 'Facturen', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/statistics/project', icon: 'TrendingUp', iconComponent: TrendingUp, emoji: '📈', label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/project-production', icon: 'Cpu', iconComponent: Cpu, emoji: '🏭', label: 'Productie', gradient: 'from-primary-500 to-primary-600' },
+      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, emoji: '📤', label: 'Facturen', gradient: 'from-primary-600 to-primary-700' },
     ];
   }
 
   // EMPLOYER - per rol
   if (userRole === 'admin' || userRole === 'co-admin') {
     return [
-      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, label: 'Verkoop', gradient: 'from-primary-600 to-primary-700' },
-      { href: '/timesheet-approvals', icon: 'CheckCircle2', iconComponent: CheckCircle2, label: 'Uren', gradient: 'from-primary-500 to-primary-600' },
-      { href: '/upload', icon: 'Upload', iconComponent: Upload, label: 'Upload', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/outgoing-invoices', icon: 'Send', iconComponent: Send, emoji: '📤', label: 'Verkoop', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/timesheet-approvals', icon: 'CheckCircle2', iconComponent: CheckCircle2, emoji: '✅', label: 'Uren', gradient: 'from-primary-500 to-primary-600' },
+      { href: '/upload', icon: 'Upload', iconComponent: Upload, emoji: '📎', label: 'Upload', gradient: 'from-primary-600 to-primary-700' },
     ];
   }
 
   if (userRole === 'manager') {
     return [
-      { href: '/statistics/employer', icon: 'TrendingUp', iconComponent: TrendingUp, label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
-      { href: '/employees', icon: 'Users', iconComponent: Users, label: 'Team', gradient: 'from-primary-500 to-primary-600' },
-      { href: '/timesheet-approvals', icon: 'CheckCircle2', iconComponent: CheckCircle2, label: 'Beheren', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/statistics/employer', icon: 'TrendingUp', iconComponent: TrendingUp, emoji: '📈', label: 'Stats', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/employees', icon: 'Users', iconComponent: Users, emoji: '👥', label: 'Team', gradient: 'from-primary-500 to-primary-600' },
+      { href: '/timesheet-approvals', icon: 'CheckCircle2', iconComponent: CheckCircle2, emoji: '✅', label: 'Beheren', gradient: 'from-primary-600 to-primary-700' },
     ];
   }
 
   if (userRole === 'boekhouder') {
     return [
-      { href: '/boekhouder/upload', icon: 'Upload', iconComponent: Upload, label: 'Upload', gradient: 'from-primary-600 to-primary-700' },
-      { href: '/boekhouder/btw-overzicht', icon: 'Wallet', iconComponent: Wallet, label: 'BTW', gradient: 'from-primary-500 to-primary-600' },
-      { href: '/boekhouder/grootboekrekeningen', icon: 'BookOpen', iconComponent: BookOpen, label: 'Grootboek', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/boekhouder/upload', icon: 'Upload', iconComponent: Upload, emoji: '📎', label: 'Upload', gradient: 'from-primary-600 to-primary-700' },
+      { href: '/boekhouder/btw-overzicht', icon: 'Wallet', iconComponent: Wallet, emoji: '🧮', label: 'BTW', gradient: 'from-primary-500 to-primary-600' },
+      { href: '/boekhouder/grootboekrekeningen', icon: 'BookOpen', iconComponent: BookOpen, emoji: '📒', label: 'Grootboek', gradient: 'from-primary-600 to-primary-700' },
     ];
   }
 
   // Employee
   return [
-    { href: '/timesheets', icon: 'Clock', iconComponent: Clock, label: 'Uren', gradient: 'from-primary-600 to-primary-700' },
-    { href: '/payslips', icon: 'CheckCircle2', iconComponent: CheckCircle2, label: 'Loonstrook', gradient: 'from-primary-500 to-primary-600' },
-    { href: '/settings', icon: 'Settings', iconComponent: Settings, label: 'Profiel', gradient: 'from-primary-600 to-primary-700' },
+    { href: '/timesheets', icon: 'Clock', iconComponent: Clock, emoji: '⏱️', label: 'Uren', gradient: 'from-primary-600 to-primary-700' },
+    { href: '/payslips', icon: 'CheckCircle2', iconComponent: CheckCircle2, emoji: '💵', label: 'Loonstrook', gradient: 'from-primary-500 to-primary-600' },
+    { href: '/settings', icon: 'Settings', iconComponent: Settings, emoji: '⚙️', label: 'Profiel', gradient: 'from-primary-600 to-primary-700' },
   ];
 };
 
