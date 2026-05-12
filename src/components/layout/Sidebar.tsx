@@ -59,7 +59,7 @@ const NavItem: React.FC<{ item: NavigationItem; collapsed: boolean; userRole: st
   );
 };
 
-// Section Header - Cleaner Design
+// Section Header - Minimal text-only (matches design preview)
 const SectionHeader: React.FC<{
   title: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -67,7 +67,7 @@ const SectionHeader: React.FC<{
   isExpanded: boolean;
   onToggle: () => void;
   color: string;
-}> = ({ title, icon: Icon, collapsed, isExpanded, onToggle, color }) => {
+}> = ({ title, collapsed, isExpanded, onToggle }) => {
   if (collapsed) {
     return (
       <div className="flex justify-center py-2">
@@ -79,16 +79,13 @@ const SectionHeader: React.FC<{
   return (
     <button
       onClick={onToggle}
-      className="flex items-center w-full px-3 py-2 mt-2 mx-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors group"
+      className="flex items-center w-full px-3 py-1.5 mt-3 mx-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors group"
       style={{ width: 'calc(100% - 1rem)' }}
     >
-      <div className={`p-1 rounded-md ${color} mr-2 shadow-xs`}>
-        <Icon className="h-3 w-3 text-white" />
-      </div>
-      <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em] flex-1 text-left">
+      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] flex-1 text-left">
         {title}
       </span>
-      <ChevronRight className={`h-3.5 w-3.5 text-gray-400 dark:text-gray-500 transition-transform duration-150 ${isExpanded ? 'rotate-90' : ''}`} />
+      <ChevronRight className={`h-3 w-3 text-gray-300 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-all duration-150 ${isExpanded ? 'rotate-90' : ''}`} />
     </button>
   );
 };
@@ -177,7 +174,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
   const sections = getNavigationSections(userRole, companyType);
 
   return (
-    <div className={`hidden lg:flex lg:flex-col lg:bg-white dark:lg:bg-gray-800 lg:border-r lg:border-gray-100 dark:lg:border-gray-700/60 lg:shadow-xs transition-all duration-200 relative z-10 ${ collapsed ? 'lg:w-16' : 'lg:w-64' }`}>
+    <div className={`hidden lg:flex lg:flex-col lg:bg-white dark:lg:bg-gray-800 lg:border-r lg:border-gray-100 dark:lg:border-gray-700/60 lg:shadow-xs transition-all duration-200 relative z-40 ${ collapsed ? 'lg:w-16' : 'lg:w-64' }`}>
       {/* Header - Logo */}
       <div className="flex h-16 items-center justify-center border-b border-gray-100 dark:border-gray-700/60 px-3 relative">
         <button
