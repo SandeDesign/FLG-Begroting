@@ -22,11 +22,14 @@ import {
   assignVehicleToEmployee,
   getMileageHistory,
   getVehicleTripLogs,
+  buildTripLogsFromTimesheets,
+  mergeTripLogs,
   getVehicleReports,
   updateVehicleReportStatus,
   getApkStatus,
   getMaintenanceStatus,
 } from '../services/vehicleService';
+import { getWeeklyTimesheets } from '../services/timesheetService';
 import { AuditService } from '../services/auditService';
 import { createTask, getCompanyManagerUids } from '../services/firebase';
 import { NotificationService } from '../services/notificationService';
@@ -304,14 +307,18 @@ export default function AutoBeheer() {
     if (!queryUserId || !selectedCompany || !v.id) return;
     try {
       setDetailLoading(true);
-      const [history, reps, vehicleTrips] = await Promise.all([
+      const [history, reps, persistent, sheets] = await Promise.all([
         getMileageHistory(v.id),
         getVehicleReports(queryUserId, selectedCompany.id, v.id),
         getVehicleTripLogs(v.id).catch(() => [] as VehicleTripLog[]),
+        v.assignedToEmployeeId
+          ? getWeeklyTimesheets(queryUserId, v.assignedToEmployeeId).catch(() => [])
+          : Promise.resolve([]),
       ]);
+      const derived = buildTripLogsFromTimesheets(sheets, v.id, v.assignedToEmployeeId, employeeName(v.assignedToEmployeeId) || undefined);
       setMileageHistory(history);
       setReports(reps);
-      setTrips(vehicleTrips);
+      setTrips(mergeTripLogs(persistent, derived));
     } catch {
       setMileageHistory([]);
       setReports([]);
