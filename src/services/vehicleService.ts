@@ -144,13 +144,22 @@ export const assignVehicleToEmployee = async (
 export const getMileageHistory = async (vehicleId: string): Promise<VehicleMileageLog[]> => {
   const q = query(collection(db, MILEAGE_LOGS), where('vehicleId', '==', vehicleId));
   const snap = await getDocs(q);
-  return snap.docs
+  const logs = snap.docs
     .map(d => convertFromFirestore<VehicleMileageLog>(d.data() as Record<string, unknown>, d.id))
     .sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
+  // Ontdubbel: zelfde dag + zelfde stand telt als één regel.
+  const seen = new Set<string>();
+  return logs.filter(l => {
+    const key = `${l.date ? new Date(l.date).toISOString().slice(0, 10) : '?'}-${l.mileage}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 /**
- * Werkt de tellerstand van een auto bij (alleen omhoog) en schrijft een log.
+ * Werkt de tellerstand van een auto bij. Schrijft ALLEEN een log wanneer de
+ * stand daadwerkelijk hoger is dan de huidige — voorkomt dubbele/no-op regels.
  * Wordt aangeroepen vanuit de urenregistratie wanneer een eindstand wordt ingevuld.
  */
 export const updateVehicleMileage = async (
@@ -159,6 +168,12 @@ export const updateVehicleMileage = async (
   meta: { userId: string; companyId: string; date: Date; employeeId?: string; source?: 'timesheet' | 'manual' }
 ): Promise<void> => {
   if (!vehicleId || !mileage || mileage <= 0) return;
+
+  const vehicle = await getVehicleById(vehicleId);
+  // Niets doen als de stand niet daadwerkelijk gestegen is.
+  if (vehicle && typeof vehicle.currentMileage === 'number' && mileage <= vehicle.currentMileage) {
+    return;
+  }
 
   await addDoc(
     collection(db, MILEAGE_LOGS),
@@ -174,13 +189,10 @@ export const updateVehicleMileage = async (
     })
   );
 
-  const vehicle = await getVehicleById(vehicleId);
-  if (vehicle && (vehicle.currentMileage === undefined || mileage > vehicle.currentMileage)) {
-    await updateDoc(doc(db, VEHICLES, vehicleId), {
-      currentMileage: mileage,
-      updatedAt: Timestamp.fromDate(new Date()),
-    });
-  }
+  await updateDoc(doc(db, VEHICLES, vehicleId), {
+    currentMileage: mileage,
+    updatedAt: Timestamp.fromDate(new Date()),
+  });
 };
 
 // ─── Meldingen (reports) ──────────────────────────────────────────────────────
