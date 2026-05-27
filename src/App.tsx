@@ -82,6 +82,8 @@ import BtwOverzicht from './pages/BtwOverzicht';
 import InternalProjects from './pages/InternalProjects';
 import EmployeeAgenda from './pages/EmployeeAgenda';
 import EmployeeTasks from './pages/EmployeeTasks';
+import AutoBeheer from './pages/AutoBeheer';
+import EmployeeVehicle from './pages/EmployeeVehicle';
 import { AppProvider } from './contexts/AppContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { PageTitleProvider } from './contexts/PageTitleContext';
@@ -160,8 +162,9 @@ function App() {
                           <Route path="timesheets" element={<Timesheets />} />
                           <Route path="timesheet-approvals" element={<TimesheetApprovals />} />
                           <Route path="internal-projects" element={<InternalProjects />} />
+                          <Route path="auto-beheer" element={<AutoBeheer />} />
                           <Route path="admin-expenses" element={<AdminExpenses />} />
-                          
+
                           {/* ✅ VERLOF & VERZUIM */}
                           <Route path="admin/leave-approvals" element={<AdminLeaveApprovals />} />
                           <Route path="admin/absence-management" element={<AdminAbsenceManagement />} />
@@ -214,6 +217,7 @@ function App() {
 
                           {/* Manager kan interne projecten inzien (read-only) */}
                           <Route path="internal-projects" element={<InternalProjects />} />
+                          <Route path="auto-beheer" element={<AutoBeheer />} />
 
                           {/* ✅ STATISTICS ROUTES */}
                           <Route path="statistics/employer" element={<EmployerStatistics />} />
@@ -322,6 +326,7 @@ function App() {
                             <Route path="timesheets" element={<Timesheets />} />
                             <Route path="agenda" element={<EmployeeAgenda />} />
                             <Route path="tasks" element={<EmployeeTasks />} />
+                            <Route path="vehicle" element={<EmployeeVehicle />} />
                             <Route path="payslips" element={<Payslips />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>

@@ -34,6 +34,7 @@ import {
 } from '../services/firebase';
 import { getInternalProjects } from '../services/internalProjectService';
 import { getProjectColorMeta } from './InternalProjects';
+import { computeTaskCompletionPatch } from '../utils/taskCompletion';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -156,6 +157,15 @@ const Tasks: React.FC = () => {
     e.preventDefault();
     if (!user || !selectedCompany) return;
 
+    if (!formData.title.trim()) {
+      error('Titel is verplicht');
+      return;
+    }
+    if (!formData.dueDate || isNaN(new Date(formData.dueDate).getTime())) {
+      error('Geldige deadline is verplicht');
+      return;
+    }
+
     try {
       const progress = calculateProgress(formData.checklist);
       await createTask(user.uid, {
@@ -182,6 +192,15 @@ const Tasks: React.FC = () => {
   const handleUpdateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !editingTask) return;
+
+    if (!formData.title.trim()) {
+      error('Titel is verplicht');
+      return;
+    }
+    if (!formData.dueDate || isNaN(new Date(formData.dueDate).getTime())) {
+      error('Geldige deadline is verplicht');
+      return;
+    }
 
     try {
       const progress = calculateProgress(formData.checklist);
@@ -224,31 +243,10 @@ const Tasks: React.FC = () => {
     if (!user) return;
 
     try {
-      // Voor taken met meerdere toegewezen personen: bijhouden per persoon
-      if (task.assignedTo && task.assignedTo.length > 1) {
-        const myId = user.uid;
-        const currentCompleted = task.completedByUsers || [];
-        let updatedCompleted: string[];
-
-        if (newStatus === 'completed') {
-          updatedCompleted = currentCompleted.includes(myId)
-            ? currentCompleted
-            : [...currentCompleted, myId];
-        } else {
-          updatedCompleted = currentCompleted.filter(id => id !== myId);
-        }
-
-        // Globale status: completed als alle toegewezen personen klaar zijn
-        const allDone = task.assignedTo.every(id => updatedCompleted.includes(id));
-        const globalStatus: TaskStatus = allDone ? 'completed' : (task.status === 'completed' ? 'pending' : task.status);
-
-        await updateTask(task.id, user.uid, {
-          completedByUsers: updatedCompleted,
-          status: globalStatus,
-        });
-      } else {
-        await updateTask(task.id, user.uid, { status: newStatus });
-      }
+      // Admin/manager handelt als deelnemer met de eigen auth-UID — exact de
+      // id-ruimte waarmee admins in assignedTo worden gezet.
+      const patch = computeTaskCompletionPatch(task, user.uid, newStatus === 'completed');
+      await updateTask(task.id, user.uid, patch);
 
       success('Status bijgewerkt');
       loadTasks();

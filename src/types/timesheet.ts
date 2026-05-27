@@ -40,6 +40,13 @@ export interface TimesheetEntry {
   nightHours: number;
   weekendHours: number;
   travelKilometers: number;
+  /** Tellerstand begin van de dag (odometer). */
+  startKilometers?: number;
+  /** Tellerstand eind van de dag (odometer). travelKilometers = end - start. */
+  endKilometers?: number;
+  /** Aan de medewerker gekoppelde auto (uit Auto-beheer). */
+  vehicleId?: string;
+  vehicleKenteken?: string;
   projectId?: string;
   costCenter?: string;
   notes?: string;
