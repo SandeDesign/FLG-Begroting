@@ -1741,6 +1741,33 @@ export const getAllCompanyTasks = async (companyId: string, userId?: string): Pr
 };
 
 /**
+ * Auth-UIDs van managers + de eigenaar (admin) die dit bedrijf beheren.
+ * Gebruikt voor beheerders-meldingen (bv. APK/onderhoud).
+ */
+export const getCompanyManagerUids = async (
+  companyId: string,
+  ownerUserId?: string
+): Promise<string[]> => {
+  const uids = new Set<string>();
+  if (ownerUserId) uids.add(ownerUserId);
+  try {
+    const q = query(
+      collection(db, 'users'),
+      where('role', '==', 'manager'),
+      where('assignedCompanyId', '==', companyId)
+    );
+    const snap = await getDocs(q);
+    snap.docs.forEach(d => {
+      const data = d.data();
+      uids.add(data.uid || d.id);
+    });
+  } catch (error) {
+    console.error('Error getting company manager uids:', error);
+  }
+  return Array.from(uids);
+};
+
+/**
  * Haal gebruikers op die toegang hebben tot een bedrijf
  * (voor toewijzen van taken)
  */
