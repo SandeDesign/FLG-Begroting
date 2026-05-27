@@ -31,6 +31,31 @@ import { containsOpdrachtgeverBlame } from '../utils/timesheetCompliance';
 import { isPublicHoliday } from '../utils/leaveCalculations';
 import { AuditService } from '../services/auditService';
 
+/**
+ * Ketent de kilometerstanden door: de beginstand van dag N = eindstand van de
+ * vorige dag met een ingevulde eindstand, en de allereerste beginstand komt van
+ * de auto (currentMileage). Alleen de eindstand wordt door de medewerker
+ * ingevuld; de beginstand én dagkilometers worden hieruit afgeleid.
+ */
+function recalcKmChain(entries: TimesheetEntry[], baseMileage: number): TimesheetEntry[] {
+  const out = entries.map(e => ({ ...e }));
+  const order = out
+    .map((_, i) => i)
+    .sort((a, b) => new Date(out[a].date).getTime() - new Date(out[b].date).getTime());
+  let last = baseMileage;
+  for (const i of order) {
+    out[i].startKilometers = last;
+    const end = out[i].endKilometers;
+    if (typeof end === 'number' && end >= last) {
+      out[i].travelKilometers = end - last;
+      last = end;
+    } else {
+      out[i].travelKilometers = 0;
+    }
+  }
+  return out;
+}
+
 export default function Timesheets() {
   const { user, userRole } = useAuth();
   const { currentEmployeeId, selectedCompany, employees, queryUserId } = useApp(); // ✅ Gebruik queryUserId
@@ -448,10 +473,18 @@ export default function Timesheets() {
 
     // Begin-/eindstand → dagkilometers automatisch afleiden
     if (field === 'startKilometers' || field === 'endKilometers') {
-      const start = updatedEntries[index].startKilometers;
-      const end = updatedEntries[index].endKilometers;
-      if (typeof start === 'number' && typeof end === 'number' && end >= start) {
-        updatedEntries[index].travelKilometers = Math.max(0, end - start);
+      const base = assignedVehicle?.currentMileage;
+      if (typeof base === 'number') {
+        // Gekoppelde auto: beginstand komt van de auto/vorige dag → keten herberekenen
+        const chained = recalcKmChain(updatedEntries, base);
+        for (let i = 0; i < chained.length; i++) updatedEntries[i] = chained[i];
+      } else {
+        // Geen auto: handmatige begin/eind invoer
+        const start = updatedEntries[index].startKilometers;
+        const end = updatedEntries[index].endKilometers;
+        if (typeof start === 'number' && typeof end === 'number' && end >= start) {
+          updatedEntries[index].travelKilometers = Math.max(0, end - start);
+        }
       }
     }
 
@@ -647,12 +680,18 @@ export default function Timesheets() {
   // koppeling persistent is en de admin het kenteken bij de uren ziet.
   const stampVehicleOnEntries = (ts: WeeklyTimesheet): WeeklyTimesheet => {
     if (!assignedVehicle?.id) return ts;
-    const entries = ts.entries.map((e) =>
+    // Keten herberekenen op basis van de auto-tellerstand zodat opgeslagen
+    // begin-/eindstanden en dagkilometers kloppen.
+    let entries = typeof assignedVehicle.currentMileage === 'number'
+      ? recalcKmChain(ts.entries, assignedVehicle.currentMileage)
+      : ts.entries;
+    entries = entries.map((e) =>
       typeof e.endKilometers === 'number' || typeof e.startKilometers === 'number'
         ? { ...e, vehicleId: assignedVehicle.id, vehicleKenteken: assignedVehicle.kenteken }
         : e
     );
-    return { ...ts, entries };
+    const totals = calculateWeekTotals(entries);
+    return { ...ts, entries, totalTravelKilometers: totals.travelKilometers };
   };
 
   // Werkt de tellerstand van de gekoppelde auto bij naar de hoogste eindstand
@@ -1676,8 +1715,25 @@ export default function Timesheets() {
                   {/* Input Fields — alleen relevant als 'Gewerkt' */}
                   {(() => {
                     const kmDisabled = isReadOnly || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work');
-                    const hasOdometer = typeof entry.startKilometers === 'number' && typeof entry.endKilometers === 'number';
-                    const negative = hasOdometer && (entry.endKilometers as number) < (entry.startKilometers as number);
+                    const base = assignedVehicle?.currentMileage;
+                    const chained = typeof base === 'number';
+                    // Beginstand = eindstand van de meest recente vorige dag, anders de
+                    // auto-tellerstand. Bij gekoppelde auto is dit read-only.
+                    let liveBegin: number | undefined = chained ? (base as number) : entry.startKilometers;
+                    if (chained && currentTimesheet) {
+                      for (let j = index - 1; j >= 0; j--) {
+                        const pe = currentTimesheet.entries[j];
+                        if (typeof pe.endKilometers === 'number') { liveBegin = pe.endKilometers; break; }
+                      }
+                    }
+                    const dayKm = chained
+                      ? (typeof entry.endKilometers === 'number' && typeof liveBegin === 'number' && entry.endKilometers >= liveBegin
+                          ? entry.endKilometers - liveBegin
+                          : 0)
+                      : (entry.travelKilometers || 0);
+                    const negative = chained
+                      ? (typeof entry.endKilometers === 'number' && typeof liveBegin === 'number' && entry.endKilometers < liveBegin)
+                      : (typeof entry.startKilometers === 'number' && typeof entry.endKilometers === 'number' && entry.endKilometers < entry.startKilometers);
                     return (
                       <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
@@ -1700,12 +1756,12 @@ export default function Timesheets() {
                               Dagkilometers (automatisch)
                             </label>
                             <div className="h-[46px] flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-semibold text-lg text-gray-900 dark:text-gray-100">
-                              {hasOdometer ? `${entry.travelKilometers} km` : `${entry.travelKilometers || 0} km`}
+                              {dayKm} km
                             </div>
                           </div>
                         </div>
 
-                        {/* KM-standen — beginstand/eindstand van de dag (altijd zichtbaar) */}
+                        {/* KM-standen — beginstand (auto bij gekoppelde auto) → eindstand */}
                         <div>
                           <div className="flex items-center justify-between mb-1">
                             <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -1718,16 +1774,25 @@ export default function Timesheets() {
                             )}
                           </div>
                           <div className="grid grid-cols-2 gap-3">
-                            <Input
-                              type="number"
-                              min="0"
-                              step="1"
-                              value={entry.startKilometers ?? ''}
-                              onChange={(e) => updateEntry(index, 'startKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
-                              disabled={kmDisabled}
-                              className="text-center"
-                              placeholder="Beginstand"
-                            />
+                            {chained ? (
+                              <div>
+                                <div className="h-[46px] flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-center text-gray-700 dark:text-gray-200">
+                                  {typeof liveBegin === 'number' ? `${liveBegin}` : '—'}
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-0.5 text-center">Beginstand (automatisch)</p>
+                              </div>
+                            ) : (
+                              <Input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={entry.startKilometers ?? ''}
+                                onChange={(e) => updateEntry(index, 'startKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
+                                disabled={kmDisabled}
+                                className="text-center"
+                                placeholder="Beginstand"
+                              />
+                            )}
                             <Input
                               type="number"
                               min="0"
@@ -1741,7 +1806,12 @@ export default function Timesheets() {
                           </div>
                           {negative && (
                             <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
-                              Eindstand mag niet lager zijn dan de beginstand.
+                              Eindstand mag niet lager zijn dan de beginstand ({liveBegin} km).
+                            </p>
+                          )}
+                          {chained && (
+                            <p className="text-[11px] text-gray-400 mt-1">
+                              Je vult alleen de eindstand in — morgen begint automatisch op deze stand.
                             </p>
                           )}
                         </div>
@@ -1848,6 +1918,17 @@ export default function Timesheets() {
                               disabled={isReadOnly || activity.isITKnechtImport}
                               className="w-16 text-center text-xs py-1"
                               placeholder="0u"
+                            />
+                            <Input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activity.kilometers ?? ''}
+                              onChange={(e) => updateWorkActivity(index, actIdx, 'kilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
+                              disabled={isReadOnly || activity.isITKnechtImport}
+                              className="w-16 text-center text-xs py-1"
+                              placeholder="km"
+                              title="Kilometers voor deze rit (bv. wasstraat)"
                             />
                             <Input
                               type="text"

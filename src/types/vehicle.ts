@@ -34,6 +34,11 @@ export interface Vehicle {
 
   notes?: string;
 
+  // Idempotentie-markers: ISO-datum (yyyy-mm-dd) waarvoor al een APK/onderhoud-taak
+  // is aangemaakt, zodat er niet bij elke pagina-load dubbele taken ontstaan.
+  apkTaskCreatedFor?: string;
+  maintenanceTaskCreatedFor?: string;
+
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

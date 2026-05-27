@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Car, Plus, Pencil, Trash2, Gauge, ShieldCheck, Wrench, AlertTriangle,
-  CheckCircle2, CreditCard, User as UserIcon,
+  CheckCircle2, CreditCard, User as UserIcon, Route as RouteIcon,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
@@ -27,6 +27,18 @@ import {
   getMaintenanceStatus,
 } from '../services/vehicleService';
 import { AuditService } from '../services/auditService';
+import { getWeeklyTimesheets } from '../services/timesheetService';
+import { createTask } from '../services/firebase';
+
+interface Trip {
+  id: string;
+  date: Date;
+  type: 'dag' | 'taak';
+  description: string;
+  km: number;
+  startKm?: number;
+  endKm?: number;
+}
 
 const FUEL_LABELS: Record<FuelType, string> = {
   electric: 'Elektrisch',
@@ -98,6 +110,8 @@ export default function AutoBeheer() {
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
   const [mileageHistory, setMileageHistory] = useState<VehicleMileageLog[]>([]);
   const [reports, setReports] = useState<VehicleReport[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [detailTab, setDetailTab] = useState<'overzicht' | 'ritten'>('overzicht');
   const [detailLoading, setDetailLoading] = useState(false);
 
   // Manager beheert het wagenpark van de eigen entiteit (toevoegen/bewerken/toewijzen).
@@ -113,18 +127,74 @@ export default function AutoBeheer() {
     return [emp.personalInfo?.firstName, emp.personalInfo?.lastName].filter(Boolean).join(' ') || id;
   }, [employees]);
 
+  // Maakt een garage-taak voor de monteur (rijden + afstemmen) en stuurt de
+  // beherende gebruiker een melding. De afspraak met de garage plant de manager.
+  const createMaintenanceTask = useCallback(async (v: Vehicle, kind: 'APK' | 'Onderhoud', date: Date) => {
+    if (!queryUserId || !selectedCompany || !user || !v.assignedToEmployeeId) return;
+    const dStr = new Date(date).toLocaleDateString('nl-NL');
+    // Taak voor de monteur (rijden + afstemmen). createTask notificeert de
+    // toegewezen monteur automatisch (bell + eventueel push). De manager ziet
+    // de taak in het Taken-overzicht en de banner in Auto Beheer.
+    await createTask(queryUserId, {
+      companyId: selectedCompany.id,
+      title: `${kind} ${v.kenteken} — naar de garage`,
+      description: `${kind} van ${v.make} ${v.model} (${v.kenteken}) staat gepland rond ${dStr}. Actie voor jou: rijd naar de garage en stem af. De afspraak met de garage wordt door je manager ingepland.`,
+      category: 'operational',
+      priority: 'high',
+      dueDate: new Date(date),
+      assignedTo: [v.assignedToEmployeeId],
+      relatedEmployeeId: v.assignedToEmployeeId,
+      tags: [kind.toLowerCase(), v.kenteken],
+      progress: 0,
+      isRecurring: false,
+      isScheduled: false,
+      status: 'pending',
+    });
+  }, [queryUserId, selectedCompany, user]);
+
+  // Controleert APK/onderhoud (≤30 dagen of verlopen) en maakt idempotent
+  // taken + meldingen aan. Markers op de auto voorkomen dubbele taken.
+  const ensureMaintenanceTasks = useCallback(async (list: Vehicle[]) => {
+    if (!queryUserId) return;
+    if (!(userRole === 'admin' || userRole === 'co-admin' || userRole === 'manager')) return;
+    for (const v of list) {
+      if (!v.id || !v.assignedToEmployeeId || v.isActive === false) continue;
+      try {
+        const apk = getApkStatus(v);
+        if ((apk.level === 'soon' || apk.level === 'overdue') && v.apkExpiryDate) {
+          const key = new Date(v.apkExpiryDate).toISOString().slice(0, 10);
+          if (v.apkTaskCreatedFor !== key) {
+            await createMaintenanceTask(v, 'APK', v.apkExpiryDate);
+            await updateVehicle(v.id, { apkTaskCreatedFor: key });
+          }
+        }
+        const maint = getMaintenanceStatus(v);
+        if ((maint.level === 'soon' || maint.level === 'overdue') && v.nextMaintenanceDate) {
+          const key = new Date(v.nextMaintenanceDate).toISOString().slice(0, 10);
+          if (v.maintenanceTaskCreatedFor !== key) {
+            await createMaintenanceTask(v, 'Onderhoud', v.nextMaintenanceDate);
+            await updateVehicle(v.id, { maintenanceTaskCreatedFor: key });
+          }
+        }
+      } catch {
+        // per-voertuig falen mag de rest niet blokkeren
+      }
+    }
+  }, [queryUserId, userRole, createMaintenanceTask]);
+
   const load = useCallback(async () => {
     if (!queryUserId || !selectedCompany) { setLoading(false); return; }
     try {
       setLoading(true);
       const data = await getVehicles(queryUserId, selectedCompany.id);
       setVehicles(data);
+      ensureMaintenanceTasks(data).catch(() => {});
     } catch {
       showError('Fout', 'Voertuigen konden niet worden geladen.');
     } finally {
       setLoading(false);
     }
-  }, [queryUserId, selectedCompany, showError]);
+  }, [queryUserId, selectedCompany, showError, ensureMaintenanceTasks]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -229,20 +299,65 @@ export default function AutoBeheer() {
     }
   };
 
+  const buildTrips = async (v: Vehicle): Promise<Trip[]> => {
+    if (!v.assignedToEmployeeId || !queryUserId) return [];
+    const sheets = await getWeeklyTimesheets(queryUserId, v.assignedToEmployeeId);
+    const out: Trip[] = [];
+    for (const sheet of sheets) {
+      for (let i = 0; i < (sheet.entries || []).length; i++) {
+        const e = sheet.entries[i];
+        if (e.vehicleId && e.vehicleId !== v.id) continue; // andere auto
+        const date = e.date instanceof Date ? e.date : new Date(e.date);
+        if (
+          typeof e.startKilometers === 'number' &&
+          typeof e.endKilometers === 'number' &&
+          e.endKilometers > e.startKilometers
+        ) {
+          out.push({
+            id: `${sheet.id}-d${i}`,
+            date,
+            type: 'dag',
+            description: 'Dagrit',
+            km: e.endKilometers - e.startKilometers,
+            startKm: e.startKilometers,
+            endKm: e.endKilometers,
+          });
+        }
+        (e.workActivities || []).forEach((wa, j) => {
+          if (wa.kilometers && wa.kilometers > 0) {
+            out.push({
+              id: `${sheet.id}-d${i}-a${j}`,
+              date,
+              type: 'taak',
+              description: wa.description || 'Taak',
+              km: wa.kilometers,
+            });
+          }
+        });
+      }
+    }
+    return out.sort((a, b) => b.date.getTime() - a.date.getTime());
+  };
+
   const openDetail = async (v: Vehicle) => {
     setDetailVehicle(v);
+    setDetailTab('overzicht');
+    setTrips([]);
     if (!queryUserId || !selectedCompany || !v.id) return;
     try {
       setDetailLoading(true);
-      const [history, reps] = await Promise.all([
+      const [history, reps, vehicleTrips] = await Promise.all([
         getMileageHistory(v.id),
         getVehicleReports(queryUserId, selectedCompany.id, v.id),
+        buildTrips(v).catch(() => [] as Trip[]),
       ]);
       setMileageHistory(history);
       setReports(reps);
+      setTrips(vehicleTrips);
     } catch {
       setMileageHistory([]);
       setReports([]);
+      setTrips([]);
     } finally {
       setDetailLoading(false);
     }
@@ -290,6 +405,47 @@ export default function AutoBeheer() {
         )}
       </div>
 
+      {/* Acties nodig: APK/onderhoud binnen 30 dagen of verlopen */}
+      {!loading && (() => {
+        const due = vehicles
+          .filter(v => v.isActive !== false)
+          .map(v => ({ v, apk: getApkStatus(v), maint: getMaintenanceStatus(v) }))
+          .filter(({ apk, maint }) => apk.level !== 'ok' || maint.level !== 'ok');
+        if (due.length === 0) return null;
+        return (
+          <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4">
+            <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+              <AlertTriangle className="h-4 w-4" /> Actie nodig — APK / onderhoud
+            </h3>
+            <div className="space-y-1.5">
+              {due.map(({ v, apk, maint }) => (
+                <div key={v.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="font-mono font-semibold text-gray-900 dark:text-gray-100">{v.kenteken}</span>
+                  <span className="flex items-center gap-2 flex-wrap justify-end">
+                    {apk.level !== 'ok' && (
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full ${STATUS_STYLE[apk.level]}`}>
+                        APK {apk.level === 'overdue' ? 'verlopen' : `nog ${apk.daysLeft}d`}
+                      </span>
+                    )}
+                    {maint.level !== 'ok' && (
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full ${STATUS_STYLE[maint.level]}`}>
+                        Onderhoud {maint.level === 'overdue' ? 'nodig' : 'binnenkort'}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {employeeName(v.assignedToEmployeeId) || 'niet toegewezen'}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-2">
+              Voor toegewezen auto's is automatisch een garage-taak voor de monteur aangemaakt. Plan de afspraak met de garage in.
+            </p>
+          </div>
+        );
+      })()}
+
       {loading ? (
         <div className="flex justify-center py-12"><LoadingSpinner /></div>
       ) : vehicles.length === 0 ? (
@@ -324,9 +480,11 @@ export default function AutoBeheer() {
                       <button onClick={() => openEdit(v)} className="p-1.5 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 rounded">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button onClick={() => handleDelete(v)} className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {canDelete && (
+                        <button onClick={() => handleDelete(v)} className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -455,8 +613,52 @@ export default function AutoBeheer() {
               <div className="flex items-center gap-1"><CreditCard className="h-4 w-4 text-gray-400" /><div><p className="text-xs text-gray-500 dark:text-gray-400">Tankpas</p><p className="font-semibold">{detailVehicle.fuelCardNumber || '–'}</p></div></div>
             </div>
 
+            {/* Tabs */}
+            <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setDetailTab('overzicht')}
+                className={`px-3 py-2 text-sm font-medium -mb-px border-b-2 ${detailTab === 'overzicht' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 dark:text-gray-400'}`}
+              >
+                Overzicht
+              </button>
+              <button
+                onClick={() => setDetailTab('ritten')}
+                className={`px-3 py-2 text-sm font-medium -mb-px border-b-2 flex items-center gap-1.5 ${detailTab === 'ritten' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 dark:text-gray-400'}`}
+              >
+                <RouteIcon className="h-4 w-4" /> Ritten ({trips.length})
+              </button>
+            </div>
+
             {detailLoading ? (
               <div className="flex justify-center py-6"><LoadingSpinner /></div>
+            ) : detailTab === 'ritten' ? (
+              <div>
+                {trips.length === 0 ? (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Nog geen ritten. Ritten ontstaan uit de dagelijkse kilometerstanden en taken-met-kilometers in de urenregistratie van de bestuurder.
+                  </p>
+                ) : (
+                  <div className="space-y-1.5 max-h-80 overflow-y-auto">
+                    {trips.map(t => (
+                      <div key={t.id} className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${t.type === 'dag' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
+                              {t.type === 'dag' ? 'Dagrit' : 'Taak'}
+                            </span>
+                            <span className="text-sm text-gray-900 dark:text-gray-100 truncate">{t.description}</span>
+                          </div>
+                          <p className="text-[11px] text-gray-400 mt-0.5">
+                            {t.date.toLocaleDateString('nl-NL', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+                            {typeof t.startKm === 'number' && typeof t.endKm === 'number' ? ` · ${t.startKm} → ${t.endKm}` : ''}
+                          </p>
+                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100 flex-shrink-0">{t.km} km</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 {/* Meldingen */}
