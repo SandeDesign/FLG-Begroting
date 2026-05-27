@@ -163,6 +163,7 @@ function App() {
                           <Route path="timesheet-approvals" element={<TimesheetApprovals />} />
                           <Route path="internal-projects" element={<InternalProjects />} />
                           <Route path="auto-beheer" element={<AutoBeheer />} />
+                          <Route path="vehicle" element={<EmployeeVehicle />} />
                           <Route path="admin-expenses" element={<AdminExpenses />} />
 
                           {/* ✅ VERLOF & VERZUIM */}
@@ -218,6 +219,7 @@ function App() {
                           {/* Manager kan interne projecten inzien (read-only) */}
                           <Route path="internal-projects" element={<InternalProjects />} />
                           <Route path="auto-beheer" element={<AutoBeheer />} />
+                          <Route path="vehicle" element={<EmployeeVehicle />} />
 
                           {/* ✅ STATISTICS ROUTES */}
                           <Route path="statistics/employer" element={<EmployerStatistics />} />

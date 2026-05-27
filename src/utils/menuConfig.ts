@@ -80,7 +80,7 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
   { id: 'employees', name: 'Werknemers', emoji: '👥', nameByRole: { manager: 'Mijn Team' }, href: '/employees', icon: Users, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'timesheet-approvals', name: 'Uren Goedkeuren', emoji: '✅', href: '/timesheet-approvals', icon: ClipboardList, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'internal-projects', name: 'Interne Projecten', emoji: '🛠️', href: '/internal-projects', icon: FolderKanban, roles: ['admin', 'co-admin'], companyTypes: ['employer'] },
-  { id: 'auto-beheer', name: 'Auto Beheer', emoji: '🚗', href: '/auto-beheer', icon: Car, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
+  { id: 'auto-beheer', name: 'Auto Beheer', emoji: '🚗', href: '/auto-beheer', icon: Car, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'payroll-processing', name: 'Loonverwerking', emoji: '💰', href: '/payslips', icon: CreditCard, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'leave-approvals', name: 'Verlof Beheren', emoji: '🌴', nameByRole: { manager: 'Verlof Goedkeuren' }, href: '/admin/leave-approvals', icon: CalendarCheck, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'absence-management', name: 'Verzuim Beheren', emoji: '🏥', href: '/admin/absence-management', icon: Stethoscope, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
@@ -111,6 +111,7 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
   { id: 'absence', name: 'Ziekteverzuim', emoji: '🏥', href: '/absence', icon: HeartPulse, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'expenses-employee', name: 'Declaraties Medewerkers', emoji: '🧾', nameByRole: { employee: 'Mijn Declaraties' }, href: '/expenses', icon: Receipt, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'payslips', name: 'Loonstroken', emoji: '💵', nameByRole: { employee: 'Mijn Loonstroken' }, href: '/payslips', icon: FileText, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'vehicle-self', name: 'Mijn Auto', emoji: '🚗', href: '/vehicle', icon: Car, roles: ['manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
 
   // COMMUNICATIE
   { id: 'chat', name: 'Berichten', emoji: '💬', href: '/chat', hrefByRole: { boekhouder: '/boekhouder/chat' }, icon: MessageSquare, roles: ['admin', 'co-admin', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
@@ -144,7 +145,7 @@ const SECTION_ITEMS: Record<string, string[]> = {
   HR: ['employees', 'timesheet-approvals', 'internal-projects', 'auto-beheer', 'payroll-processing', 'leave-approvals', 'absence-management'],
   Financieel: ['invoice-relations', 'budgeting', 'admin-expenses', 'outgoing-invoices', 'incoming-invoices-stats', 'bank-statement-import', 'grootboekrekeningen', 'btw-overzicht'],
   Project: ['project-production', 'project-statistics', 'project-team'],
-  'Mijn Zaken': ['timesheets', 'leave', 'absence', 'expenses-employee', 'payslips'],
+  'Mijn Zaken': ['timesheets', 'leave', 'absence', 'expenses-employee', 'payslips', 'vehicle-self'],
   Systeem: ['chat', 'payslip-upload', 'upload', 'tasks', 'companies', 'audit-log', 'users', 'investment-pitch', 'settings'],
 };
 
