@@ -733,7 +733,9 @@ export default function Timesheets() {
         setCurrentTimesheet({ ...toSave, id });
         success('Uren aangemaakt', 'Urenregistratie succesvol aangemaakt');
       }
-      pushMileageToVehicle(toSave);
+      // Let op: de auto-tellerstand wordt NIET bij een concept-opslag bijgewerkt,
+      // alleen bij indienen. Anders zou de keten-basis (beginstand week) bij
+      // herladen meeschuiven met de eigen eindstanden en de week corrumperen.
     } catch (error) {
       console.error('Error saving timesheet:', error);
       showError('Fout bij opslaan', 'Kon urenregistratie niet opslaan');
@@ -1717,10 +1719,15 @@ export default function Timesheets() {
                     const kmDisabled = isReadOnly || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work');
                     const base = assignedVehicle?.currentMileage;
                     const chained = typeof base === 'number';
-                    // Beginstand = eindstand van de meest recente vorige dag, anders de
+                    // Beginstand: gebruik de OPGESLAGEN dagwaarde als die er is
+                    // (zo blijft een ingediende/herladen week stabiel), anders
+                    // afleiden uit de eindstand van de vorige dag, anders de
                     // auto-tellerstand. Bij gekoppelde auto is dit read-only.
-                    let liveBegin: number | undefined = chained ? (base as number) : entry.startKilometers;
-                    if (chained && currentTimesheet) {
+                    let liveBegin: number | undefined =
+                      typeof entry.startKilometers === 'number'
+                        ? entry.startKilometers
+                        : (chained ? (base as number) : undefined);
+                    if (typeof entry.startKilometers !== 'number' && chained && currentTimesheet) {
                       for (let j = index - 1; j >= 0; j--) {
                         const pe = currentTimesheet.entries[j];
                         if (typeof pe.endKilometers === 'number') { liveBegin = pe.endKilometers; break; }

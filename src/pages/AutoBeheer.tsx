@@ -28,7 +28,8 @@ import {
 } from '../services/vehicleService';
 import { AuditService } from '../services/auditService';
 import { getWeeklyTimesheets } from '../services/timesheetService';
-import { createTask } from '../services/firebase';
+import { createTask, getCompanyManagerUids } from '../services/firebase';
+import { NotificationService } from '../services/notificationService';
 
 interface Trip {
   id: string;
@@ -132,9 +133,9 @@ export default function AutoBeheer() {
   const createMaintenanceTask = useCallback(async (v: Vehicle, kind: 'APK' | 'Onderhoud', date: Date) => {
     if (!queryUserId || !selectedCompany || !user || !v.assignedToEmployeeId) return;
     const dStr = new Date(date).toLocaleDateString('nl-NL');
+    const driver = employeeName(v.assignedToEmployeeId) || 'monteur';
     // Taak voor de monteur (rijden + afstemmen). createTask notificeert de
-    // toegewezen monteur automatisch (bell + eventueel push). De manager ziet
-    // de taak in het Taken-overzicht en de banner in Auto Beheer.
+    // toegewezen monteur automatisch (bell + eventueel push).
     await createTask(queryUserId, {
       companyId: selectedCompany.id,
       title: `${kind} ${v.kenteken} — naar de garage`,
@@ -150,7 +151,14 @@ export default function AutoBeheer() {
       isScheduled: false,
       status: 'pending',
     });
-  }, [queryUserId, selectedCompany, user]);
+    // Bell-melding naar de manager(s) + admin die dit bedrijf beheren.
+    try {
+      const managerUids = await getCompanyManagerUids(selectedCompany.id, queryUserId);
+      await NotificationService.notifyVehicleMaintenance(managerUids, kind, v.kenteken, driver, dStr, v.id);
+    } catch {
+      // melding mag het aanmaken niet blokkeren
+    }
+  }, [queryUserId, selectedCompany, user, employeeName]);
 
   // Controleert APK/onderhoud (≤30 dagen of verlopen) en maakt idempotent
   // taken + meldingen aan. Markers op de auto voorkomen dubbele taken.

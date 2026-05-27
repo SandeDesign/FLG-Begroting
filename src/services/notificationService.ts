@@ -545,6 +545,36 @@ export class NotificationService {
   }
 
   /**
+   * Melding voor manager/admin dat een auto APK/onderhoud nodig heeft.
+   * Voor elke ontvanger faalt het niet hard.
+   */
+  static async notifyVehicleMaintenance(
+    userIds: string[],
+    kind: 'APK' | 'Onderhoud',
+    kenteken: string,
+    driverName: string,
+    dateStr: string,
+    vehicleId?: string
+  ): Promise<void> {
+    await Promise.all(
+      Array.from(new Set(userIds)).map(uid =>
+        this.createNotification(uid, {
+          userId: uid,
+          type: 'system',
+          category: 'system_update',
+          priority: 'high',
+          title: `${kind} actie: ${kenteken}`,
+          message: `${kind} voor ${kenteken} (${driverName}) staat gepland rond ${dateStr}. Er is een taak aangemaakt voor de monteur — plan de afspraak met de garage in.`,
+          actionUrl: '/auto-beheer',
+          actionLabel: 'Open Auto Beheer',
+          channels: ['in_app'],
+          metadata: { entityId: vehicleId, entityType: 'vehicle' },
+        }).catch(err => console.error(`[Notifications] vehicle maintenance naar ${uid} mislukt:`, err))
+      )
+    );
+  }
+
+  /**
    * Stuurt een "taak voltooid" melding naar alle ontvangers (opdrachtgever
    * + mede-toegewezenen). actionUrl leidt naar de taken pagina.
    */

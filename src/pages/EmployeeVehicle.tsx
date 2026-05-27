@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Car, Gauge, ShieldCheck, Wrench, CreditCard, AlertTriangle, Plus, CheckCircle2 } from 'lucide-react';
+import { Car, Gauge, ShieldCheck, Wrench, CreditCard, AlertTriangle, Plus, CheckCircle2, Route as RouteIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import Card from '../components/ui/Card';
@@ -17,6 +17,17 @@ import {
   getApkStatus,
   getMaintenanceStatus,
 } from '../services/vehicleService';
+import { getWeeklyTimesheets } from '../services/timesheetService';
+
+interface Trip {
+  id: string;
+  date: Date;
+  type: 'dag' | 'taak';
+  description: string;
+  km: number;
+  startKm?: number;
+  endKm?: number;
+}
 
 const FUEL_LABELS: Record<string, string> = {
   electric: 'Elektrisch', petrol: 'Benzine', diesel: 'Diesel', hybrid: 'Hybride',
@@ -43,6 +54,7 @@ export default function EmployeeVehicle() {
 
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [reports, setReports] = useState<VehicleReport[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReport, setShowReport] = useState(false);
   const [reportType, setReportType] = useState<VehicleReportType>('damage');
@@ -58,8 +70,33 @@ export default function EmployeeVehicle() {
       if (v?.id) {
         const reps = await getVehicleReports(queryUserId, selectedCompany.id, v.id);
         setReports(reps);
+        // Ritten afleiden uit de eigen urenregistratie
+        try {
+          const sheets = await getWeeklyTimesheets(queryUserId, currentEmployeeId);
+          const out: Trip[] = [];
+          for (const sheet of sheets) {
+            for (let i = 0; i < (sheet.entries || []).length; i++) {
+              const e = sheet.entries[i];
+              if (e.vehicleId && e.vehicleId !== v.id) continue;
+              const date = e.date instanceof Date ? e.date : new Date(e.date);
+              if (typeof e.startKilometers === 'number' && typeof e.endKilometers === 'number' && e.endKilometers > e.startKilometers) {
+                out.push({ id: `${sheet.id}-d${i}`, date, type: 'dag', description: 'Dagrit', km: e.endKilometers - e.startKilometers, startKm: e.startKilometers, endKm: e.endKilometers });
+              }
+              (e.workActivities || []).forEach((wa, j) => {
+                if (wa.kilometers && wa.kilometers > 0) {
+                  out.push({ id: `${sheet.id}-d${i}-a${j}`, date, type: 'taak', description: wa.description || 'Taak', km: wa.kilometers });
+                }
+              });
+            }
+          }
+          out.sort((a, b) => b.date.getTime() - a.date.getTime());
+          setTrips(out);
+        } catch {
+          setTrips([]);
+        }
       } else {
         setReports([]);
+        setTrips([]);
       }
     } catch {
       showError('Fout', 'Kon voertuiggegevens niet laden.');
@@ -147,6 +184,37 @@ export default function EmployeeVehicle() {
           Je kilometerstand (begin- en eindstand) vul je in bij je urenregistratie. Tanken doe je met de tankpas — kosten hoef je hier niet door te geven.
         </p>
       </Card>
+
+      <div>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1.5">
+          <RouteIcon className="h-4 w-4" /> Mijn ritten ({trips.length})
+        </h4>
+        {trips.length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Nog geen ritten. Ritten ontstaan uit je dagelijkse kilometerstanden en taken-met-kilometers in de urenregistratie.
+          </p>
+        ) : (
+          <div className="space-y-1.5 max-h-72 overflow-y-auto">
+            {trips.map(t => (
+              <div key={t.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${t.type === 'dag' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
+                      {t.type === 'dag' ? 'Dagrit' : 'Taak'}
+                    </span>
+                    <span className="text-sm text-gray-900 dark:text-gray-100 truncate">{t.description}</span>
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    {t.date.toLocaleDateString('nl-NL', { weekday: 'short', day: '2-digit', month: 'short' })}
+                    {typeof t.startKm === 'number' && typeof t.endKm === 'number' ? ` · ${t.startKm} → ${t.endKm}` : ''}
+                  </p>
+                </div>
+                <span className="font-semibold text-gray-900 dark:text-gray-100 flex-shrink-0">{t.km} km</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div>
         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1.5">
