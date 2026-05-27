@@ -56,6 +56,34 @@ export interface VehicleMileageLog {
   createdAt: Date;
 }
 
+export interface VehicleTaskTrip {
+  description: string;
+  kilometers: number;
+  isRiset?: boolean; // true = Riset/ITKnecht-import, anders een handmatige taak
+}
+
+/**
+ * Persistente dag-rit-log per auto. Wordt opgeslagen bij het opslaan/indienen van
+ * een urenstaat zodat de historie op de auto compleet blijft, óók als de auto later
+ * aan een andere monteur wordt gekoppeld (employeeName is een snapshot).
+ */
+export interface VehicleTripLog {
+  id?: string; // deterministisch: `${timesheetId}_${dayIndex}`
+  userId: string;
+  companyId: string;
+  vehicleId: string;
+  vehicleKenteken?: string;
+  employeeId?: string;
+  employeeName?: string;
+  date: Date;
+  startKilometers?: number;
+  endKilometers?: number;
+  dayKilometers: number;
+  taskTrips?: VehicleTaskTrip[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface VehicleReport {
   id?: string;
   userId: string; // Admin-namespace
