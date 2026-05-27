@@ -4,6 +4,7 @@ import {
   getDoc,
   getDocs,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -15,11 +16,14 @@ import {
   Vehicle,
   VehicleMileageLog,
   VehicleReport,
+  VehicleTripLog,
+  VehicleTaskTrip,
   VehicleStatusLevel,
 } from '../types/vehicle';
 
 const VEHICLES = 'vehicles';
 const MILEAGE_LOGS = 'vehicleMileageLogs';
+const TRIP_LOGS = 'vehicleTripLogs';
 const REPORTS = 'vehicleReports';
 
 const DATE_FIELDS = [
@@ -155,6 +159,87 @@ export const getMileageHistory = async (vehicleId: string): Promise<VehicleMilea
     seen.add(key);
     return true;
   });
+};
+
+// ─── Rit-logs per dag (persistent op de auto) ─────────────────────────────────
+
+export const getVehicleTripLogs = async (vehicleId: string): Promise<VehicleTripLog[]> => {
+  const q = query(collection(db, TRIP_LOGS), where('vehicleId', '==', vehicleId));
+  const snap = await getDocs(q);
+  return snap.docs
+    .map(d => convertFromFirestore<VehicleTripLog>(d.data() as Record<string, unknown>, d.id))
+    .sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
+};
+
+interface DayLogEntry {
+  date: Date;
+  startKilometers?: number;
+  endKilometers?: number;
+  travelKilometers?: number;
+  workActivities?: Array<{ description?: string; kilometers?: number; isITKnechtImport?: boolean }>;
+}
+
+/**
+ * Slaat per dag een rit-log op de auto op (idempotent via deterministisch id).
+ * employeeName is een snapshot zodat de historie compleet blijft na een wissel
+ * van bestuurder. Dagen zonder kilometers worden (indien aanwezig) opgeruimd.
+ */
+export const saveVehicleDayLogs = async (params: {
+  timesheetId: string;
+  vehicleId: string;
+  vehicleKenteken?: string;
+  userId: string;
+  companyId: string;
+  employeeId?: string;
+  employeeName?: string;
+  entries: DayLogEntry[];
+}): Promise<void> => {
+  const { timesheetId, vehicleId } = params;
+  if (!timesheetId || !vehicleId) return;
+
+  await Promise.all(
+    params.entries.map(async (e, i) => {
+      const ref = doc(db, TRIP_LOGS, `${timesheetId}_${i}`);
+      const taskTrips: VehicleTaskTrip[] = (e.workActivities || [])
+        .filter(w => typeof w.kilometers === 'number' && (w.kilometers as number) > 0)
+        .map(w => ({
+          description: w.description || 'Taak',
+          kilometers: w.kilometers as number,
+          isRiset: !!w.isITKnechtImport,
+        }));
+      const hasOdo =
+        typeof e.startKilometers === 'number' &&
+        typeof e.endKilometers === 'number' &&
+        (e.endKilometers as number) >= (e.startKilometers as number);
+      const dayKm = hasOdo
+        ? (e.endKilometers as number) - (e.startKilometers as number)
+        : (e.travelKilometers || 0);
+
+      if (!hasOdo && taskTrips.length === 0 && dayKm === 0) {
+        await deleteDoc(ref).catch(() => {});
+        return;
+      }
+
+      await setDoc(
+        ref,
+        convertToFirestore({
+          userId: params.userId,
+          companyId: params.companyId,
+          vehicleId,
+          vehicleKenteken: params.vehicleKenteken,
+          employeeId: params.employeeId,
+          employeeName: params.employeeName,
+          date: e.date instanceof Date ? e.date : new Date(e.date),
+          startKilometers: e.startKilometers,
+          endKilometers: e.endKilometers,
+          dayKilometers: dayKm,
+          taskTrips,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+      );
+    })
+  );
 };
 
 /**

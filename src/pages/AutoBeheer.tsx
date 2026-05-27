@@ -13,7 +13,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useToast } from '../hooks/useToast';
 import { usePageTitle } from '../contexts/PageTitleContext';
-import { Vehicle, VehicleMileageLog, VehicleReport, FuelType, VehicleStatusLevel } from '../types/vehicle';
+import { Vehicle, VehicleMileageLog, VehicleReport, VehicleTripLog, FuelType, VehicleStatusLevel } from '../types/vehicle';
 import {
   getVehicles,
   createVehicle,
@@ -21,25 +21,15 @@ import {
   deleteVehicle,
   assignVehicleToEmployee,
   getMileageHistory,
+  getVehicleTripLogs,
   getVehicleReports,
   updateVehicleReportStatus,
   getApkStatus,
   getMaintenanceStatus,
 } from '../services/vehicleService';
 import { AuditService } from '../services/auditService';
-import { getWeeklyTimesheets } from '../services/timesheetService';
 import { createTask, getCompanyManagerUids } from '../services/firebase';
 import { NotificationService } from '../services/notificationService';
-
-interface Trip {
-  id: string;
-  date: Date;
-  type: 'dag' | 'taak';
-  description: string;
-  km: number;
-  startKm?: number;
-  endKm?: number;
-}
 
 const FUEL_LABELS: Record<FuelType, string> = {
   electric: 'Elektrisch',
@@ -111,7 +101,7 @@ export default function AutoBeheer() {
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
   const [mileageHistory, setMileageHistory] = useState<VehicleMileageLog[]>([]);
   const [reports, setReports] = useState<VehicleReport[]>([]);
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const [trips, setTrips] = useState<VehicleTripLog[]>([]);
   const [detailTab, setDetailTab] = useState<'overzicht' | 'ritten'>('overzicht');
   const [detailLoading, setDetailLoading] = useState(false);
 
@@ -307,46 +297,6 @@ export default function AutoBeheer() {
     }
   };
 
-  const buildTrips = async (v: Vehicle): Promise<Trip[]> => {
-    if (!v.assignedToEmployeeId || !queryUserId) return [];
-    const sheets = await getWeeklyTimesheets(queryUserId, v.assignedToEmployeeId);
-    const out: Trip[] = [];
-    for (const sheet of sheets) {
-      for (let i = 0; i < (sheet.entries || []).length; i++) {
-        const e = sheet.entries[i];
-        if (e.vehicleId && e.vehicleId !== v.id) continue; // andere auto
-        const date = e.date instanceof Date ? e.date : new Date(e.date);
-        if (
-          typeof e.startKilometers === 'number' &&
-          typeof e.endKilometers === 'number' &&
-          e.endKilometers > e.startKilometers
-        ) {
-          out.push({
-            id: `${sheet.id}-d${i}`,
-            date,
-            type: 'dag',
-            description: 'Dagrit',
-            km: e.endKilometers - e.startKilometers,
-            startKm: e.startKilometers,
-            endKm: e.endKilometers,
-          });
-        }
-        (e.workActivities || []).forEach((wa, j) => {
-          if (wa.kilometers && wa.kilometers > 0) {
-            out.push({
-              id: `${sheet.id}-d${i}-a${j}`,
-              date,
-              type: 'taak',
-              description: wa.description || 'Taak',
-              km: wa.kilometers,
-            });
-          }
-        });
-      }
-    }
-    return out.sort((a, b) => b.date.getTime() - a.date.getTime());
-  };
-
   const openDetail = async (v: Vehicle) => {
     setDetailVehicle(v);
     setDetailTab('overzicht');
@@ -357,7 +307,7 @@ export default function AutoBeheer() {
       const [history, reps, vehicleTrips] = await Promise.all([
         getMileageHistory(v.id),
         getVehicleReports(queryUserId, selectedCompany.id, v.id),
-        buildTrips(v).catch(() => [] as Trip[]),
+        getVehicleTripLogs(v.id).catch(() => [] as VehicleTripLog[]),
       ]);
       setMileageHistory(history);
       setReports(reps);
@@ -646,22 +596,40 @@ export default function AutoBeheer() {
                     Nog geen ritten. Ritten ontstaan uit de dagelijkse kilometerstanden en taken-met-kilometers in de urenregistratie van de bestuurder.
                   </p>
                 ) : (
-                  <div className="space-y-1.5 max-h-80 overflow-y-auto">
-                    {trips.map(t => (
-                      <div key={t.id} className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${t.type === 'dag' ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
-                              {t.type === 'dag' ? 'Dagrit' : 'Taak'}
-                            </span>
-                            <span className="text-sm text-gray-900 dark:text-gray-100 truncate">{t.description}</span>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {trips.map(log => (
+                      <div key={log.id} className="px-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              {log.date.toLocaleDateString('nl-NL', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+                            </p>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                              <UserIcon className="h-3 w-3" /> {log.employeeName || 'onbekende monteur'}
+                            </p>
                           </div>
-                          <p className="text-[11px] text-gray-400 mt-0.5">
-                            {t.date.toLocaleDateString('nl-NL', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
-                            {typeof t.startKm === 'number' && typeof t.endKm === 'number' ? ` · ${t.startKm} → ${t.endKm}` : ''}
-                          </p>
+                          <div className="text-right flex-shrink-0">
+                            <span className="font-semibold text-gray-900 dark:text-gray-100">{log.dayKilometers} km</span>
+                            {typeof log.startKilometers === 'number' && typeof log.endKilometers === 'number' && (
+                              <p className="text-[11px] text-gray-400">{log.startKilometers} → {log.endKilometers}</p>
+                            )}
+                          </div>
                         </div>
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 flex-shrink-0">{t.km} km</span>
+                        {log.taskTrips && log.taskTrips.length > 0 && (
+                          <div className="mt-1.5 space-y-1 pl-3 border-l-2 border-gray-300 dark:border-gray-600">
+                            {log.taskTrips.map((tt, idx) => (
+                              <div key={idx} className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300">
+                                <span className="flex items-center gap-1.5 min-w-0">
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${tt.isRiset ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
+                                    {tt.isRiset ? 'Riset' : 'Taak'}
+                                  </span>
+                                  <span className="truncate">{tt.description}</span>
+                                </span>
+                                <span className="font-medium flex-shrink-0">{tt.kilometers} km</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

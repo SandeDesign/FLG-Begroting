@@ -22,7 +22,7 @@ import {
   calculateWeekTotals
 } from '../services/timesheetService';
 import { getEmployeeById, getLeaveRequests, getSickLeaveRecords, getTasksAssignedToUser } from '../services/firebase';
-import { getEmployeeVehicle, updateVehicleMileage } from '../services/vehicleService';
+import { getEmployeeVehicle, updateVehicleMileage, saveVehicleDayLogs } from '../services/vehicleService';
 import { Vehicle } from '../types/vehicle';
 import { useToast } from '../hooks/useToast';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -694,6 +694,25 @@ export default function Timesheets() {
     return { ...ts, entries, totalTravelKilometers: totals.travelKilometers };
   };
 
+  // Slaat per dag een persistente rit-log op de auto op (met monteurnaam-snapshot),
+  // zodat de historie compleet blijft ook na een wissel van bestuurder.
+  const pushTripLogs = (ts: WeeklyTimesheet, tsId?: string) => {
+    if (!assignedVehicle?.id || !queryUserId || !tsId) return;
+    const name = employeeData
+      ? [employeeData.personalInfo?.firstName, employeeData.personalInfo?.lastName].filter(Boolean).join(' ')
+      : undefined;
+    saveVehicleDayLogs({
+      timesheetId: tsId,
+      vehicleId: assignedVehicle.id,
+      vehicleKenteken: assignedVehicle.kenteken,
+      userId: queryUserId,
+      companyId: ts.companyId,
+      employeeId: ts.employeeId,
+      employeeName: name || undefined,
+      entries: ts.entries,
+    }).catch(() => {});
+  };
+
   // Werkt de tellerstand van de gekoppelde auto bij naar de hoogste eindstand
   // van de week (loopt mee in Auto-beheer). Fire-and-forget — blokkeert niet.
   const pushMileageToVehicle = (ts: WeeklyTimesheet) => {
@@ -724,6 +743,7 @@ export default function Timesheets() {
           queryUserId,
           toSave
         );
+        pushTripLogs(toSave, currentTimesheet.id);
         success('Uren opgeslagen', 'Urenregistratie succesvol opgeslagen');
       } else {
         const id = await createWeeklyTimesheet(
@@ -731,6 +751,7 @@ export default function Timesheets() {
           toSave
         );
         setCurrentTimesheet({ ...toSave, id });
+        pushTripLogs(toSave, id);
         success('Uren aangemaakt', 'Urenregistratie succesvol aangemaakt');
       }
       // Let op: de auto-tellerstand wordt NIET bij een concept-opslag bijgewerkt,
@@ -858,6 +879,7 @@ export default function Timesheets() {
         queryUserId,
         user.displayName || user.email || 'Werknemer'
       );
+      pushTripLogs(toSave, currentTimesheet.id);
       pushMileageToVehicle(toSave);
       success('Uren ingediend', 'Urenregistratie succesvol ingediend voor goedkeuring');
       await loadData();
