@@ -25,6 +25,8 @@ export interface WorkActivity {
   internalProjectId?: string;
   internalProjectName?: string;
   taskId?: string;
+  /** Optionele kilometers voor deze taak/rit (bv. wasstraat, rit buiten Riset). */
+  kilometers?: number;
 }
 
 export interface TimesheetEntry {

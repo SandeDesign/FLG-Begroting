@@ -1920,6 +1920,17 @@ export default function Timesheets() {
                               placeholder="0u"
                             />
                             <Input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activity.kilometers ?? ''}
+                              onChange={(e) => updateWorkActivity(index, actIdx, 'kilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
+                              disabled={isReadOnly || activity.isITKnechtImport}
+                              className="w-16 text-center text-xs py-1"
+                              placeholder="km"
+                              title="Kilometers voor deze rit (bv. wasstraat)"
+                            />
+                            <Input
                               type="text"
                               value={activity.description}
                               onChange={(e) => updateWorkActivity(index, actIdx, 'description', e.target.value)}

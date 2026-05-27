@@ -744,7 +744,12 @@ export default function TimesheetApprovals() {
                                                       )}
                                                       <span className="truncate">{activity.description}</span>
                                                     </span>
-                                                    <span className="font-semibold flex-shrink-0">{activity.hours}u</span>
+                                                    <span className="font-semibold flex-shrink-0 flex items-center gap-1.5">
+                                                      {activity.kilometers > 0 && (
+                                                        <span className="text-gray-500 dark:text-gray-400 font-normal">{activity.kilometers}km</span>
+                                                      )}
+                                                      {activity.hours}u
+                                                    </span>
                                                   </div>
                                                 ))}
                                               </div>
