@@ -100,8 +100,11 @@ export default function AutoBeheer() {
   const [reports, setReports] = useState<VehicleReport[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  const canManage = userRole === 'admin' || userRole === 'co-admin';
-  const canAssign = canManage || userRole === 'manager';
+  // Manager beheert het wagenpark van de eigen entiteit (toevoegen/bewerken/toewijzen).
+  // Verwijderen blijft voorbehouden aan admin/co-admin.
+  const canManage = userRole === 'admin' || userRole === 'co-admin' || userRole === 'manager';
+  const canDelete = userRole === 'admin' || userRole === 'co-admin';
+  const canAssign = canManage;
 
   const employeeName = useCallback((id?: string) => {
     if (!id) return null;

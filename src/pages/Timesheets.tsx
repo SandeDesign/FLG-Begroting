@@ -1677,6 +1677,7 @@ export default function Timesheets() {
                   {(() => {
                     const kmDisabled = isReadOnly || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work');
                     const hasOdometer = typeof entry.startKilometers === 'number' && typeof entry.endKilometers === 'number';
+                    const negative = hasOdometer && (entry.endKilometers as number) < (entry.startKilometers as number);
                     return (
                       <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
@@ -1696,67 +1697,54 @@ export default function Timesheets() {
                           </div>
                           <div>
                             <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                              Dagkilometers
+                              Dagkilometers (automatisch)
                             </label>
-                            {assignedVehicle ? (
-                              <div className="h-[46px] flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-semibold text-lg text-gray-900 dark:text-gray-100">
-                                {hasOdometer ? `${entry.travelKilometers} km` : '—'}
-                              </div>
-                            ) : (
-                              <Input
-                                type="number"
-                                min="0"
-                                step="1"
-                                value={entry.travelKilometers}
-                                onChange={(e) => updateEntry(index, 'travelKilometers', parseFloat(e.target.value) || 0)}
-                                disabled={kmDisabled}
-                                className="text-center font-semibold text-lg"
-                                placeholder="0"
-                              />
-                            )}
+                            <div className="h-[46px] flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-semibold text-lg text-gray-900 dark:text-gray-100">
+                              {hasOdometer ? `${entry.travelKilometers} km` : `${entry.travelKilometers || 0} km`}
+                            </div>
                           </div>
                         </div>
 
-                        {/* KM-standen (beginstand/eindstand) — alleen bij gekoppelde auto */}
-                        {assignedVehicle && (
-                          <div>
-                            <div className="flex items-center justify-between mb-1">
-                              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
-                                Kilometerstand
-                              </label>
+                        {/* KM-standen — beginstand/eindstand van de dag (altijd zichtbaar) */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
+                              Kilometerstand (begin → eind)
+                            </label>
+                            {assignedVehicle && (
                               <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
                                 {assignedVehicle.kenteken}
                               </span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                              <Input
-                                type="number"
-                                min="0"
-                                step="1"
-                                value={entry.startKilometers ?? ''}
-                                onChange={(e) => updateEntry(index, 'startKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
-                                disabled={kmDisabled}
-                                className="text-center"
-                                placeholder="Beginstand"
-                              />
-                              <Input
-                                type="number"
-                                min="0"
-                                step="1"
-                                value={entry.endKilometers ?? ''}
-                                onChange={(e) => updateEntry(index, 'endKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
-                                disabled={kmDisabled}
-                                className="text-center"
-                                placeholder="Eindstand"
-                              />
-                            </div>
-                            {hasOdometer && (entry.endKilometers as number) < (entry.startKilometers as number) && (
-                              <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
-                                Eindstand mag niet lager zijn dan de beginstand.
-                              </p>
                             )}
                           </div>
-                        )}
+                          <div className="grid grid-cols-2 gap-3">
+                            <Input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={entry.startKilometers ?? ''}
+                              onChange={(e) => updateEntry(index, 'startKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
+                              disabled={kmDisabled}
+                              className="text-center"
+                              placeholder="Beginstand"
+                            />
+                            <Input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={entry.endKilometers ?? ''}
+                              onChange={(e) => updateEntry(index, 'endKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
+                              disabled={kmDisabled}
+                              className="text-center"
+                              placeholder="Eindstand"
+                            />
+                          </div>
+                          {negative && (
+                            <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
+                              Eindstand mag niet lager zijn dan de beginstand.
+                            </p>
+                          )}
+                        </div>
                       </div>
                     );
                   })()}

@@ -89,17 +89,22 @@ export const getEmployeeVehicle = async (
   employeeId: string
 ): Promise<Vehicle | null> => {
   if (!employeeId) return null;
+  // Zoek op de toewijzing binnen de admin-namespace, ONGEACHT bedrijf: een
+  // auto wordt aan één persoon gekoppeld, maar de medewerker kan z'n uren onder
+  // een ander entiteit (bv. werkmaatschappij) invullen dan waar de auto door de
+  // manager beheerd wordt (bv. project-entiteit). companyId blijft een param
+  // voor compat maar mag de match niet blokkeren.
   const q = query(
     collection(db, VEHICLES),
     where('userId', '==', userId),
-    where('companyId', '==', companyId),
     where('assignedToEmployeeId', '==', employeeId)
   );
   const snap = await getDocs(q);
-  const match = snap.docs
+  const matches = snap.docs
     .map(d => convertFromFirestore<Vehicle>(d.data() as Record<string, unknown>, d.id))
-    .find(v => v.isActive !== false);
-  return match || null;
+    .filter(v => v.isActive !== false);
+  // Voorkeur voor de auto van het huidige bedrijf, anders de eerste actieve.
+  return matches.find(v => v.companyId === companyId) || matches[0] || null;
 };
 
 export const createVehicle = async (
