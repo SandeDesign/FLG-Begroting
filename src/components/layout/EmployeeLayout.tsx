@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, LogOut, Calendar, HeartPulse, Receipt, Clock, Menu, X, Home, Settings, CalendarDays, ListChecks } from 'lucide-react';
+import { User, LogOut, Calendar, HeartPulse, Receipt, Clock, Menu, X, Home, Settings, CalendarDays, ListChecks, Car } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
@@ -16,6 +16,7 @@ const navigation = [
   { name: 'Agenda',     href: '/employee-dashboard/agenda',     icon: CalendarDays, emoji: '📅' },
   { name: 'Mijn Taken', href: '/employee-dashboard/tasks',      icon: ListChecks,   emoji: '☑️' },
   { name: 'Declaraties', href: '/employee-dashboard/expenses',  icon: Receipt,      emoji: '🧾' },
+  { name: 'Mijn Auto',  href: '/employee-dashboard/vehicle',    icon: Car,          emoji: '🚗' },
   { name: 'Verlof',     href: '/employee-dashboard/leave',      icon: Calendar,     emoji: '🌴' },
   { name: 'Verzuim',    href: '/employee-dashboard/absence',    icon: HeartPulse,   emoji: '🏥' },
 ];

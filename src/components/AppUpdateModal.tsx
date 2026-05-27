@@ -9,22 +9,23 @@ interface Props {
 
 const CHANGELOG: Record<string, string[]> = {
   employee: [
-    'Feestdag selectie: kies "Feestdag" als dagstatus (bv. Koningsdag)',
-    'ITKnecht uren zijn beveiligd — niet meer handmatig aanpasbaar',
-    'Week legen knop: opnieuw beginnen is nu eenvoudig',
-    'Directe checklist: zie meteen wat je nog moet invullen per dag',
+    'Kilometerstanden: vul per dag je begin- en eindstand in — de dagkilometers worden automatisch berekend',
+    'Mijn Auto: bekijk je toegewezen auto (APK, onderhoud, tankpas) en meld schade of defecten',
+    'Taken afvinken werkt nu correct — je voltooide taken blijven staan',
   ],
   admin: [
-    'Week legen knop voor monteurs toegevoegd',
-    'Betere foutmeldingen bij incomplete weken',
-    'Feestdag auto-detectie in urenbriefjes',
+    'Taken bij "Uren goedkeuren": zie per week welke taken een medewerker heeft afgevinkt',
+    'Auto Beheer: koppel kentekens aan medewerkers, beheer APK/onderhoud en handel meldingen af',
+    'Kilometerstanden van de auto lopen automatisch mee vanuit de urenregistratie',
+    'Taken: voltooien en toevoegen opgelost (incl. validatie van titel en deadline)',
   ],
   manager: [
-    'Betere foutmeldingen bij incomplete weken',
-    'Feestdag auto-detectie in urenbriefjes',
+    'Auto Beheer: bekijk het wagenpark en wijs auto\'s toe aan je team',
+    'Taken bij "Uren goedkeuren" zichtbaar per week per medewerker',
+    'Taken: voltooien werkt nu correct',
   ],
   all: [
-    'App update melding: je ziet voortaan direct als een nieuwe versie klaarstaat',
+    'Kilometerstanden gekoppeld aan het nieuwe Auto Beheer',
   ],
 };
 

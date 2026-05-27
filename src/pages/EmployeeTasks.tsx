@@ -23,6 +23,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { useToast } from '../hooks/useToast';
 import { usePageTitle } from '../contexts/PageTitleContext';
 import { CATEGORY_CONFIG, PRIORITY_CONFIG, STATUS_CONFIG, FREQUENCY_LABELS } from '../utils/taskConfig';
+import { computeTaskCompletionPatch } from '../utils/taskCompletion';
 
 const EmployeeTasks: React.FC = () => {
   const { user, adminUserId } = useAuth();
@@ -61,7 +62,19 @@ const EmployeeTasks: React.FC = () => {
     if (!user || !adminUserId) return;
 
     try {
-      await updateTask(task.id, adminUserId, { status: newStatus });
+      // Medewerker markeert per persoon af met de eigen employee doc-ID — exact
+      // de id-ruimte waarmee taken aan medewerkers worden toegewezen.
+      const selfId = currentEmployeeId || user.uid;
+      let patch: Record<string, unknown>;
+      if (newStatus === 'completed') {
+        patch = { ...computeTaskCompletionPatch(task, selfId, true) };
+      } else if (task.status === 'completed') {
+        // Terug van voltooid: de-markeer voor deze persoon, daarna gevraagde status
+        patch = { ...computeTaskCompletionPatch(task, selfId, false), status: newStatus };
+      } else {
+        patch = { status: newStatus };
+      }
+      await updateTask(task.id, adminUserId, patch);
       success('Status bijgewerkt');
       loadTasks();
     } catch (err) {

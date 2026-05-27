@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Check, X, Clock, ChevronDown, AlertCircle, CheckCircle, User, Calendar, MapPin, Filter, RotateCcw } from 'lucide-react';
+import { Check, X, Clock, ChevronDown, AlertCircle, CheckCircle, User, Calendar, MapPin, Filter, RotateCcw, ListChecks, Gauge } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { WeeklyTimesheet } from '../types/timesheet';
+import { BusinessTask } from '../types';
+import { getAllCompanyTasks } from '../services/firebase';
+import { isTaskCompletedForUser } from '../utils/taskCompletion';
 import {
   getAllPendingTimesheets,
   approveWeeklyTimesheet,
@@ -41,6 +44,36 @@ function formatFirebaseDate(dateVal: any, options?: Intl.DateTimeFormatOptions):
   return 'onbekende datum';
 }
 
+function toJsDate(val: any): Date | null {
+  if (!val) return null;
+  if (val instanceof Date) return val;
+  if (typeof val?.toDate === 'function') return val.toDate();
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+// Taken die binnen de week van een timesheet vallen voor een medewerker.
+// Relevante datum = voltooid > ingepland > deadline.
+function getTasksForTimesheet(
+  tasks: BusinessTask[],
+  employeeId: string,
+  timesheet: WeeklyTimesheet
+): BusinessTask[] {
+  const dates = timesheet.entries.map(e => toJsDate(e.date)).filter((d): d is Date => !!d);
+  if (dates.length === 0) return [];
+  const start = new Date(Math.min(...dates.map(d => d.getTime())));
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(Math.max(...dates.map(d => d.getTime())));
+  end.setHours(23, 59, 59, 999);
+
+  return tasks.filter(t => {
+    if (!t.assignedTo?.includes(employeeId)) return false;
+    const rel = toJsDate(t.completedDate) || toJsDate(t.scheduledDate) || toJsDate(t.dueDate);
+    if (!rel) return false;
+    return rel.getTime() >= start.getTime() && rel.getTime() <= end.getTime();
+  });
+}
+
 export default function TimesheetApprovals() {
   const { user, adminUserId, userRole, currentEmployeeId } = useAuth();
   const { selectedCompany, employees, selectedYear, selectedQuarter } = useApp();
@@ -55,6 +88,7 @@ export default function TimesheetApprovals() {
   const [rejectingWeekId, setRejectingWeekId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [companyTasks, setCompanyTasks] = useState<BusinessTask[]>([]);
   const pillBarRef = useRef<HTMLDivElement>(null);
 
   const loadAllTimesheets = useCallback(async (userId: string, companyId: string) => {
@@ -99,6 +133,16 @@ export default function TimesheetApprovals() {
       let pendingTimesheets = await getAllPendingTimesheets(adminUserId);
       const companyIdForAll = selectedCompany?.id || '';
       let allTimesheetsData = companyIdForAll ? await loadAllTimesheets(adminUserId, companyIdForAll) : [];
+
+      // Bedrijfstaken ophalen zodat de admin ziet wat er per week is afgevinkt
+      if (companyIdForAll) {
+        try {
+          const tasks = await getAllCompanyTasks(companyIdForAll);
+          setCompanyTasks(tasks as BusinessTask[]);
+        } catch {
+          setCompanyTasks([]);
+        }
+      }
 
       // Manager mag z'n eigen uren NIET zelf goedkeuren — admin/co-admin
       // doet dat. Filter ze eruit zodat manager ze niet ziet (en dus ook
@@ -681,6 +725,13 @@ export default function TimesheetApprovals() {
                                                 {entry.travelKilometers}km
                                               </div>
                                             )}
+                                            {(typeof entry.startKilometers === 'number' || typeof entry.endKilometers === 'number') && (
+                                              <div className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-300">
+                                                <Gauge className="h-3 w-3" />
+                                                {entry.vehicleKenteken ? `${entry.vehicleKenteken}: ` : ''}
+                                                {entry.startKilometers ?? '–'} → {entry.endKilometers ?? '–'} km
+                                              </div>
+                                            )}
                                             {(entry as any).workActivities && (entry as any).workActivities.length > 0 && (
                                               <div className="space-y-1 mt-1.5 pl-3 border-l-2 border-gray-300 dark:border-gray-600">
                                                 {(entry as any).workActivities.map((activity: any, actIdx: number) => (
@@ -702,6 +753,53 @@ export default function TimesheetApprovals() {
                                         ))}
                                       </div>
                                     </div>
+
+                                    {/* Taken deze week */}
+                                    {(() => {
+                                      const weekTasks = getTasksForTimesheet(companyTasks, selectedEmployee.employeeId, timesheet);
+                                      if (weekTasks.length === 0) return null;
+                                      return (
+                                        <div>
+                                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1.5">
+                                            <ListChecks className="h-4 w-4" />
+                                            Taken deze week
+                                          </h4>
+                                          <div className="space-y-1.5">
+                                            {weekTasks.map((task) => {
+                                              const done = isTaskCompletedForUser(task, selectedEmployee.employeeId);
+                                              const checklist = task.checklist || [];
+                                              const checkedCount = checklist.filter(c => c.completed).length;
+                                              return (
+                                                <div key={task.id} className="p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                                                  <div className="flex items-center justify-between gap-2">
+                                                    <span className="flex items-center gap-2 min-w-0">
+                                                      {done ? (
+                                                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                                      ) : (
+                                                        <Clock className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                                      )}
+                                                      <span className={`text-sm truncate ${done ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
+                                                        {task.title}
+                                                      </span>
+                                                    </span>
+                                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                                      {checklist.length > 0 && (
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                          {checkedCount}/{checklist.length} afgevinkt
+                                                        </span>
+                                                      )}
+                                                      <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${done ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
+                                                        {done ? 'Voltooid' : 'Open'}
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        </div>
+                                      );
+                                    })()}
 
                                     {/* Action Buttons */}
                                     {!isRejecting && (

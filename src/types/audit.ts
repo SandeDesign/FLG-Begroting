@@ -16,6 +16,8 @@ export interface AuditLog {
     | 'expense'
     | 'time_entry'
     | 'settings'
+    | 'vehicle'
+    | 'vehicle_report'
     | 'user';
 
   entityId: string;

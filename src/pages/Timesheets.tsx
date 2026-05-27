@@ -22,6 +22,8 @@ import {
   calculateWeekTotals
 } from '../services/timesheetService';
 import { getEmployeeById, getLeaveRequests, getSickLeaveRecords, getTasksAssignedToUser } from '../services/firebase';
+import { getEmployeeVehicle, updateVehicleMileage } from '../services/vehicleService';
+import { Vehicle } from '../types/vehicle';
 import { useToast } from '../hooks/useToast';
 import { EmptyState } from '../components/ui/EmptyState';
 import { usePageTitle } from '../contexts/PageTitleContext';
@@ -59,6 +61,8 @@ export default function Timesheets() {
   // Interne projecten
   const [internalProjects, setInternalProjects] = useState<InternalProject[]>([]);
   const [assignedTasks, setAssignedTasks] = useState<BusinessTask[]>([]);
+  // Aan de medewerker gekoppelde auto (Auto-beheer) — voor KM-standen
+  const [assignedVehicle, setAssignedVehicle] = useState<Vehicle | null>(null);
 
   const loadData = useCallback(async () => {
     if (!user || !queryUserId || !selectedCompany) {
@@ -83,6 +87,14 @@ export default function Timesheets() {
         return;
       }
       setEmployeeData(employee);
+
+      // Gekoppelde auto ophalen (voor KM-standen koppeling)
+      try {
+        const vehicle = await getEmployeeVehicle(queryUserId, selectedCompany.id, effectiveEmployeeId);
+        setAssignedVehicle(vehicle);
+      } catch {
+        setAssignedVehicle(null);
+      }
 
       const sheets = await getWeeklyTimesheets(
         queryUserId,
@@ -434,6 +446,15 @@ export default function Timesheets() {
       updatedAt: new Date()
     };
 
+    // Begin-/eindstand → dagkilometers automatisch afleiden
+    if (field === 'startKilometers' || field === 'endKilometers') {
+      const start = updatedEntries[index].startKilometers;
+      const end = updatedEntries[index].endKilometers;
+      if (typeof start === 'number' && typeof end === 'number' && end >= start) {
+        updatedEntries[index].travelKilometers = Math.max(0, end - start);
+      }
+    }
+
     const totals = calculateWeekTotals(updatedEntries);
 
     setCurrentTimesheet({
@@ -622,26 +643,58 @@ export default function Timesheets() {
     });
   };
 
+  // Stempelt de gekoppelde auto op dagen met een kilometerstand zodat de
+  // koppeling persistent is en de admin het kenteken bij de uren ziet.
+  const stampVehicleOnEntries = (ts: WeeklyTimesheet): WeeklyTimesheet => {
+    if (!assignedVehicle?.id) return ts;
+    const entries = ts.entries.map((e) =>
+      typeof e.endKilometers === 'number' || typeof e.startKilometers === 'number'
+        ? { ...e, vehicleId: assignedVehicle.id, vehicleKenteken: assignedVehicle.kenteken }
+        : e
+    );
+    return { ...ts, entries };
+  };
+
+  // Werkt de tellerstand van de gekoppelde auto bij naar de hoogste eindstand
+  // van de week (loopt mee in Auto-beheer). Fire-and-forget — blokkeert niet.
+  const pushMileageToVehicle = (ts: WeeklyTimesheet) => {
+    if (!assignedVehicle?.id || !queryUserId) return;
+    const readings = ts.entries
+      .filter((e) => typeof e.endKilometers === 'number' && (e.endKilometers as number) > 0)
+      .sort((a, b) => (b.endKilometers as number) - (a.endKilometers as number));
+    const top = readings[0];
+    if (!top) return;
+    updateVehicleMileage(assignedVehicle.id, top.endKilometers as number, {
+      userId: queryUserId,
+      companyId: ts.companyId,
+      date: new Date(top.date),
+      employeeId: ts.employeeId,
+      source: 'timesheet',
+    }).catch(() => {});
+  };
+
   const handleSave = async () => {
     if (!currentTimesheet || !user || !queryUserId || !employeeData) return;
 
     setSaving(true);
     try {
+      const toSave = stampVehicleOnEntries(currentTimesheet);
       if (currentTimesheet.id) {
         await updateWeeklyTimesheet(
           currentTimesheet.id,
           queryUserId,
-          currentTimesheet
+          toSave
         );
         success('Uren opgeslagen', 'Urenregistratie succesvol opgeslagen');
       } else {
         const id = await createWeeklyTimesheet(
           queryUserId,
-          currentTimesheet
+          toSave
         );
-        setCurrentTimesheet({ ...currentTimesheet, id });
+        setCurrentTimesheet({ ...toSave, id });
         success('Uren aangemaakt', 'Urenregistratie succesvol aangemaakt');
       }
+      pushMileageToVehicle(toSave);
     } catch (error) {
       console.error('Error saving timesheet:', error);
       showError('Fout bij opslaan', 'Kon urenregistratie niet opslaan');
@@ -757,12 +810,14 @@ export default function Timesheets() {
     setSaving(true);
     try {
       // Sla eerst de actuele state op zodat werkactiviteiten niet verloren gaan
-      await updateWeeklyTimesheet(currentTimesheet.id, queryUserId, currentTimesheet);
+      const toSave = stampVehicleOnEntries(currentTimesheet);
+      await updateWeeklyTimesheet(currentTimesheet.id, queryUserId, toSave);
       await submitWeeklyTimesheet(
         currentTimesheet.id,
         queryUserId,
         user.displayName || user.email || 'Werknemer'
       );
+      pushMileageToVehicle(toSave);
       success('Uren ingediend', 'Urenregistratie succesvol ingediend voor goedkeuring');
       await loadData();
     } catch (error: any) {
@@ -1619,35 +1674,92 @@ export default function Timesheets() {
                   })()}
 
                   {/* Input Fields — alleen relevant als 'Gewerkt' */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Uren</label>
-                      <Input
-                        type="number"
-                        min="0"
-                        max="24"
-                        step="0.5"
-                        value={entry.regularHours}
-                        onChange={(e) => updateEntry(index, 'regularHours', parseFloat(e.target.value) || 0)}
-                        disabled={isReadOnly || isImported || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work')}
-                        className="text-center font-semibold text-lg"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Kilometers</label>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="1"
-                        value={entry.travelKilometers}
-                        onChange={(e) => updateEntry(index, 'travelKilometers', parseFloat(e.target.value) || 0)}
-                        disabled={isReadOnly || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work')}
-                        className="text-center font-semibold text-lg"
-                        placeholder="0"
-                      />
-                    </div>
-                  </div>
+                  {(() => {
+                    const kmDisabled = isReadOnly || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work');
+                    const hasOdometer = typeof entry.startKilometers === 'number' && typeof entry.endKilometers === 'number';
+                    return (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Uren</label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="24"
+                              step="0.5"
+                              value={entry.regularHours}
+                              onChange={(e) => updateEntry(index, 'regularHours', parseFloat(e.target.value) || 0)}
+                              disabled={isReadOnly || isImported || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work')}
+                              className="text-center font-semibold text-lg"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                              Dagkilometers
+                            </label>
+                            {assignedVehicle ? (
+                              <div className="h-[46px] flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 font-semibold text-lg text-gray-900 dark:text-gray-100">
+                                {hasOdometer ? `${entry.travelKilometers} km` : '—'}
+                              </div>
+                            ) : (
+                              <Input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={entry.travelKilometers}
+                                onChange={(e) => updateEntry(index, 'travelKilometers', parseFloat(e.target.value) || 0)}
+                                disabled={kmDisabled}
+                                className="text-center font-semibold text-lg"
+                                placeholder="0"
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* KM-standen (beginstand/eindstand) — alleen bij gekoppelde auto */}
+                        {assignedVehicle && (
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Kilometerstand
+                              </label>
+                              <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium">
+                                {assignedVehicle.kenteken}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <Input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={entry.startKilometers ?? ''}
+                                onChange={(e) => updateEntry(index, 'startKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
+                                disabled={kmDisabled}
+                                className="text-center"
+                                placeholder="Beginstand"
+                              />
+                              <Input
+                                type="number"
+                                min="0"
+                                step="1"
+                                value={entry.endKilometers ?? ''}
+                                onChange={(e) => updateEntry(index, 'endKilometers', e.target.value === '' ? (undefined as any) : (parseInt(e.target.value, 10) || 0))}
+                                disabled={kmDisabled}
+                                className="text-center"
+                                placeholder="Eindstand"
+                              />
+                            </div>
+                            {hasOdometer && (entry.endKilometers as number) < (entry.startKilometers as number) && (
+                              <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-1">
+                                Eindstand mag niet lager zijn dan de beginstand.
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* Notes */}
                   <div>

@@ -41,6 +41,7 @@ import {
   FolderKanban,
   BookOpen,
   MessageSquare,
+  Car,
 } from 'lucide-react';
 
 export type CompanyType = 'employer' | 'project' | 'holding' | 'shareholder' | 'investor';
@@ -79,6 +80,7 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
   { id: 'employees', name: 'Werknemers', emoji: '👥', nameByRole: { manager: 'Mijn Team' }, href: '/employees', icon: Users, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'timesheet-approvals', name: 'Uren Goedkeuren', emoji: '✅', href: '/timesheet-approvals', icon: ClipboardList, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'internal-projects', name: 'Interne Projecten', emoji: '🛠️', href: '/internal-projects', icon: FolderKanban, roles: ['admin', 'co-admin'], companyTypes: ['employer'] },
+  { id: 'auto-beheer', name: 'Auto Beheer', emoji: '🚗', href: '/auto-beheer', icon: Car, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'payroll-processing', name: 'Loonverwerking', emoji: '💰', href: '/payslips', icon: CreditCard, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'leave-approvals', name: 'Verlof Beheren', emoji: '🌴', nameByRole: { manager: 'Verlof Goedkeuren' }, href: '/admin/leave-approvals', icon: CalendarCheck, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
   { id: 'absence-management', name: 'Verzuim Beheren', emoji: '🏥', href: '/admin/absence-management', icon: Stethoscope, roles: ['admin', 'co-admin', 'manager'], companyTypes: ['employer'] },
@@ -139,7 +141,7 @@ export interface Section {
 // Items per sectie (via id)
 const SECTION_ITEMS: Record<string, string[]> = {
   Statistieken: ['statistics-employer', 'statistics-project', 'statistics-holding'],
-  HR: ['employees', 'timesheet-approvals', 'internal-projects', 'payroll-processing', 'leave-approvals', 'absence-management'],
+  HR: ['employees', 'timesheet-approvals', 'internal-projects', 'auto-beheer', 'payroll-processing', 'leave-approvals', 'absence-management'],
   Financieel: ['invoice-relations', 'budgeting', 'admin-expenses', 'outgoing-invoices', 'incoming-invoices-stats', 'bank-statement-import', 'grootboekrekeningen', 'btw-overzicht'],
   Project: ['project-production', 'project-statistics', 'project-team'],
   'Mijn Zaken': ['timesheets', 'leave', 'absence', 'expenses-employee', 'payslips'],
