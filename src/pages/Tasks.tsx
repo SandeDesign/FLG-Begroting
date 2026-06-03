@@ -14,6 +14,7 @@ import {
   Users,
   Clock,
   List,
+  LayoutGrid,
   CheckCircle,
   CalendarClock,
   AlertCircle,
@@ -25,13 +26,14 @@ import { useApp } from '../contexts/AppContext';
 import { BusinessTask, TaskCategory, TaskPriority, TaskStatus, TaskFrequency, TaskChecklistItem, Employee } from '../types';
 import { InternalProject } from '../types/internalProject';
 import {
-  getAllCompanyTasks,
+  subscribeCompanyTasks,
   createTask,
   updateTask,
   deleteTask,
   getEmployees,
   getAdminNonEmployeeUsers,
 } from '../services/firebase';
+import { filterEmployeesForCompany } from '../utils/companyHelpers';
 import { getInternalProjects } from '../services/internalProjectService';
 import { getProjectColorMeta } from './InternalProjects';
 import { computeTaskCompletionPatch } from '../utils/taskCompletion';
@@ -58,7 +60,8 @@ const Tasks: React.FC = () => {
   const [internalProjects, setInternalProjects] = useState<InternalProject[]>([]);
   const [editingTask, setEditingTask] = useState<BusinessTask | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'byEmployee'>('byEmployee');
+  const [mainTab, setMainTab] = useState<'active' | 'done'>('active');
+  const [viewMode, setViewMode] = useState<'board' | 'list' | 'byEmployee'>('board');
 
   // Filters
   const [showFilters, setShowFilters] = useState(false);
@@ -84,15 +87,37 @@ const Tasks: React.FC = () => {
   });
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
+  // Realtime taken voor het geselecteerde bedrijf (live updates bij toewijzen/wijzigen).
+  useEffect(() => {
+    if (!user || !selectedCompany) return;
+    setLoading(true);
+    const unsub = subscribeCompanyTasks(
+      selectedCompany.id,
+      (companyTasks) => {
+        setTasks(companyTasks);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error subscribing tasks:', err);
+        error('Fout bij laden van taken');
+        setLoading(false);
+      }
+    );
+    return () => unsub();
+  }, [user, selectedCompany?.id]);
+
   useEffect(() => {
     if (user && selectedCompany) {
-      loadTasks();
       const loadPeople = async () => {
         const effectiveUserId = queryUserId || adminUserId;
-        // Gebruik medewerkers die AppContext al correct heeft geladen (juiste owner UID + company filter)
-        const emps = contextEmployees.length > 0
+        // Gebruik medewerkers die AppContext al heeft geladen, gefilterd op het
+        // geselecteerde bedrijf via de gedeelde employer-/project-logica (zodat
+        // medewerkers die via een werkmaatschappij aan een project gekoppeld zijn
+        // óók verschijnen). Fallback: directe query.
+        const baseEmps = contextEmployees.length > 0
           ? contextEmployees
           : await getEmployees(effectiveUserId, selectedCompany.id);
+        const emps = filterEmployeesForCompany(baseEmps, selectedCompany);
         const empPeople = emps.map(e => ({
           id: e.id!,
           name: [e.personalInfo?.firstName, e.personalInfo?.lastName].filter(Boolean).join(' ') || e.id!,
@@ -123,36 +148,6 @@ const Tasks: React.FC = () => {
     }
   }, [user, selectedCompany, queryUserId, contextEmployees]);
 
-  const loadTasks = async () => {
-    if (!user || !selectedCompany) return;
-
-    try {
-      setLoading(true);
-      // Haal ALLE bedrijfstaken op voor admin, co-admin en manager
-      const data = await getAllCompanyTasks(selectedCompany.id, user.uid);
-
-      // Update status voor late taken
-      const now = new Date();
-      const updatedTasks = data.map(task => {
-        if (
-          task.status !== 'completed' &&
-          task.status !== 'cancelled' &&
-          new Date(task.dueDate) < now
-        ) {
-          return { ...task, status: 'overdue' as TaskStatus };
-        }
-        return task;
-      });
-
-      setTasks(updatedTasks);
-    } catch (err) {
-      console.error('Error loading tasks:', err);
-      error('Fout bij laden van taken');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !selectedCompany) return;
@@ -182,7 +177,6 @@ const Tasks: React.FC = () => {
       success('Taak aangemaakt');
       setShowTaskModal(false);
       resetForm();
-      loadTasks();
     } catch (err) {
       console.error('Error creating task:', err);
       error('Fout bij aanmaken van taak');
@@ -218,7 +212,6 @@ const Tasks: React.FC = () => {
       setShowTaskModal(false);
       setEditingTask(null);
       resetForm();
-      loadTasks();
     } catch (err) {
       console.error('Error updating task:', err);
       error('Fout bij bijwerken van taak');
@@ -232,7 +225,6 @@ const Tasks: React.FC = () => {
     try {
       await deleteTask(taskId, user.uid);
       success('Taak verwijderd');
-      loadTasks();
     } catch (err) {
       console.error('Error deleting task:', err);
       error('Fout bij verwijderen van taak');
@@ -249,7 +241,6 @@ const Tasks: React.FC = () => {
       await updateTask(task.id, user.uid, patch);
 
       success('Status bijgewerkt');
-      loadTasks();
     } catch (err) {
       console.error('Error updating status:', err);
       error('Fout bij bijwerken van status');
@@ -313,13 +304,23 @@ const Tasks: React.FC = () => {
     return true;
   });
 
-  // Groepeer taken op status
-  const groupedTasks = {
-    pending: filteredTasks.filter(t => t.status === 'pending'),
-    in_progress: filteredTasks.filter(t => t.status === 'in_progress'),
-    overdue: filteredTasks.filter(t => t.status === 'overdue'),
-    completed: filteredTasks.filter(t => t.status === 'completed'),
-  };
+  // Actieve vs. afgeronde taken — voltooid/geannuleerd hoort in een aparte tab
+  // (houdt de actieve overzichten schoon).
+  const activeTasks = filteredTasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled');
+  const doneTasks = filteredTasks
+    .filter(t => t.status === 'completed' || t.status === 'cancelled')
+    .sort((a, b) => {
+      const ad = a.completedDate ? new Date(a.completedDate).getTime() : 0;
+      const bd = b.completedDate ? new Date(b.completedDate).getTime() : 0;
+      return bd - ad;
+    });
+
+  // Kanban-kolommen voor het actieve board.
+  const boardColumns: Array<{ key: TaskStatus; label: string; tasks: BusinessTask[] }> = [
+    { key: 'pending', label: STATUS_CONFIG['pending'].label, tasks: activeTasks.filter(t => t.status === 'pending') },
+    { key: 'in_progress', label: STATUS_CONFIG['in_progress'].label, tasks: activeTasks.filter(t => t.status === 'in_progress') },
+    { key: 'overdue', label: STATUS_CONFIG['overdue'].label, tasks: activeTasks.filter(t => t.status === 'overdue') },
+  ];
 
   // Calculate progress based on subtasks
   const calculateProgress = (checklist: TaskChecklistItem[]): number => {
@@ -392,7 +393,6 @@ const Tasks: React.FC = () => {
         checklist: updatedChecklist,
         progress
       });
-      loadTasks();
     } catch (err) {
       console.error('Error updating subtask:', err);
       error('Fout bij bijwerken van subtaak');
@@ -410,6 +410,189 @@ const Tasks: React.FC = () => {
   const isOverdue = (task: BusinessTask) => {
     if (task.status === 'completed' || task.status === 'cancelled') return false;
     return new Date(task.dueDate) < new Date();
+  };
+
+  // Herbruikbare taakkaart (lijst, kanban-kolom en Voltooid-tab).
+  const renderTaskListCard = (task: BusinessTask) => {
+    const categoryConfig = CATEGORY_CONFIG[task.category] || CATEGORY_CONFIG['operational'];
+    const priorityConfig = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG['medium'];
+    const statusConfig = STATUS_CONFIG[task.status] || STATUS_CONFIG['pending'];
+    const CategoryIcon = categoryConfig.icon;
+    const StatusIcon = statusConfig.icon;
+    const isExpanded = expandedTaskId === task.id;
+
+    return (
+      <Card key={task.id} className="hover:shadow-md transition-shadow">
+        <div className="space-y-3">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              {(() => {
+                const isMultiAssignee = task.assignedTo && task.assignedTo.length > 1;
+                const myDone = isMultiAssignee
+                  ? (task.completedByUsers || []).includes(user?.uid || '')
+                  : task.status === 'completed';
+                const newStatus = myDone ? 'pending' : 'completed';
+                return (
+                  <button
+                    onClick={() => handleStatusChange(task, newStatus)}
+                    className="mt-1 flex-shrink-0"
+                    title={isMultiAssignee ? (myDone ? 'Markeer als niet voltooid (voor jou)' : 'Markeer als voltooid (voor jou)') : undefined}
+                  >
+                    {myDone ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
+                    )}
+                  </button>
+                );
+              })()}
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3
+                    className={`font-semibold text-gray-900 dark:text-gray-100 ${ task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-300 dark:text-gray-500' : '' }`}
+                  >
+                    {task.title}
+                  </h3>
+                  {task.isRecurring && task.frequency && FREQUENCY_CONFIG[task.frequency] && (() => {
+                    const FreqIcon = FREQUENCY_CONFIG[task.frequency!].icon;
+                    return (
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${FREQUENCY_CONFIG[task.frequency!].bgColor}`}>
+                        <FreqIcon className="h-3 w-3" />
+                        {FREQUENCY_CONFIG[task.frequency!].label}
+                      </span>
+                    );
+                  })()}
+                </div>
+
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${categoryConfig.color}`}>
+                    <CategoryIcon className="h-3 w-3" />
+                    {categoryConfig.label}
+                  </span>
+
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${priorityConfig.color}`}>
+                    {priorityConfig.label}
+                  </span>
+
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${statusConfig.color}`}>
+                    <StatusIcon className="h-3 w-3" />
+                    {statusConfig.label}
+                  </span>
+
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${ isOverdue(task) ? 'bg-red-100 text-red-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' }`}>
+                    <Calendar className="h-3 w-3" />
+                    {formatDate(task.dueDate)}
+                  </span>
+
+                  {/* Bedrijfsnaam badge voor admin/co-admin */}
+                  {(userRole === 'admin' || (adminUserId && adminUserId !== user?.uid)) && (() => {
+                    const company = companies.find(c => c.id === task.companyId);
+                    if (!company || company.id === selectedCompany?.id) return null;
+                    return (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
+                        <Building2 className="h-3 w-3" />
+                        {company.name}
+                      </span>
+                    );
+                  })()}
+
+                  {task.checklist && task.checklist.length > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700">
+                      <ListChecks className="h-3 w-3" />
+                      {task.checklist.filter(s => s.completed).length}/{task.checklist.length}
+                    </span>
+                  )}
+
+                  {/* Toegewezen personen */}
+                  {task.assignedTo && task.assignedTo.length > 0 && (() => {
+                    const assignees = task.assignedTo!
+                      .map(id => allPeople.find(p => p.id === id))
+                      .filter(Boolean) as Array<{ id: string; name: string }>;
+                    if (assignees.length === 0) return null;
+                    return assignees.map(p => (
+                      <span key={p.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">
+                        <Users className="h-3 w-3" />
+                        {p.name.split(' ')[0]}
+                      </span>
+                    ));
+                  })()}
+
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+                ) : (
+                  <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+                )}
+              </button>
+              {userRole !== 'boekhouder' && (
+                <>
+                  <button
+                    onClick={() => openEditModal(task)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-300" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Expanded content */}
+          {isExpanded && (task.description || (task.checklist && task.checklist.length > 0)) && (
+            <div className="pl-8 pt-2 border-t border-gray-100 dark:border-gray-700 space-y-3">
+              {task.description && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-1">Beschrijving</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
+                </div>
+              )}
+
+              {task.checklist && task.checklist.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-2">
+                    Subtaken ({task.checklist.filter(s => s.completed).length}/{task.checklist.length})
+                  </h4>
+                  <div className="space-y-1">
+                    {task.checklist.map((subtask) => (
+                      <label
+                        key={subtask.id}
+                        className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={subtask.completed}
+                          onChange={() => toggleTaskSubtask(task, subtask.id)}
+                          className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
+                        />
+                        <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                          {subtask.title}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Card>
+    );
   };
 
   if (loading) {
@@ -431,31 +614,70 @@ const Tasks: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {/* View toggle */}
+          {/* Hoofd-tab: Actief / Voltooid */}
           <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
             <button
-              onClick={() => setViewMode('byEmployee')}
+              onClick={() => setMainTab('active')}
               className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 ${
-                viewMode === 'byEmployee'
+                mainTab === 'active'
                   ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
-              <Users className="h-4 w-4" />
-              Per medewerker
+              <ListChecks className="h-4 w-4" />
+              Actief ({activeTasks.length})
             </button>
             <button
-              onClick={() => setViewMode('list')}
+              onClick={() => setMainTab('done')}
               className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 border-l border-gray-300 dark:border-gray-600 ${
-                viewMode === 'list'
+                mainTab === 'done'
                   ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
               }`}
             >
-              <List className="h-4 w-4" />
-              Lijst
+              <CheckCircle className="h-4 w-4" />
+              Voltooid ({doneTasks.length})
             </button>
           </div>
+
+          {/* Weergave-toggle (alleen binnen Actief) */}
+          {mainTab === 'active' && (
+            <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+              <button
+                onClick={() => setViewMode('board')}
+                className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 ${
+                  viewMode === 'board'
+                    ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Board
+              </button>
+              <button
+                onClick={() => setViewMode('byEmployee')}
+                className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 border-l border-gray-300 dark:border-gray-600 ${
+                  viewMode === 'byEmployee'
+                    ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                <Users className="h-4 w-4" />
+                Per medewerker
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 border-l border-gray-300 dark:border-gray-600 ${
+                  viewMode === 'list'
+                    ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                <List className="h-4 w-4" />
+                Lijst
+              </button>
+            </div>
+          )}
           <Button
             onClick={() => setShowFilters(!showFilters)}
             variant="secondary"
@@ -553,8 +775,8 @@ const Tasks: React.FC = () => {
         </Card>
       )}
 
-      {/* Per-medewerker overzicht */}
-      {viewMode === 'byEmployee' && (
+      {/* Per-medewerker overzicht (alleen actieve taken) */}
+      {mainTab === 'active' && viewMode === 'byEmployee' && (
         <div className="space-y-4">
           {allPeople.length === 0 ? (
             <EmptyState
@@ -566,19 +788,17 @@ const Tasks: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {allPeople.map(person => {
                 const empName = person.name;
-                const empTasks = tasks.filter(t => t.assignedTo?.includes(person.id));
+                const empTasks = activeTasks.filter(t => t.assignedTo?.includes(person.id));
                 // Voltooiing per persoon: gebruik completedByUsers als beschikbaar
                 const isCompletedForPerson = (t: BusinessTask) =>
                   t.assignedTo && t.assignedTo.length > 1
                     ? (t.completedByUsers || []).includes(person.id)
                     : t.status === 'completed';
-                const completed = empTasks.filter(t => isCompletedForPerson(t));
                 const scheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.isScheduled);
                 const unscheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.status !== 'overdue' && !t.isScheduled);
                 const overdue = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && (t.status === 'overdue' || (!t.isScheduled && new Date(t.dueDate) < new Date())));
 
                 const statGroups = [
-                  { label: 'Voltooid', count: completed.length, tasks: completed, icon: CheckCircle, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-gray-700', border: 'border-green-200 dark:border-green-800' },
                   { label: 'Ingepland', count: scheduled.length, tasks: scheduled, icon: CalendarClock, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-gray-700', border: 'border-blue-200 dark:border-blue-800' },
                   { label: 'Niet ingepland', count: unscheduled.length, tasks: unscheduled, icon: MinusCircle, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-gray-700', border: 'border-amber-200 dark:border-amber-800' },
                   { label: 'Te laat', count: overdue.length, tasks: overdue, icon: AlertCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-gray-700', border: 'border-red-200 dark:border-red-800' },
@@ -640,7 +860,7 @@ const Tasks: React.FC = () => {
 
           {/* Niet-toegewezen taken */}
           {(() => {
-            const unassigned = tasks.filter(t => !t.assignedTo || t.assignedTo.length === 0);
+            const unassigned = activeTasks.filter(t => !t.assignedTo || t.assignedTo.length === 0);
             if (unassigned.length === 0) return null;
             return (
               <div className="mt-2">
@@ -667,205 +887,74 @@ const Tasks: React.FC = () => {
         </div>
       )}
 
-      {/* Tasks List */}
-      {viewMode === 'list' && (filteredTasks.length === 0 ? (
-        <EmptyState
-          icon={ListChecks}
-          title="Geen taken gevonden"
-          description="Maak een nieuwe taak aan om te beginnen"
-          action={{
-            label: 'Nieuwe taak',
-            onClick: () => {
-              resetForm();
-              setShowTaskModal(true);
-            },
-          }}
-        />
-      ) : (
-        <div className="space-y-3">
-          {filteredTasks.map((task) => {
-            const categoryConfig = CATEGORY_CONFIG[task.category] || CATEGORY_CONFIG['operational'];
-            const priorityConfig = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG['medium'];
-            const statusConfig = STATUS_CONFIG[task.status] || STATUS_CONFIG['pending'];
-            const CategoryIcon = categoryConfig.icon;
-            const StatusIcon = statusConfig.icon;
-            const isExpanded = expandedTaskId === task.id;
-
-            return (
-              <Card key={task.id} className="hover:shadow-md transition-shadow">
-                <div className="space-y-3">
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1">
-                      {(() => {
-                        const isMultiAssignee = task.assignedTo && task.assignedTo.length > 1;
-                        const myDone = isMultiAssignee
-                          ? (task.completedByUsers || []).includes(user?.uid || '')
-                          : task.status === 'completed';
-                        const newStatus = myDone ? 'pending' : 'completed';
-                        return (
-                          <button
-                            onClick={() => handleStatusChange(task, newStatus)}
-                            className="mt-1 flex-shrink-0"
-                            title={isMultiAssignee ? (myDone ? 'Markeer als niet voltooid (voor jou)' : 'Markeer als voltooid (voor jou)') : undefined}
-                          >
-                            {myDone ? (
-                              <CheckCircle2 className="h-5 w-5 text-green-600" />
-                            ) : (
-                              <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
-                            )}
-                          </button>
-                        );
-                      })()}
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3
-                            className={`font-semibold text-gray-900 dark:text-gray-100 ${ task.status === 'completed' ? 'line-through text-gray-500 dark:text-gray-300 dark:text-gray-500' : '' }`}
-                          >
-                            {task.title}
-                          </h3>
-                          {task.isRecurring && task.frequency && FREQUENCY_CONFIG[task.frequency] && (() => {
-                            const FreqIcon = FREQUENCY_CONFIG[task.frequency!].icon;
-                            return (
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${FREQUENCY_CONFIG[task.frequency!].bgColor}`}>
-                                <FreqIcon className="h-3 w-3" />
-                                {FREQUENCY_CONFIG[task.frequency!].label}
-                              </span>
-                            );
-                          })()}
-                        </div>
-
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${categoryConfig.color}`}>
-                            <CategoryIcon className="h-3 w-3" />
-                            {categoryConfig.label}
-                          </span>
-
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${priorityConfig.color}`}>
-                            {priorityConfig.label}
-                          </span>
-
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${statusConfig.color}`}>
-                            <StatusIcon className="h-3 w-3" />
-                            {statusConfig.label}
-                          </span>
-
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${ isOverdue(task) ? 'bg-red-100 text-red-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' }`}>
-                            <Calendar className="h-3 w-3" />
-                            {formatDate(task.dueDate)}
-                          </span>
-
-                          {/* Bedrijfsnaam badge voor admin/co-admin */}
-                          {(userRole === 'admin' || (adminUserId && adminUserId !== user?.uid)) && (() => {
-                            const company = companies.find(c => c.id === task.companyId);
-                            if (!company || company.id === selectedCompany?.id) return null;
-                            return (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
-                                <Building2 className="h-3 w-3" />
-                                {company.name}
-                              </span>
-                            );
-                          })()}
-
-                          {task.checklist && task.checklist.length > 0 && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700">
-                              <ListChecks className="h-3 w-3" />
-                              {task.checklist.filter(s => s.completed).length}/{task.checklist.length}
-                            </span>
-                          )}
-
-                          {/* Toegewezen personen */}
-                          {task.assignedTo && task.assignedTo.length > 0 && (() => {
-                            const assignees = task.assignedTo!
-                              .map(id => allPeople.find(p => p.id === id))
-                              .filter(Boolean) as Array<{ id: string; name: string }>;
-                            if (assignees.length === 0) return null;
-                            return assignees.map(p => (
-                              <span key={p.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300">
-                                <Users className="h-3 w-3" />
-                                {p.name.split(' ')[0]}
-                              </span>
-                            ));
-                          })()}
-
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        {isExpanded ? (
-                          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-                        ) : (
-                          <ChevronRight className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-                        )}
-                      </button>
-                      {userRole !== 'boekhouder' && (
-                        <>
-                          <button
-                            onClick={() => openEditModal(task)}
-                            className="p-1 hover:bg-gray-100 rounded"
-                          >
-                            <Pencil className="h-4 w-4 text-gray-500 dark:text-gray-300" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="p-1 hover:bg-gray-100 rounded"
-                          >
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </button>
-                        </>
-                      )}
-                    </div>
+      {/* Actief — Board (kanban-kolommen) */}
+      {mainTab === 'active' && viewMode === 'board' && (
+        activeTasks.length === 0 ? (
+          <EmptyState
+            icon={ListChecks}
+            title="Geen openstaande taken"
+            description="Maak een nieuwe taak aan om te beginnen"
+            actionLabel={userRole !== 'boekhouder' ? 'Nieuwe taak' : undefined}
+            onAction={userRole !== 'boekhouder' ? () => { resetForm(); setShowTaskModal(true); } : undefined}
+          />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {boardColumns.map(col => {
+              const ColIcon = STATUS_CONFIG[col.key].icon;
+              return (
+                <div key={col.key} className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold ${STATUS_CONFIG[col.key].color}`}>
+                      <ColIcon className="h-3.5 w-3.5" />
+                      {col.label}
+                    </span>
+                    <span className="ml-auto text-sm font-bold text-gray-500 dark:text-gray-400">{col.tasks.length}</span>
                   </div>
-
-                  {/* Expanded content */}
-                  {isExpanded && (task.description || (task.checklist && task.checklist.length > 0)) && (
-                    <div className="pl-8 pt-2 border-t border-gray-100 dark:border-gray-700 space-y-3">
-                      {task.description && (
-                        <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-1">Beschrijving</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">{task.description}</p>
-                        </div>
-                      )}
-
-                      {task.checklist && task.checklist.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase mb-2">
-                            Subtaken ({task.checklist.filter(s => s.completed).length}/{task.checklist.length})
-                          </h4>
-                          <div className="space-y-1">
-                            {task.checklist.map((subtask) => (
-                              <label
-                                key={subtask.id}
-                                className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={subtask.completed}
-                                  onChange={() => toggleTaskSubtask(task, subtask.id)}
-                                  className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
-                                />
-                                <span className={`text-sm ${subtask.completed ? 'line-through text-gray-500 dark:text-gray-300' : 'text-gray-700 dark:text-gray-300'}`}>
-                                  {subtask.title}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                  {col.tasks.length === 0 ? (
+                    <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-6">Geen taken</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {col.tasks.map(renderTaskListCard)}
                     </div>
                   )}
                 </div>
-              </Card>
-            );
-          })}
-        </div>
-      ))}
+              );
+            })}
+          </div>
+        )
+      )}
+
+      {/* Actief — Lijst */}
+      {mainTab === 'active' && viewMode === 'list' && (
+        activeTasks.length === 0 ? (
+          <EmptyState
+            icon={ListChecks}
+            title="Geen openstaande taken"
+            description="Maak een nieuwe taak aan om te beginnen"
+            actionLabel={userRole !== 'boekhouder' ? 'Nieuwe taak' : undefined}
+            onAction={userRole !== 'boekhouder' ? () => { resetForm(); setShowTaskModal(true); } : undefined}
+          />
+        ) : (
+          <div className="space-y-3">
+            {activeTasks.map(renderTaskListCard)}
+          </div>
+        )
+      )}
+
+      {/* Voltooid (aparte tab — houdt actieve overzichten schoon) */}
+      {mainTab === 'done' && (
+        doneTasks.length === 0 ? (
+          <EmptyState
+            icon={CheckCircle}
+            title="Nog niets voltooid"
+            description="Afgeronde taken verschijnen hier"
+          />
+        ) : (
+          <div className="space-y-3">
+            {doneTasks.map(renderTaskListCard)}
+          </div>
+        )
+      )}
 
       {/* Task Modal */}
       <Modal
