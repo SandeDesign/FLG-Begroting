@@ -111,6 +111,7 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
   { id: 'absence', name: 'Ziekteverzuim', emoji: '🏥', href: '/absence', icon: HeartPulse, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'expenses-employee', name: 'Declaraties Medewerkers', emoji: '🧾', nameByRole: { employee: 'Mijn Declaraties' }, href: '/expenses', icon: Receipt, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'payslips', name: 'Loonstroken', emoji: '💵', nameByRole: { employee: 'Mijn Loonstroken' }, href: '/payslips', icon: FileText, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'my-tasks', name: 'Mijn Taken', emoji: '☑️', href: '/my-tasks', icon: ListChecks, roles: ['manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'vehicle-self', name: 'Mijn Auto', emoji: '🚗', href: '/vehicle', icon: Car, roles: ['manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
 
   // COMMUNICATIE
@@ -121,7 +122,7 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
 
   // SYSTEEM
   { id: 'upload', name: 'Upload', emoji: '📎', href: '/upload', hrefByRole: { boekhouder: '/boekhouder/upload' }, icon: Upload, roles: ['admin', 'co-admin', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
-  { id: 'tasks', name: 'Taken', emoji: '☑️', href: '/tasks', hrefByRole: { boekhouder: '/boekhouder/tasks' }, icon: ListChecks, roles: ['admin', 'co-admin', 'manager', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'tasks', name: 'Taken', emoji: '☑️', nameByRole: { manager: 'Team Taken' }, href: '/tasks', hrefByRole: { boekhouder: '/boekhouder/tasks' }, icon: ListChecks, roles: ['admin', 'co-admin', 'manager', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'companies', name: 'Bedrijven', emoji: '🏢', href: '/companies', icon: Building2, roles: ['admin', 'co-admin'], companyTypes: ['employer', 'holding', 'shareholder'] },
   { id: 'audit-log', name: 'Audit Log', emoji: '📜', href: '/audit-log', icon: Shield, roles: ['admin', 'co-admin'], companyTypes: ['employer', 'holding', 'shareholder'] },
   { id: 'users', name: 'Gebruikers Beheer', emoji: '👤', href: '/admin/users', icon: UserPlus, roles: ['admin'], companyTypes: ['employer', 'holding', 'shareholder'] },
@@ -145,7 +146,7 @@ const SECTION_ITEMS: Record<string, string[]> = {
   HR: ['employees', 'timesheet-approvals', 'internal-projects', 'auto-beheer', 'payroll-processing', 'leave-approvals', 'absence-management'],
   Financieel: ['invoice-relations', 'budgeting', 'admin-expenses', 'outgoing-invoices', 'incoming-invoices-stats', 'bank-statement-import', 'grootboekrekeningen', 'btw-overzicht'],
   Project: ['project-production', 'project-statistics', 'project-team'],
-  'Mijn Zaken': ['timesheets', 'leave', 'absence', 'expenses-employee', 'payslips', 'vehicle-self'],
+  'Mijn Zaken': ['timesheets', 'my-tasks', 'leave', 'absence', 'expenses-employee', 'payslips', 'vehicle-self'],
   Systeem: ['chat', 'payslip-upload', 'upload', 'tasks', 'companies', 'audit-log', 'users', 'investment-pitch', 'settings'],
 };
 
@@ -187,6 +188,26 @@ export const getNavigationSections = (
   companyType?: CompanyType
 ): Section[] => {
   const filtered = getFilteredNavigation(userRole, companyType);
+
+  // Manager: bewust 2 heldere secties — "Algemeen" (team/beheer) en
+  // "Voor mezelf" (persoonlijke taken/uren/verlof). Beide standaard open zodat
+  // de manager direct ziet wat van het team is en wat van hemzelf.
+  if (userRole === 'manager') {
+    const personalIds = SECTION_ITEMS['Mijn Zaken'];
+    const isPersonal = (id: string) => personalIds.includes(id);
+    // Dashboard wordt apart/prominent getoond — niet in een sectie.
+    const general = filtered.filter(item => item.id !== 'dashboard' && !isPersonal(item.id));
+    const personal = filtered.filter(item => isPersonal(item.id));
+
+    const sections: Section[] = [];
+    if (general.length > 0) {
+      sections.push({ title: 'Algemeen', icon: LayoutDashboard, color: 'bg-blue-500', defaultOpen: true, items: general });
+    }
+    if (personal.length > 0) {
+      sections.push({ title: 'Voor mezelf', icon: User, color: 'bg-cyan-500', defaultOpen: true, items: personal });
+    }
+    return sections;
+  }
 
   return SECTION_META.map(meta => ({
     ...meta,

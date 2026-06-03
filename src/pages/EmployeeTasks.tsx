@@ -31,7 +31,7 @@ type EmployeeTaskView = 'active' | 'done';
 type ActiveBucket = 'overdue' | 'today' | 'week' | 'later' | 'recurring';
 
 const EmployeeTasks: React.FC = () => {
-  const { user, adminUserId } = useAuth();
+  const { user, adminUserId, userRole } = useAuth();
   const { currentEmployeeId } = useApp();
   const { success, error } = useToast();
   usePageTitle('Mijn Taken');
@@ -320,13 +320,15 @@ const EmployeeTasks: React.FC = () => {
             {activeTasks.length} openstaand{overdueCount > 0 && `, ${overdueCount} te laat`}
           </p>
         </div>
-        <Link
-          to="/employee-dashboard/agenda"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-        >
-          <CalendarDays className="h-4 w-4" />
-          Agenda
-        </Link>
+        {userRole === 'employee' && (
+          <Link
+            to="/employee-dashboard/agenda"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+          >
+            <CalendarDays className="h-4 w-4" />
+            Agenda
+          </Link>
+        )}
       </div>
 
       {/* Tab toggle: Actief / Voltooid */}

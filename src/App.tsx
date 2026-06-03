@@ -255,6 +255,8 @@ function App() {
 
                           {/* Manager systeem */}
                           <Route path="tasks" element={<Tasks />} />
+                          {/* Manager persoonlijke taken (zoals medewerker) */}
+                          <Route path="my-tasks" element={<EmployeeTasks />} />
                           <Route path="settings" element={<Settings />} />
 
                           <Route path="*" element={<NotFound />} />
