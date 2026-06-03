@@ -20,7 +20,6 @@ import {
   VehicleTaskTrip,
   VehicleStatusLevel,
 } from '../types/vehicle';
-import { WeeklyTimesheet } from '../types/timesheet';
 
 const VEHICLES = 'vehicles';
 const MILEAGE_LOGS = 'vehicleMileageLogs';
@@ -170,67 +169,6 @@ export const getVehicleTripLogs = async (vehicleId: string): Promise<VehicleTrip
   return snap.docs
     .map(d => convertFromFirestore<VehicleTripLog>(d.data() as Record<string, unknown>, d.id))
     .sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
-};
-
-/**
- * Leidt rit-logs af uit urenstaten (live), met hetzelfde deterministische id als
- * de persistente logs (`${timesheetId}_${dayIndex}`) zodat ze samengevoegd kunnen
- * worden zonder dubbelingen.
- */
-export const buildTripLogsFromTimesheets = (
-  sheets: WeeklyTimesheet[],
-  vehicleId: string,
-  employeeId?: string,
-  employeeName?: string
-): VehicleTripLog[] => {
-  const out: VehicleTripLog[] = [];
-  for (const sheet of sheets) {
-    (sheet.entries || []).forEach((e, i) => {
-      if (e.vehicleId && e.vehicleId !== vehicleId) return; // andere auto
-      const taskTrips: VehicleTaskTrip[] = (e.workActivities || [])
-        .filter(w => typeof w.kilometers === 'number' && (w.kilometers as number) > 0)
-        .map(w => ({ description: w.description || 'Taak', kilometers: w.kilometers as number, isRiset: !!w.isITKnechtImport }));
-      const hasOdo =
-        typeof e.startKilometers === 'number' &&
-        typeof e.endKilometers === 'number' &&
-        (e.endKilometers as number) >= (e.startKilometers as number);
-      const dayKm = hasOdo
-        ? (e.endKilometers as number) - (e.startKilometers as number)
-        : (e.travelKilometers || 0);
-      if (!hasOdo && taskTrips.length === 0 && dayKm === 0) return;
-      const date = e.date instanceof Date ? e.date : new Date(e.date);
-      out.push({
-        id: `${sheet.id}_${i}`,
-        userId: sheet.userId,
-        companyId: sheet.companyId,
-        vehicleId,
-        employeeId,
-        employeeName,
-        date,
-        startKilometers: e.startKilometers,
-        endKilometers: e.endKilometers,
-        dayKilometers: dayKm,
-        taskTrips,
-        createdAt: date,
-        updatedAt: date,
-      });
-    });
-  }
-  return out;
-};
-
-/**
- * Voegt persistente logs en uit-urenstaten-afgeleide logs samen (dedup op id;
- * persistente versie wint), gesorteerd op datum aflopend.
- */
-export const mergeTripLogs = (
-  persistent: VehicleTripLog[],
-  derived: VehicleTripLog[]
-): VehicleTripLog[] => {
-  const map = new Map<string, VehicleTripLog>();
-  derived.forEach(l => { if (l.id) map.set(l.id, l); });
-  persistent.forEach(l => { if (l.id) map.set(l.id, l); });
-  return Array.from(map.values()).sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
 };
 
 interface DayLogEntry {

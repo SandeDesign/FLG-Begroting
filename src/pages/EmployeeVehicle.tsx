@@ -14,14 +14,11 @@ import {
   getEmployeeVehicle,
   getVehicleReports,
   getVehicleTripLogs,
-  buildTripLogsFromTimesheets,
-  mergeTripLogs,
   createVehicleReport,
   getApkStatus,
   getMaintenanceStatus,
 } from '../services/vehicleService';
 import { VehicleTripLog } from '../types/vehicle';
-import { getWeeklyTimesheets } from '../services/timesheetService';
 
 const FUEL_LABELS: Record<string, string> = {
   electric: 'Elektrisch', petrol: 'Benzine', diesel: 'Diesel', hybrid: 'Hybride',
@@ -64,18 +61,10 @@ export default function EmployeeVehicle() {
       if (v?.id) {
         const reps = await getVehicleReports(queryUserId, selectedCompany.id, v.id);
         setReports(reps);
-        // Eigen ritten: persistente logs + live afgeleid uit eigen urenstaten
+        // Eigen ritten uit de persistente rit-logs van de auto
         try {
-          const [persistent, sheets] = await Promise.all([
-            getVehicleTripLogs(v.id).catch(() => [] as VehicleTripLog[]),
-            getWeeklyTimesheets(queryUserId, currentEmployeeId).catch(() => []),
-          ]);
-          const derived = buildTripLogsFromTimesheets(sheets, v.id, currentEmployeeId);
-          const merged = mergeTripLogs(
-            persistent.filter(l => !l.employeeId || l.employeeId === currentEmployeeId),
-            derived
-          );
-          setTrips(merged);
+          const logs = await getVehicleTripLogs(v.id);
+          setTrips(logs.filter(l => !l.employeeId || l.employeeId === currentEmployeeId));
         } catch {
           setTrips([]);
         }
