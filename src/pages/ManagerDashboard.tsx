@@ -22,10 +22,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { getPendingLeaveApprovals, getAllCompanyTasks } from '../services/firebase';
+import { getPendingLeaveApprovals, subscribeCompanyTasks } from '../services/firebase';
 import { getPendingTimesheets } from '../services/timesheetService';
 import { usePageTitle } from '../contexts/PageTitleContext';
-import { isWeekInQuarter, isInQuarter } from '../utils/dateFilters';
+import { isWeekInQuarter } from '../utils/dateFilters';
+import { filterEmployeesForCompany } from '../utils/companyHelpers';
 
 // Moet overeenkomen met wat ProjectProduction.tsx schrijft naar `productionWeeks`.
 // Veld is `week` (niet weekNumber) en `totalHours` (niet totalProduced/totalValue).
@@ -76,16 +77,8 @@ const ManagerDashboard: React.FC = () => {
     try {
       setLoading(true);
 
-      // Filter employees
-      let filteredEmployees = employees;
-      if (isProjectCompany) {
-        filteredEmployees = employees.filter(emp =>
-          emp.workCompanies?.includes(selectedCompany.id) ||
-          emp.projectCompanies?.includes(selectedCompany.id)
-        );
-      } else {
-        filteredEmployees = employees.filter(emp => emp.companyId === selectedCompany.id);
-      }
+      // Filter employees (employer- vs project-logica via gedeelde helper)
+      const filteredEmployees = filterEmployeesForCompany(employees, selectedCompany);
       setTeamMembers(filteredEmployees.slice(0, 8));
 
       // Load production weeks — per monteur 1 doc per week, geaggregeerd naar
@@ -144,14 +137,13 @@ const ManagerDashboard: React.FC = () => {
       }
 
       // Manager ziet geen inkoop-bonnen meer op het dashboard.
-      const [tsData, leaveData, tasksData] = await Promise.all([
+      // Taken komen via realtime subscription (zie aparte useEffect).
+      const [tsData, leaveData] = await Promise.all([
         getPendingTimesheets(adminUserId, selectedCompany.id).catch(() => []),
         getPendingLeaveApprovals(selectedCompany.id, adminUserId).catch(() => []),
-        getAllCompanyTasks(selectedCompany.id, adminUserId).catch(() => []),
       ]);
       setPendingTimesheets(tsData);
       setPendingLeave(leaveData);
-      setTasks(tasksData);
 
       setProductionWeeks(productionData);
       setStats({
@@ -168,6 +160,17 @@ const ManagerDashboard: React.FC = () => {
   }, [user, selectedCompany, queryUserId, employees, isProjectCompany, selectedYear, selectedQuarter]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Realtime taken voor het geselecteerde bedrijf.
+  useEffect(() => {
+    if (!selectedCompany) return;
+    const unsub = subscribeCompanyTasks(
+      selectedCompany.id,
+      (companyTasks) => setTasks(companyTasks),
+      (err) => console.error('Error subscribing tasks:', err)
+    );
+    return () => unsub();
+  }, [selectedCompany?.id]);
 
   if (!selectedCompany) {
     return <div className="text-center py-12"><p className="text-gray-600 dark:text-gray-300">Selecteer een bedrijf</p></div>;

@@ -63,6 +63,38 @@ export const groupCompaniesByType = (companies: Company[]) => {
   };
 };
 
+// Of een medewerker bij een (geselecteerd) bedrijf hoort.
+// Voor project-/werkmaatschappijen telt naast de primaire `companyId` ook de
+// koppeling via `projectCompanies`/`workCompanies`, zodat medewerkers die via
+// een werkmaatschappij (bv. Buddy) aan een project (bv. Deinstallatie) gekoppeld
+// zijn, daar correct verschijnen. Voor employer/holding telt enkel `companyId`.
+export const employeeBelongsToCompany = (
+  employee: Employee,
+  company: Pick<Company, 'id' | 'companyType'>
+): boolean => {
+  const projectIds = [
+    ...(employee.projectCompanies || []),
+    ...(((employee as any).workCompanies as string[] | undefined) || []),
+  ];
+  const isProjectLike =
+    company.companyType === 'project' ||
+    (company.companyType as string) === 'work_company';
+  if (isProjectLike) {
+    return employee.companyId === company.id || projectIds.includes(company.id);
+  }
+  return employee.companyId === company.id;
+};
+
+// Filter een lijst medewerkers op een geselecteerd bedrijf (employer- vs
+// project-logica). Zonder bedrijf → ongewijzigde lijst.
+export const filterEmployeesForCompany = (
+  employees: Employee[],
+  company: Pick<Company, 'id' | 'companyType'> | null | undefined
+): Employee[] => {
+  if (!company) return employees;
+  return employees.filter(e => employeeBelongsToCompany(e, company));
+};
+
 // Get project companies voor een employer
 export const getProjectCompaniesForEmployer = (
   employerId: string,

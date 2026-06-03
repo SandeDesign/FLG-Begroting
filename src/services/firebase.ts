@@ -12,11 +12,13 @@ import {
   Timestamp,
   arrayUnion,
   writeBatch,
+  onSnapshot,
+  type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { Company, Branch, Employee, TimeEntry, UserRole, LeaveRequest, LeaveBalance, SickLeave, AbsenceStatistics, Expense, EmployeeWithCompanies, CompanyWithEmployees, UserSettings, BudgetItem, BudgetType } from '../types';
+import { Company, Branch, Employee, TimeEntry, UserRole, LeaveRequest, LeaveBalance, SickLeave, AbsenceStatistics, Expense, EmployeeWithCompanies, CompanyWithEmployees, UserSettings, BudgetItem, BudgetType, BusinessTask } from '../types';
 import { generatePoortwachterMilestones, shouldActivatePoortwachter } from '../utils/poortwachterTracking';
 import { AuditService } from './auditService';
 
@@ -1741,6 +1743,83 @@ export const getAllCompanyTasks = async (companyId: string, userId?: string): Pr
 };
 
 /**
+ * Realtime subscription op alle taken van een bedrijf (admin/co-admin/manager).
+ * Bewust géén orderBy in de query → geen composite index nodig; we sorteren
+ * client-side op dueDate. Openstaande taken met een verlopen dueDate worden als
+ * 'overdue' gemarkeerd (zelfde logica die de pagina's voorheen lokaal deden).
+ */
+export const subscribeCompanyTasks = (
+  companyId: string,
+  onTasks: (tasks: BusinessTask[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe => {
+  const q = query(
+    collection(db, 'businessTasks'),
+    where('companyId', '==', companyId)
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      const now = new Date();
+      const tasks = snap.docs
+        .map((d) => convertTimestamps({ ...d.data(), id: d.id }) as BusinessTask)
+        .map((task) => {
+          if (
+            task.status !== 'completed' &&
+            task.status !== 'cancelled' &&
+            new Date(task.dueDate) < now
+          ) {
+            return { ...task, status: 'overdue' as BusinessTask['status'] };
+          }
+          return task;
+        })
+        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+      onTasks(tasks);
+    },
+    (err) => {
+      console.error('[Tasks] subscribeCompanyTasks error:', err);
+      onError?.(err);
+    }
+  );
+};
+
+/**
+ * Realtime subscription op taken die aan een gebruiker zijn toegewezen.
+ * Matcht op meerdere id's tegelijk (employee doc-ID én auth-UID) zodat taken
+ * altijd zichtbaar zijn, ongeacht in welke id-ruimte ze zijn toegewezen.
+ * Bewust géén company-filter: "Mijn Taken" is persoonlijk en overstijgt de
+ * bedrijfsselectie (een taak kan onder een project-bedrijf zijn aangemaakt).
+ */
+export const subscribeTasksAssignedToUser = (
+  ids: string[],
+  onTasks: (tasks: BusinessTask[]) => void,
+  onError?: (err: Error) => void
+): Unsubscribe => {
+  const matchIds = Array.from(new Set(ids.filter(Boolean))).slice(0, 10);
+  if (matchIds.length === 0) {
+    onTasks([]);
+    return () => {};
+  }
+  const q = query(
+    collection(db, 'businessTasks'),
+    where('assignedTo', 'array-contains-any', matchIds)
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      const tasks = snap.docs
+        .map((d) => convertTimestamps({ ...d.data(), id: d.id }) as BusinessTask)
+        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+      onTasks(tasks);
+    },
+    (err) => {
+      console.error('[Tasks] subscribeTasksAssignedToUser error:', err);
+      onError?.(err);
+    }
+  );
+};
+
+/**
  * Auth-UIDs van managers + de eigenaar (admin) die dit bedrijf beheren.
  * Gebruikt voor beheerders-meldingen (bv. APK/onderhoud).
  */
@@ -2220,6 +2299,65 @@ export const updateTask = async (taskId: string, userId: string, updates: any): 
       notifyTaskCompleted(taskId, taskData, userId).catch(err =>
         console.error('[Tasks] completed notify mislukt:', err)
       );
+    }
+
+    // Terugkerende taak voltooid → maak DIRECT de volgende instantie aan, zodat
+    // hij meteen weer in de lijst staat (geen wachten op een agenda-load). Per
+    // voltooide bron-taak spawnen we exact één opvolger (guard: successorCreated).
+    if (justCompleted) {
+      const isRecurring = updates.isRecurring !== undefined ? updates.isRecurring : taskData.isRecurring;
+      const frequency = updates.frequency || taskData.frequency;
+      if (isRecurring && frequency && !taskData.successorCreated) {
+        try {
+          const source = convertTimestamps({ ...taskData, id: taskId });
+          const recurrenceDay = updates.recurrenceDay ?? source.recurrenceDay;
+          const baseDue = updates.dueDate
+            ? (updates.dueDate instanceof Date ? updates.dueDate : new Date(updates.dueDate))
+            : new Date(source.dueDate);
+          // Gebruik bestaande nextOccurrence indien die ná de huidige dueDate ligt,
+          // anders bereken vanaf de (zojuist voltooide) dueDate.
+          const existingNext = source.nextOccurrence ? new Date(source.nextOccurrence) : null;
+          const nextDue = existingNext && existingNext > baseDue
+            ? existingNext
+            : calculateNextOccurrence(baseDue, frequency, recurrenceDay);
+
+          const newTaskData = {
+            ...source,
+            ...updates,
+            id: undefined,
+            status: 'pending',
+            progress: 0,
+            completedDate: undefined,
+            completedByUsers: [],
+            startDate: undefined,
+            isScheduled: false,
+            scheduledDate: undefined,
+            scheduledStartTime: undefined,
+            scheduledEndTime: undefined,
+            scheduledBy: undefined,
+            scheduledAt: undefined,
+            reminderSentAt: undefined,
+            successorCreated: false,
+            dueDate: nextDue,
+            checklist: (source.checklist || []).map((item: any) => ({
+              ...item,
+              completed: false,
+              completedBy: undefined,
+              completedAt: undefined,
+            })),
+          };
+          // Behoud de oorspronkelijke eigenaar-namespace.
+          await createTask(taskData.userId || userId, newTaskData);
+          // Markeer bron als afgehandeld + schuif nextOccurrence door.
+          await updateDoc(taskRef, {
+            successorCreated: true,
+            nextOccurrence: Timestamp.fromDate(calculateNextOccurrence(nextDue, frequency, recurrenceDay)),
+            lastGenerated: Timestamp.fromDate(new Date()),
+          });
+        } catch (genErr) {
+          console.error('[Tasks] terugkerende opvolger aanmaken mislukt:', genErr);
+        }
+      }
     }
 
     // Audit log
