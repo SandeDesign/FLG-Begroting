@@ -61,6 +61,17 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({ isOp
     }
   }, [isOpen]);
 
+  // Open standaard de secties met defaultOpen (bv. manager "Algemeen" /
+  // "Voor mezelf") wanneer er nog niets is uitgeklapt.
+  useEffect(() => {
+    if (!isOpen) return;
+    const ct = selectedCompany?.companyType as CompanyType | undefined;
+    setExpandedSections(prev => {
+      if (prev.length > 0) return prev;
+      return getNavigationSections(userRole, ct).filter(s => s.defaultOpen).map(s => s.title);
+    });
+  }, [isOpen, userRole, selectedCompany?.companyType]);
+
   if (!isOpen) return null;
 
   const companyType = selectedCompany?.companyType as CompanyType | undefined;

@@ -167,6 +167,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
   const companyType = selectedCompany?.companyType as CompanyType | undefined;
   const filteredNavigation = getFilteredNavigation(userRole, companyType);
 
+  // Zonder opgeslagen voorkeur: open standaard de secties met defaultOpen
+  // (bv. de manager-secties "Algemeen" en "Voor mezelf").
+  useEffect(() => {
+    if (localStorage.getItem('sidebarExpandedSections') !== null) return;
+    const defaults = getNavigationSections(userRole, companyType)
+      .filter(s => s.defaultOpen)
+      .map(s => s.title);
+    if (defaults.length > 0) setExpandedSections(defaults);
+  }, [userRole, companyType]);
+
   // Dashboard item (no section)
   const dashboardItem = filteredNavigation.find(i => i.id === 'dashboard');
 
