@@ -14,7 +14,6 @@ import {
   Users,
   Clock,
   List,
-  LayoutGrid,
   CheckCircle,
   CalendarClock,
   AlertCircle,
@@ -62,7 +61,7 @@ const Tasks: React.FC = () => {
   const [editingTask, setEditingTask] = useState<BusinessTask | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [mainTab, setMainTab] = useState<'active' | 'done'>('active');
-  const [viewMode, setViewMode] = useState<'board' | 'list' | 'byEmployee'>('board');
+  const [viewMode, setViewMode] = useState<'list' | 'byEmployee'>('list');
 
   // Filters
   const [showFilters, setShowFilters] = useState(false);
@@ -342,13 +341,6 @@ const Tasks: React.FC = () => {
       const bd = b.completedDate ? new Date(b.completedDate).getTime() : 0;
       return bd - ad;
     });
-
-  // Kanban-kolommen voor het actieve board.
-  const boardColumns: Array<{ key: TaskStatus; label: string; tasks: BusinessTask[] }> = [
-    { key: 'pending', label: STATUS_CONFIG['pending'].label, tasks: activeTasks.filter(t => t.status === 'pending') },
-    { key: 'in_progress', label: STATUS_CONFIG['in_progress'].label, tasks: activeTasks.filter(t => t.status === 'in_progress') },
-    { key: 'overdue', label: STATUS_CONFIG['overdue'].label, tasks: activeTasks.filter(t => t.status === 'overdue') },
-  ];
 
   // Calculate progress based on subtasks
   const calculateProgress = (checklist: TaskChecklistItem[]): number => {
@@ -672,15 +664,15 @@ const Tasks: React.FC = () => {
           {mainTab === 'active' && (
             <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
               <button
-                onClick={() => setViewMode('board')}
+                onClick={() => setViewMode('list')}
                 className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 ${
-                  viewMode === 'board'
+                  viewMode === 'list'
                     ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                 }`}
               >
-                <LayoutGrid className="h-4 w-4" />
-                Board
+                <List className="h-4 w-4" />
+                Lijst
               </button>
               <button
                 onClick={() => setViewMode('byEmployee')}
@@ -692,17 +684,6 @@ const Tasks: React.FC = () => {
               >
                 <Users className="h-4 w-4" />
                 Per medewerker
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-3 py-1.5 text-sm font-medium flex items-center gap-1.5 border-l border-gray-300 dark:border-gray-600 ${
-                  viewMode === 'list'
-                    ? 'bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                }`}
-              >
-                <List className="h-4 w-4" />
-                Lijst
               </button>
             </div>
           )}
@@ -913,43 +894,6 @@ const Tasks: React.FC = () => {
             );
           })()}
         </div>
-      )}
-
-      {/* Actief — Board (kanban-kolommen) */}
-      {mainTab === 'active' && viewMode === 'board' && (
-        activeTasks.length === 0 ? (
-          <EmptyState
-            icon={ListChecks}
-            title="Geen openstaande taken"
-            description="Maak een nieuwe taak aan om te beginnen"
-            actionLabel={userRole !== 'boekhouder' ? 'Nieuwe taak' : undefined}
-            onAction={userRole !== 'boekhouder' ? () => { resetForm(); setShowTaskModal(true); } : undefined}
-          />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {boardColumns.map(col => {
-              const ColIcon = STATUS_CONFIG[col.key].icon;
-              return (
-                <div key={col.key} className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
-                  <div className="flex items-center gap-2 mb-3 px-1">
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-semibold ${STATUS_CONFIG[col.key].color}`}>
-                      <ColIcon className="h-3.5 w-3.5" />
-                      {col.label}
-                    </span>
-                    <span className="ml-auto text-sm font-bold text-gray-500 dark:text-gray-400">{col.tasks.length}</span>
-                  </div>
-                  {col.tasks.length === 0 ? (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 text-center py-6">Geen taken</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {col.tasks.map(renderTaskListCard)}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )
       )}
 
       {/* Actief — Lijst */}
