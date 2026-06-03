@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Clock, MapPin, ExternalLink, CalendarX, Play, CheckCircle2 } from 'lucide-react';
+import { X, Clock, MapPin, ExternalLink, CalendarX, CheckCircle2 } from 'lucide-react';
 import { BusinessTask } from '../../types';
 import { MicrosoftCalendarEvent } from '../../types/microsoft';
 import { PRIORITY_CONFIG, CATEGORY_CONFIG, FREQUENCY_CONFIG } from '../../utils/taskConfig';
@@ -10,7 +10,7 @@ interface ScheduledTaskPopoverProps {
   microsoftEvent?: MicrosoftCalendarEvent;
   onClose: () => void;
   onUnschedule?: (taskId: string) => void;
-  onStatusChange?: (taskId: string, status: 'in_progress' | 'completed') => void;
+  onStatusChange?: (taskId: string, status: 'completed') => void;
 }
 
 const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
@@ -164,17 +164,7 @@ const ScheduledTaskPopover: React.FC<ScheduledTaskPopoverProps> = ({
             Herplannen
           </Button>
         )}
-        {onStatusChange && task.status === 'pending' && (
-          <Button
-            variant="secondary"
-            onClick={() => onStatusChange(task.id, 'in_progress')}
-            icon={Play}
-            className="text-xs flex-1"
-          >
-            Start
-          </Button>
-        )}
-        {onStatusChange && (task.status === 'pending' || task.status === 'in_progress') && (
+        {onStatusChange && task.status !== 'completed' && (
           <Button
             onClick={() => onStatusChange(task.id, 'completed')}
             icon={CheckCircle2}
