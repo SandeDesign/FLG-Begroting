@@ -30,6 +30,7 @@ import {
   createTasksForAssignees,
   updateTask,
   deleteTask,
+  deleteDuplicateTasks,
   getEmployees,
   getAdminNonEmployeeUsers,
 } from '../services/firebase';
@@ -202,43 +203,20 @@ const Tasks: React.FC = () => {
 
     try {
       const progress = calculateProgress(formData.checklist);
-      const dueDate = new Date(formData.dueDate);
-      const estimatedHours = formData.estimatedHours ? parseFloat(formData.estimatedHours) : undefined;
-      const internalProjectName = internalProjects.find(p => p.id === formData.internalProjectId)?.name || undefined;
-
-      // Taken blijven persoonlijk (één toegewezene per taak). De bewerkte taak
-      // houden we bij één persoon; eventuele extra geselecteerde personen krijgen
-      // hun eigen individuele taak.
-      const prev = editingTask.assignedTo || [];
-      const selected = formData.assignedTo.filter(Boolean);
-      const keep = (prev.length === 1 && selected.includes(prev[0])) ? prev[0] : selected[0];
-      const extras = selected.filter(id => id !== keep);
-
+      // Bewerken = simpele update (géén splitsing/extra taken aanmaken; dat
+      // gebeurt alleen bij het AANMAKEN via createTasksForAssignees). Anders
+      // ontstonden er duplicaten bij elke keer opslaan.
       await updateTask(editingTask.id, user.uid, {
         ...formData,
-        dueDate,
+        dueDate: new Date(formData.dueDate),
         progress,
-        assignedTo: keep ? [keep] : [],
-        estimatedHours,
+        assignedTo: formData.assignedTo,
+        estimatedHours: formData.estimatedHours ? parseFloat(formData.estimatedHours) : undefined,
         internalProjectId: formData.internalProjectId || undefined,
-        internalProjectName,
+        internalProjectName: internalProjects.find(p => p.id === formData.internalProjectId)?.name || undefined,
       });
 
-      // Nieuwe individuele taken voor de overige personen.
-      for (const assignee of extras) {
-        await createTask(user.uid, {
-          ...formData,
-          companyId: editingTask.companyId,
-          dueDate,
-          progress,
-          assignedTo: [assignee],
-          estimatedHours,
-          internalProjectId: formData.internalProjectId || undefined,
-          internalProjectName,
-        });
-      }
-
-      success(extras.length > 0 ? `Taak bijgewerkt + ${extras.length} extra taak${extras.length === 1 ? '' : 'en'} aangemaakt` : 'Taak bijgewerkt');
+      success('Taak bijgewerkt');
       setShowTaskModal(false);
       setEditingTask(null);
       resetForm();
@@ -258,6 +236,18 @@ const Tasks: React.FC = () => {
     } catch (err) {
       console.error('Error deleting task:', err);
       error('Fout bij verwijderen van taak');
+    }
+  };
+
+  const handleCleanupDuplicates = async () => {
+    if (!selectedCompany) return;
+    if (!confirm('Dubbele taken opruimen? Identieke taken (zelfde titel, dag, toegewezene en status) worden teruggebracht tot één. De oudste blijft behouden.')) return;
+    try {
+      const removed = await deleteDuplicateTasks(selectedCompany.id);
+      success(removed > 0 ? `${removed} dubbele taken verwijderd` : 'Geen duplicaten gevonden');
+    } catch (err) {
+      console.error('Error cleaning duplicates:', err);
+      error('Fout bij opruimen van duplicaten');
     }
   };
 
@@ -698,6 +688,15 @@ const Tasks: React.FC = () => {
           >
             Filters
           </Button>
+          {userRole !== 'boekhouder' && (
+            <Button
+              onClick={handleCleanupDuplicates}
+              variant="secondary"
+              icon={Trash2}
+            >
+              Dubbele opruimen
+            </Button>
+          )}
           {userRole !== 'boekhouder' && (
             <Button
               onClick={() => {

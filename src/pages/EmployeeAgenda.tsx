@@ -20,7 +20,6 @@ import {
   scheduleTask,
   unscheduleTask,
   updateTask,
-  generateRecurringTasks,
 } from '../services/firebase';
 import { checkAndShowSchedulingReminders } from '../services/taskSchedulingService';
 import { PRIORITY_CONFIG, FREQUENCY_LABELS } from '../utils/taskConfig';
@@ -88,9 +87,6 @@ const EmployeeAgenda: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    if (adminUserId) {
-      generateRecurringTasks(adminUserId).catch(() => {});
-    }
     const ids = [currentEmployeeId || '', user.uid].filter(Boolean);
     const unsub = subscribeTasksAssignedToUser(
       ids,
