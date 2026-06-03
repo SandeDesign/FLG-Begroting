@@ -255,15 +255,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
           </div>
         )}
 
-        {/* Manager / Boekhouder: Flat list without collapsible sections */}
-        {(userRole === 'manager' || userRole === 'boekhouder') ? (
+        {/* Boekhouder: Flat list without collapsible sections */}
+        {userRole === 'boekhouder' ? (
           <div className="space-y-0.5">
             {filteredNavigation.filter(i => i.id !== 'dashboard').map((item) => (
               <NavItem key={item.id} item={item} collapsed={collapsed} userRole={userRole} dynamicBadge={dynamicBadgeFor(item)} />
             ))}
           </div>
         ) : (
-          /* Admin/Employee: Sections with dropdowns */
+          /* Admin/Manager/Employee: Sections with dropdowns
+             (manager → 2 submenus: "Persoonlijk" en "Beheer") */
           <div>
             {sections.map((section) => (
               <div key={section.title} className="mb-1">
