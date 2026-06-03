@@ -2160,6 +2160,31 @@ export const createTask = async (userId: string, taskData: any): Promise<string>
 };
 
 /**
+ * Maakt taken aan en splitst bij meerdere toegewezenen naar INDIVIDUELE taken
+ * (één doc per persoon, elk met assignedTo = [persoon]). Zo is een taak die aan
+ * meerdere mensen wordt gegeven persoonlijk: afvinken door de één raakt de ander
+ * niet. Bij 0 of 1 toegewezene wordt gewoon één taak aangemaakt.
+ * Retourneert de aangemaakte task-id's.
+ */
+export const createTasksForAssignees = async (userId: string, taskData: any): Promise<string[]> => {
+  const assignees: string[] = Array.isArray(taskData.assignedTo)
+    ? taskData.assignedTo.filter(Boolean)
+    : [];
+
+  if (assignees.length <= 1) {
+    const id = await createTask(userId, taskData);
+    return [id];
+  }
+
+  const ids: string[] = [];
+  for (const assignee of assignees) {
+    const id = await createTask(userId, { ...taskData, assignedTo: [assignee] });
+    ids.push(id);
+  }
+  return ids;
+};
+
+/**
  * Fire-and-forget notificatie helper die nieuwe toegewezenen informeert.
  * Imports worden lazy gedaan om circulaire imports te vermijden.
  */

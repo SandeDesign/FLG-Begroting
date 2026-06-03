@@ -28,6 +28,7 @@ import { InternalProject } from '../types/internalProject';
 import {
   subscribeCompanyTasks,
   createTask,
+  createTasksForAssignees,
   updateTask,
   deleteTask,
   getEmployees,
@@ -163,7 +164,8 @@ const Tasks: React.FC = () => {
 
     try {
       const progress = calculateProgress(formData.checklist);
-      await createTask(user.uid, {
+      // Bij meerdere toegewezenen → individuele taken per persoon.
+      const createdIds = await createTasksForAssignees(user.uid, {
         ...formData,
         companyId: selectedCompany.id,
         dueDate: new Date(formData.dueDate),
@@ -174,7 +176,7 @@ const Tasks: React.FC = () => {
         internalProjectName: internalProjects.find(p => p.id === formData.internalProjectId)?.name || undefined,
       });
 
-      success('Taak aangemaakt');
+      success(createdIds.length > 1 ? `${createdIds.length} taken aangemaakt (1 per persoon)` : 'Taak aangemaakt');
       setShowTaskModal(false);
       resetForm();
     } catch (err) {
@@ -198,17 +200,43 @@ const Tasks: React.FC = () => {
 
     try {
       const progress = calculateProgress(formData.checklist);
+      const dueDate = new Date(formData.dueDate);
+      const estimatedHours = formData.estimatedHours ? parseFloat(formData.estimatedHours) : undefined;
+      const internalProjectName = internalProjects.find(p => p.id === formData.internalProjectId)?.name || undefined;
+
+      // Taken blijven persoonlijk (één toegewezene per taak). De bewerkte taak
+      // houden we bij één persoon; eventuele extra geselecteerde personen krijgen
+      // hun eigen individuele taak.
+      const prev = editingTask.assignedTo || [];
+      const selected = formData.assignedTo.filter(Boolean);
+      const keep = (prev.length === 1 && selected.includes(prev[0])) ? prev[0] : selected[0];
+      const extras = selected.filter(id => id !== keep);
+
       await updateTask(editingTask.id, user.uid, {
         ...formData,
-        dueDate: new Date(formData.dueDate),
+        dueDate,
         progress,
-        assignedTo: formData.assignedTo,
-        estimatedHours: formData.estimatedHours ? parseFloat(formData.estimatedHours) : undefined,
+        assignedTo: keep ? [keep] : [],
+        estimatedHours,
         internalProjectId: formData.internalProjectId || undefined,
-        internalProjectName: internalProjects.find(p => p.id === formData.internalProjectId)?.name || undefined,
+        internalProjectName,
       });
 
-      success('Taak bijgewerkt');
+      // Nieuwe individuele taken voor de overige personen.
+      for (const assignee of extras) {
+        await createTask(user.uid, {
+          ...formData,
+          companyId: editingTask.companyId,
+          dueDate,
+          progress,
+          assignedTo: [assignee],
+          estimatedHours,
+          internalProjectId: formData.internalProjectId || undefined,
+          internalProjectName,
+        });
+      }
+
+      success(extras.length > 0 ? `Taak bijgewerkt + ${extras.length} extra taak${extras.length === 1 ? '' : 'en'} aangemaakt` : 'Taak bijgewerkt');
       setShowTaskModal(false);
       setEditingTask(null);
       resetForm();
@@ -1073,6 +1101,12 @@ const Tasks: React.FC = () => {
                   );
                 })}
               </div>
+              {formData.assignedTo.length > 1 && (
+                <p className="text-xs text-primary-600 dark:text-primary-400 mt-1.5 flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  Elke persoon krijgt een eigen taak — afvinken geldt alleen voor die persoon.
+                </p>
+              )}
               {formData.assignedTo.length > 0 && (
                 <div className="mt-3">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-1.5">

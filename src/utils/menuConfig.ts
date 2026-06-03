@@ -107,10 +107,10 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
 
   // MIJN ZAKEN (manager + employee self-service)
   { id: 'timesheets', name: 'Urenregistratie', emoji: '⏱️', nameByRole: { employee: 'Mijn Uren', manager: 'Mijn Uren' }, href: '/timesheets', icon: Clock, roles: ['employee', 'manager'], companyTypes: ['employer', 'project'] },
-  { id: 'leave', name: 'Verlof', emoji: '🌴', nameByRole: { employee: 'Mijn Verlof' }, href: '/leave', icon: CalendarCheck, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
-  { id: 'absence', name: 'Ziekteverzuim', emoji: '🏥', href: '/absence', icon: HeartPulse, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
-  { id: 'expenses-employee', name: 'Declaraties Medewerkers', emoji: '🧾', nameByRole: { employee: 'Mijn Declaraties' }, href: '/expenses', icon: Receipt, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
-  { id: 'payslips', name: 'Loonstroken', emoji: '💵', nameByRole: { employee: 'Mijn Loonstroken' }, href: '/payslips', icon: FileText, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'leave', name: 'Verlof', emoji: '🌴', nameByRole: { employee: 'Mijn Verlof', manager: 'Mijn Verlof' }, href: '/leave', icon: CalendarCheck, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'absence', name: 'Ziekteverzuim', emoji: '🏥', nameByRole: { manager: 'Mijn Verzuim' }, href: '/absence', icon: HeartPulse, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'expenses-employee', name: 'Declaraties Medewerkers', emoji: '🧾', nameByRole: { employee: 'Mijn Declaraties', manager: 'Mijn Declaraties' }, href: '/expenses', icon: Receipt, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'payslips', name: 'Loonstroken', emoji: '💵', nameByRole: { employee: 'Mijn Loonstroken', manager: 'Mijn Loonstroken' }, href: '/payslips', icon: FileText, roles: ['employee', 'manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'my-tasks', name: 'Mijn Taken', emoji: '☑️', href: '/my-tasks', icon: ListChecks, roles: ['manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
   { id: 'vehicle-self', name: 'Mijn Auto', emoji: '🚗', href: '/vehicle', icon: Car, roles: ['manager'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
 
@@ -127,7 +127,7 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
   { id: 'audit-log', name: 'Audit Log', emoji: '📜', href: '/audit-log', icon: Shield, roles: ['admin', 'co-admin'], companyTypes: ['employer', 'holding', 'shareholder'] },
   { id: 'users', name: 'Gebruikers Beheer', emoji: '👤', href: '/admin/users', icon: UserPlus, roles: ['admin'], companyTypes: ['employer', 'holding', 'shareholder'] },
   { id: 'investment-pitch', name: 'Investment Pitch', emoji: '🚀', href: '/investment-pitch', icon: LineChart, roles: ['admin', 'co-admin'], companyTypes: ['project', 'holding'] },
-  { id: 'settings', name: 'Instellingen', emoji: '⚙️', href: '/settings', hrefByRole: { boekhouder: '/boekhouder/settings' }, icon: Settings, roles: ['admin', 'co-admin', 'employee', 'manager', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
+  { id: 'settings', name: 'Instellingen', emoji: '⚙️', nameByRole: { manager: 'Mijn Instellingen' }, href: '/settings', hrefByRole: { boekhouder: '/boekhouder/settings' }, icon: Settings, roles: ['admin', 'co-admin', 'employee', 'manager', 'boekhouder'], companyTypes: ['employer', 'project', 'holding', 'shareholder'] },
 ];
 
 // ─── SECTION DEFINITIONS ────────────────────────────────────────────────────
@@ -189,22 +189,25 @@ export const getNavigationSections = (
 ): Section[] => {
   const filtered = getFilteredNavigation(userRole, companyType);
 
-  // Manager: bewust 2 heldere secties — "Algemeen" (team/beheer) en
-  // "Voor mezelf" (persoonlijke taken/uren/verlof). Beide standaard open zodat
-  // de manager direct ziet wat van het team is en wat van hemzelf.
+  // Manager: bewust 2 heldere secties — "Persoonlijk" (eigen taken/uren/verlof/
+  // declaraties/loonstroken/instellingen) en daaronder "Beheer" (team/beheer-
+  // pagina's). Beide standaard open zodat de manager direct het onderscheid ziet.
   if (userRole === 'manager') {
-    const personalIds = SECTION_ITEMS['Mijn Zaken'];
+    const personalIds = [...SECTION_ITEMS['Mijn Zaken'], 'settings'];
     const isPersonal = (id: string) => personalIds.includes(id);
-    // Dashboard wordt apart/prominent getoond — niet in een sectie.
+    // Persoonlijk in vaste, logische volgorde.
+    const personal = personalIds
+      .map(id => filtered.find(item => item.id === id))
+      .filter((item): item is NavigationItem => Boolean(item));
+    // Beheer = al het overige (dashboard wordt apart/prominent getoond).
     const general = filtered.filter(item => item.id !== 'dashboard' && !isPersonal(item.id));
-    const personal = filtered.filter(item => isPersonal(item.id));
 
     const sections: Section[] = [];
-    if (general.length > 0) {
-      sections.push({ title: 'Algemeen', icon: LayoutDashboard, color: 'bg-blue-500', defaultOpen: true, items: general });
-    }
     if (personal.length > 0) {
-      sections.push({ title: 'Voor mezelf', icon: User, color: 'bg-cyan-500', defaultOpen: true, items: personal });
+      sections.push({ title: 'Persoonlijk', icon: User, color: 'bg-cyan-500', defaultOpen: true, items: personal });
+    }
+    if (general.length > 0) {
+      sections.push({ title: 'Beheer', icon: LayoutDashboard, color: 'bg-blue-500', defaultOpen: true, items: general });
     }
     return sections;
   }
