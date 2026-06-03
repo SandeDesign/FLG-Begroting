@@ -19,6 +19,40 @@ import {
   getMaintenanceStatus,
 } from '../services/vehicleService';
 import { VehicleTripLog } from '../types/vehicle';
+import { getWeeklyTimesheets } from '../services/timesheetService';
+
+// Bouwt een rit-regel uit één dag-entry van een urenstaat (zelfde afleiding als
+// saveVehicleDayLogs), zodat álle dagelijks ingevulde ritten zichtbaar zijn —
+// ook als er (nog) geen persistente rit-log op de auto is weggeschreven.
+const deriveTripFromEntry = (ts: any, e: any, i: number): VehicleTripLog | null => {
+  const date = e.date ? new Date(e.date) : null;
+  if (!date || isNaN(date.getTime())) return null;
+  const hasOdo =
+    typeof e.startKilometers === 'number' &&
+    typeof e.endKilometers === 'number' &&
+    e.endKilometers >= e.startKilometers;
+  const dayKm = hasOdo ? e.endKilometers - e.startKilometers : (e.travelKilometers || 0);
+  const taskTrips = (e.workActivities || [])
+    .filter((w: any) => typeof w.kilometers === 'number' && w.kilometers > 0)
+    .map((w: any) => ({ description: w.description || 'Taak', kilometers: w.kilometers, isRiset: !!w.isITKnechtImport }));
+  if (!hasOdo && taskTrips.length === 0 && dayKm === 0) return null;
+  return {
+    id: `tsd_${ts.id}_${i}`,
+    userId: ts.userId,
+    companyId: ts.companyId,
+    vehicleId: '',
+    employeeId: ts.employeeId,
+    date,
+    startKilometers: hasOdo ? e.startKilometers : undefined,
+    endKilometers: hasOdo ? e.endKilometers : undefined,
+    dayKilometers: dayKm,
+    taskTrips,
+    createdAt: date,
+    updatedAt: date,
+  } as VehicleTripLog;
+};
+
+const dayKey = (d: Date) => new Date(d).toISOString().split('T')[0];
 
 const FUEL_LABELS: Record<string, string> = {
   electric: 'Elektrisch', petrol: 'Benzine', diesel: 'Diesel', hybrid: 'Hybride',
@@ -61,10 +95,23 @@ export default function EmployeeVehicle() {
       if (v?.id) {
         const reps = await getVehicleReports(queryUserId, selectedCompany.id, v.id);
         setReports(reps);
-        // Eigen ritten uit de persistente rit-logs van de auto
+        // Ritten = persistente rit-logs op de auto + afgeleid uit de eigen
+        // urenstaten (de dagelijks ingevulde kilometers). Per dag dedup; een
+        // persistente log heeft voorrang boven de afgeleide.
         try {
-          const logs = await getVehicleTripLogs(v.id);
-          setTrips(logs.filter(l => !l.employeeId || l.employeeId === currentEmployeeId));
+          const [persisted, sheets] = await Promise.all([
+            getVehicleTripLogs(v.id).catch(() => [] as VehicleTripLog[]),
+            getWeeklyTimesheets(queryUserId, currentEmployeeId).catch(() => [] as any[]),
+          ]);
+          const byDate = new Map<string, VehicleTripLog>();
+          persisted
+            .filter(l => !l.employeeId || l.employeeId === currentEmployeeId)
+            .forEach(l => byDate.set(dayKey(l.date), l));
+          sheets.forEach((ts: any) => (ts.entries || []).forEach((e: any, i: number) => {
+            const derived = deriveTripFromEntry(ts, e, i);
+            if (derived && !byDate.has(dayKey(derived.date))) byDate.set(dayKey(derived.date), derived);
+          }));
+          setTrips(Array.from(byDate.values()).sort((a, b) => b.date.getTime() - a.date.getTime()));
         } catch {
           setTrips([]);
         }
