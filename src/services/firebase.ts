@@ -2128,7 +2128,8 @@ export const createTask = async (userId: string, taskData: any): Promise<string>
       newTask.nextOccurrence = calculateNextOccurrence(
         newTask.dueDate,
         newTask.frequency,
-        newTask.recurrenceDay
+        newTask.recurrenceDay,
+        newTask.weekdaysOnly
       );
     }
 
@@ -2299,7 +2300,8 @@ export const updateTask = async (taskId: string, userId: string, updates: any): 
         updatedData.nextOccurrence = calculateNextOccurrence(
           updates.dueDate || taskData.dueDate,
           updates.frequency || taskData.frequency,
-          updates.recurrenceDay || taskData.recurrenceDay
+          updates.recurrenceDay || taskData.recurrenceDay,
+          updates.weekdaysOnly !== undefined ? updates.weekdaysOnly : taskData.weekdaysOnly
         );
       }
     }
@@ -2336,6 +2338,7 @@ export const updateTask = async (taskId: string, userId: string, updates: any): 
         try {
           const source = convertTimestamps({ ...taskData, id: taskId });
           const recurrenceDay = updates.recurrenceDay ?? source.recurrenceDay;
+          const weekdaysOnly = updates.weekdaysOnly !== undefined ? updates.weekdaysOnly : source.weekdaysOnly;
           const baseDue = updates.dueDate
             ? (updates.dueDate instanceof Date ? updates.dueDate : new Date(updates.dueDate))
             : new Date(source.dueDate);
@@ -2344,7 +2347,7 @@ export const updateTask = async (taskId: string, userId: string, updates: any): 
           const existingNext = source.nextOccurrence ? new Date(source.nextOccurrence) : null;
           const nextDue = existingNext && existingNext > baseDue
             ? existingNext
-            : calculateNextOccurrence(baseDue, frequency, recurrenceDay);
+            : calculateNextOccurrence(baseDue, frequency, recurrenceDay, weekdaysOnly);
 
           const newTaskData = {
             ...source,
@@ -2376,7 +2379,7 @@ export const updateTask = async (taskId: string, userId: string, updates: any): 
           // Markeer bron als afgehandeld + schuif nextOccurrence door.
           await updateDoc(taskRef, {
             successorCreated: true,
-            nextOccurrence: Timestamp.fromDate(calculateNextOccurrence(nextDue, frequency, recurrenceDay)),
+            nextOccurrence: Timestamp.fromDate(calculateNextOccurrence(nextDue, frequency, recurrenceDay, weekdaysOnly)),
             lastGenerated: Timestamp.fromDate(new Date()),
           });
         } catch (genErr) {
@@ -2564,7 +2567,8 @@ export const generateRecurringTasks = async (userId: string): Promise<number> =>
         const newNextOccurrence = calculateNextOccurrence(
           task.nextOccurrence,
           task.frequency,
-          task.recurrenceDay
+          task.recurrenceDay,
+          task.weekdaysOnly
         );
 
         await updateDoc(doc(db, 'businessTasks', task.id), {
@@ -2588,9 +2592,10 @@ export const generateRecurringTasks = async (userId: string): Promise<number> =>
 const calculateNextOccurrence = (
   currentDate: Date,
   frequency?: string,
-  recurrenceDay?: number
+  recurrenceDay?: number,
+  weekdaysOnly?: boolean
 ): Date => {
-  const next = new Date(currentDate);
+  let next = new Date(currentDate);
 
   switch (frequency) {
     case 'daily':
@@ -2607,22 +2612,25 @@ const calculateNextOccurrence = (
       }
       break;
     case 'monthly':
-      next.setMonth(next.getMonth() + 1);
-      if (recurrenceDay) {
-        next.setDate(recurrenceDay);
-      }
+      // Expliciete constructie voorkomt maand-overflow (bv. 31 jan + 1 maand).
+      next = new Date(next.getFullYear(), next.getMonth() + 1, recurrenceDay || next.getDate());
       break;
     case 'quarterly':
-      next.setMonth(next.getMonth() + 3);
-      if (recurrenceDay) {
-        next.setDate(recurrenceDay);
-      }
+      next = new Date(next.getFullYear(), next.getMonth() + 3, recurrenceDay || next.getDate());
       break;
     case 'yearly':
-      next.setFullYear(next.getFullYear() + 1);
+      next = new Date(next.getFullYear() + 1, next.getMonth(), next.getDate());
       break;
     default:
       next.setMonth(next.getMonth() + 1);
+  }
+
+  // Alleen werkdagen: valt de datum in het weekend, schuif naar maandag.
+  // Zo wordt "1e van de maand" automatisch de eerste werkdag.
+  if (weekdaysOnly) {
+    const dow = next.getDay(); // 0 = zo, 6 = za
+    if (dow === 6) next.setDate(next.getDate() + 2);
+    else if (dow === 0) next.setDate(next.getDate() + 1);
   }
 
   return next;
