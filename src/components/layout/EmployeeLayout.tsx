@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import { getEmployeeById } from '../../services/firebase';
 import PushPromptBanner from '../notifications/PushPromptBanner';
+import WeeklyTasksReminder from '../tasks/WeeklyTasksReminder';
 
 interface EmployeeLayoutProps {
   children: React.ReactNode;
@@ -193,6 +194,9 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
           </div>
         </div>
       </nav>
+
+      {/* Taken-herinnering bij inloggen (eigen taken) */}
+      <WeeklyTasksReminder />
     </div>
   );
 };
