@@ -25,6 +25,7 @@ import { useToast } from '../hooks/useToast';
 import { usePageTitle } from '../contexts/PageTitleContext';
 import { CATEGORY_CONFIG, PRIORITY_CONFIG, STATUS_CONFIG, FREQUENCY_LABELS } from '../utils/taskConfig';
 import { computeTaskCompletionPatch } from '../utils/taskCompletion';
+import { isTaskOverdue } from '../utils/taskDeadline';
 
 type EmployeeTaskView = 'active' | 'done';
 type ActiveBucket = 'overdue' | 'today' | 'week' | 'later' | 'recurring';
@@ -123,10 +124,7 @@ const EmployeeTasks: React.FC = () => {
   const formatDate = (date: Date) =>
     new Date(date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
 
-  const isOverdue = (task: BusinessTask) => {
-    if (task.status === 'completed' || task.status === 'cancelled') return false;
-    return new Date(task.dueDate) < new Date();
-  };
+  const isOverdue = (task: BusinessTask) => isTaskOverdue(task);
 
   // Datumgrenzen voor bucketing
   const now = new Date();
@@ -150,7 +148,8 @@ const EmployeeTasks: React.FC = () => {
   const bucketOf = (task: BusinessTask): ActiveBucket => {
     if (task.isRecurring) return 'recurring';
     const due = new Date(task.dueDate);
-    if (due < startOfToday) return 'overdue';
+    // Pas 'te laat' nadat 17:00 op de vervaldag is verstreken.
+    if (isOverdue(task)) return 'overdue';
     if (due <= endOfToday) return 'today';
     if (due <= endOfWeek) return 'week';
     return 'later';
