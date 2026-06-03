@@ -82,9 +82,23 @@ const EmployeeDashboard: React.FC = () => {
     const totalKm = timesheets.reduce((sum, ts) => sum + ts.totalTravelKilometers, 0);
     const contractHours = employeeData?.contractInfo?.hoursPerWeek || 40;
     const approvedTimesheets = timesheets.filter(ts => ts.status === 'approved').length;
-    
+
+    // Uren van de HUIDIGE maand: som de dag-entries waarvan de datum in deze
+    // maand valt (een week kan over twee maanden lopen, dus per dag rekenen).
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    let monthHours = 0;
+    timesheets.forEach(ts => (ts.entries || []).forEach(e => {
+      const d = e.date instanceof Date ? e.date : new Date(e.date);
+      if (!isNaN(d.getTime()) && d >= monthStart && d < monthEnd) {
+        monthHours += (e.regularHours || 0) + (e.overtimeHours || 0) + (e.eveningHours || 0) + (e.nightHours || 0) + (e.weekendHours || 0);
+      }
+    }));
+
     return {
       totalHours: totalHours.toFixed(1),
+      monthHours: monthHours.toFixed(1),
       totalKm,
       approvedWeeks: approvedTimesheets,
       contractHours
@@ -213,7 +227,7 @@ const EmployeeDashboard: React.FC = () => {
 
       {/* Stat tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatTile label="Uren deze maand" value={stats.totalHours}    sub="totaal" emoji="⏱️" tone="bronze" />
+        <StatTile label="Uren deze maand" value={stats.monthHours}    sub="deze maand" emoji="⏱️" tone="bronze" />
         <StatTile label="Kilometers"      value={stats.totalKm}       sub="geregistreerd" emoji="🚗" tone="sky" />
         <StatTile label="Goedgekeurd"     value={stats.approvedWeeks} sub="weken" emoji="✅" tone="emerald" />
         <StatTile label="Contract/week"   value={stats.contractHours} sub="uur" emoji="📋" tone="purple" />

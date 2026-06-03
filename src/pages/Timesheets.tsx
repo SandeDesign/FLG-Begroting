@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, Save, Send, Download, ChevronLeft, ChevronRight, User, Palmtree, HeartPulse, FolderKanban, ListChecks, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Save, Send, Download, ChevronLeft, ChevronRight, User, Palmtree, HeartPulse, FolderKanban, ListChecks, Trash2, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import Button from '../components/ui/Button';
@@ -88,6 +88,18 @@ export default function Timesheets() {
   const [assignedTasks, setAssignedTasks] = useState<BusinessTask[]>([]);
   // Aan de medewerker gekoppelde auto (Auto-beheer) — voor KM-standen
   const [assignedVehicle, setAssignedVehicle] = useState<Vehicle | null>(null);
+  // Gesloten "Week goedgekeurd"-meldingen (per timesheet-id, blijft gesloten).
+  const [dismissedApproved, setDismissedApproved] = useState<Set<string>>(
+    () => { try { return new Set(JSON.parse(localStorage.getItem('dismissedApprovedWeeks') || '[]')); } catch { return new Set(); } }
+  );
+  const dismissApproved = (id?: string) => {
+    if (!id) return;
+    setDismissedApproved(prev => {
+      const next = new Set(prev).add(id);
+      localStorage.setItem('dismissedApprovedWeeks', JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const loadData = useCallback(async () => {
     if (!user || !queryUserId || !selectedCompany) {
@@ -167,8 +179,11 @@ export default function Timesheets() {
       const projects = await getInternalProjects(queryUserId, selectedCompany.id);
       setInternalProjects(projects);
 
-      // Taken laden voor de huidige medewerker (voor taakselectie bij werkactiviteiten)
-      const tasks = await getTasksAssignedToUser(currentEmployeeId || user.uid, selectedCompany.id);
+      // Taken laden voor de huidige medewerker (voor taakselectie bij werkactiviteiten).
+      // GEEN company-filter: taken kunnen onder een ander (project)bedrijf zijn
+      // aangemaakt dan waar de medewerker zijn uren invult (bv. taken onder
+      // DeInstallatie, uren onder Buddy). Anders zag de medewerker geen taken.
+      const tasks = await getTasksAssignedToUser(currentEmployeeId || user.uid);
       setAssignedTasks(tasks as BusinessTask[]);
 
       if (sheets.length > 0) {
@@ -1264,17 +1279,24 @@ export default function Timesheets() {
           </div>
         </div>
       )}
-      {currentTimesheet.status === 'approved' && (
+      {currentTimesheet.status === 'approved' && !dismissedApproved.has(currentTimesheet.id || '') && (
         <div className="p-4 rounded-xl border-2 border-green-400 dark:border-green-600 bg-green-50 dark:!bg-gray-700 flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
             <CheckCircle2 className="h-5 w-5 text-white" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="font-semibold text-green-800 dark:text-green-200">Week goedgekeurd</p>
             <p className="text-xs text-green-600 dark:text-green-300 mt-0.5">
               Goedgekeurd door {currentTimesheet.approvedBy || 'beheerder'}
             </p>
           </div>
+          <button
+            onClick={() => dismissApproved(currentTimesheet.id)}
+            title="Melding sluiten"
+            className="flex-shrink-0 p-1.5 rounded-lg text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-gray-600 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
       {currentTimesheet.status === 'rejected' && (
@@ -1772,7 +1794,7 @@ export default function Timesheets() {
                               type="number"
                               min="0"
                               max="24"
-                              step="0.5"
+                              step="0.25"
                               value={entry.regularHours}
                               onChange={(e) => updateEntry(index, 'regularHours', parseFloat(e.target.value) || 0)}
                               disabled={isReadOnly || isImported || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work')}
@@ -1941,7 +1963,7 @@ export default function Timesheets() {
                               type="number"
                               min="0"
                               max="24"
-                              step="0.5"
+                              step="0.25"
                               value={activity.hours}
                               onChange={(e) => updateWorkActivity(index, actIdx, 'hours', parseFloat(e.target.value) || 0)}
                               disabled={isReadOnly || activity.isITKnechtImport}

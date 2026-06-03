@@ -1104,11 +1104,11 @@ const Tasks: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    min="0.5"
-                    step="0.5"
+                    min="0.25"
+                    step="0.25"
                     value={formData.estimatedHours}
                     onChange={(e) => setFormData({ ...formData, estimatedHours: e.target.value })}
-                    placeholder="bijv. 2.5"
+                    placeholder="bijv. 0.25, 0.5, 1"
                     className="w-32 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100"
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Hoelang de medewerker er mee bezig mag zijn</p>

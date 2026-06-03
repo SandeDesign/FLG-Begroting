@@ -67,15 +67,23 @@ const IncompleteWeekBanner: React.FC<{ targetRoute?: string }> = ({ targetRoute 
             return; // al ingediend/afgehandeld — geen probleem
           }
           const gap = checkWeekComplete(ts);
-          if (!gap.isComplete) {
-            openList.push({
-              timesheet: ts,
-              week,
-              year,
-              missing: gap.missingDates,
-              overdue: isWeekDeadlinePassed(week, year, now),
-            });
-          }
+          if (gap.isComplete) return;
+          // Niets daadwerkelijk open → geen banner (voorkomt "nog 0 dagen open").
+          if (gap.missingDates.length === 0) return;
+
+          const overdue = isWeekDeadlinePassed(week, year, now);
+          const isCurrentWeek = week === current.week && year === current.year;
+          // De lopende week pas tonen op vrijdag (deadline-dag) of zodra de
+          // deadline gepasseerd is. Oudere weken (overdue) blijven zichtbaar.
+          if (isCurrentWeek && !overdue && now.getDay() !== 5) return;
+
+          openList.push({
+            timesheet: ts,
+            week,
+            year,
+            missing: gap.missingDates,
+            overdue,
+          });
         });
         setOpenWeeks(openList);
         // voorkom unused-warning
