@@ -57,7 +57,7 @@ const priorityColor = (task: BusinessTask): string =>
     : task.priority === 'medium' ? '#3b82f6'
     : '#6b7280';
 
-const EmployeeAgenda: React.FC = () => {
+const EmployeeAgenda: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { user, adminUserId } = useAuth();
   const { currentEmployeeId } = useApp();
   const { success, error } = useToast();
@@ -226,13 +226,15 @@ const EmployeeAgenda: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mijn Agenda</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
-            {poolTasks.length > 0 ? `${poolTasks.length} ${poolTasks.length === 1 ? 'taak' : 'taken'} nog in te plannen` : 'Alles ingepland'}
-          </p>
-        </div>
+      <div className={`flex flex-col sm:flex-row sm:items-center gap-3 ${embedded ? 'sm:justify-end' : 'sm:justify-between'}`}>
+        {!embedded && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mijn Agenda</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
+              {poolTasks.length > 0 ? `${poolTasks.length} ${poolTasks.length === 1 ? 'taak' : 'taken'} nog in te plannen` : 'Alles ingepland'}
+            </p>
+          </div>
+        )}
         {/* Weeknavigatie */}
         <div className="flex items-center gap-1">
           <button onClick={() => setWeekStart(w => addDays(w, -7))} className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">

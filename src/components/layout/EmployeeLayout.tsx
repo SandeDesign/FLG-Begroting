@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import { getEmployeeById } from '../../services/firebase';
 import PushPromptBanner from '../notifications/PushPromptBanner';
+import WeeklyTasksReminder from '../tasks/WeeklyTasksReminder';
 
 interface EmployeeLayoutProps {
   children: React.ReactNode;
@@ -13,7 +14,6 @@ interface EmployeeLayoutProps {
 const navigation = [
   { name: 'Dashboard',  href: '/employee-dashboard',            icon: Home,         emoji: '📊' },
   { name: 'Uren',       href: '/employee-dashboard/timesheets', icon: Clock,        emoji: '⏱️' },
-  { name: 'Agenda',     href: '/employee-dashboard/agenda',     icon: CalendarDays, emoji: '📅' },
   { name: 'Mijn Taken', href: '/employee-dashboard/tasks',      icon: ListChecks,   emoji: '☑️' },
   { name: 'Declaraties', href: '/employee-dashboard/expenses',  icon: Receipt,      emoji: '🧾' },
   { name: 'Mijn Auto',  href: '/employee-dashboard/vehicle',    icon: Car,          emoji: '🚗' },
@@ -25,7 +25,6 @@ const navigation = [
 const bottomNavItems = [
   { name: 'Home',    href: '/employee-dashboard',            icon: Home,         emoji: '🏠' },
   { name: 'Uren',    href: '/employee-dashboard/timesheets', icon: Clock,        emoji: '⏱️' },
-  { name: 'Agenda',  href: '/employee-dashboard/agenda',     icon: CalendarDays, emoji: '📅' },
   { name: 'Taken',   href: '/employee-dashboard/tasks',      icon: ListChecks,   emoji: '☑️' },
   { name: 'Profiel', href: '/settings',                      icon: Settings,     emoji: '⚙️' },
 ];
@@ -195,6 +194,9 @@ const EmployeeLayout: React.FC<EmployeeLayoutProps> = ({ children }) => {
           </div>
         </div>
       </nav>
+
+      {/* Taken-herinnering bij inloggen (eigen taken) */}
+      <WeeklyTasksReminder />
     </div>
   );
 };

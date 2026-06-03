@@ -80,8 +80,7 @@ import BankStatementImport from './pages/BankStatementImport';
 import Grootboekrekeningen from './pages/Grootboekrekeningen';
 import BtwOverzicht from './pages/BtwOverzicht';
 import InternalProjects from './pages/InternalProjects';
-import EmployeeAgenda from './pages/EmployeeAgenda';
-import EmployeeTasks from './pages/EmployeeTasks';
+import MyTasks from './pages/MyTasks';
 import AutoBeheer from './pages/AutoBeheer';
 import EmployeeVehicle from './pages/EmployeeVehicle';
 import { AppProvider } from './contexts/AppContext';
@@ -256,7 +255,7 @@ function App() {
                           {/* Manager systeem */}
                           <Route path="tasks" element={<Tasks />} />
                           {/* Manager persoonlijke taken (zoals medewerker) */}
-                          <Route path="my-tasks" element={<EmployeeTasks />} />
+                          <Route path="my-tasks" element={<MyTasks />} />
                           <Route path="settings" element={<Settings />} />
 
                           <Route path="*" element={<NotFound />} />
@@ -328,8 +327,8 @@ function App() {
                             <Route path="absence" element={<Absence />} />
                             <Route path="expenses" element={<Expenses />} />
                             <Route path="timesheets" element={<Timesheets />} />
-                            <Route path="agenda" element={<EmployeeAgenda />} />
-                            <Route path="tasks" element={<EmployeeTasks />} />
+                            <Route path="agenda" element={<MyTasks />} />
+                            <Route path="tasks" element={<MyTasks />} />
                             <Route path="vehicle" element={<EmployeeVehicle />} />
                             <Route path="payslips" element={<Payslips />} />
                             <Route path="*" element={<NotFound />} />
