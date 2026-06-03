@@ -2404,6 +2404,51 @@ export const updateTask = async (taskId: string, userId: string, updates: any): 
 };
 
 /**
+ * Ruimt dubbele taken op binnen een bedrijf. Taken worden als duplicaat gezien
+ * wanneer titel + dag (dueDate) + toegewezenen + status gelijk zijn. De oudste
+ * (laagste createdAt) blijft behouden, de rest wordt verwijderd. Retourneert het
+ * aantal verwijderde taken. Bedoeld als opruiming na onbedoelde massa-generatie.
+ */
+export const deleteDuplicateTasks = async (companyId: string): Promise<number> => {
+  const q = query(collection(db, 'businessTasks'), where('companyId', '==', companyId));
+  const snap = await getDocs(q);
+
+  const toDate = (v: any): number => {
+    const d = v?.toDate ? v.toDate() : v ? new Date(v) : null;
+    return d && !isNaN(d.getTime()) ? d.getTime() : 0;
+  };
+
+  const seen = new Map<string, { id: string; createdAt: number }>();
+  const toDelete: string[] = [];
+
+  snap.docs.forEach((d) => {
+    const t = d.data() as any;
+    const dueMs = toDate(t.dueDate);
+    const dueKey = dueMs ? new Date(dueMs).toISOString().split('T')[0] : '';
+    const assignees = Array.isArray(t.assignedTo) ? [...t.assignedTo].sort().join(',') : '';
+    const key = [t.title || '', dueKey, assignees, t.status || '', t.isRecurring ? 'r' : ''].join('|');
+    const createdAt = toDate(t.createdAt);
+    const existing = seen.get(key);
+    if (!existing) {
+      seen.set(key, { id: d.id, createdAt });
+    } else if (createdAt >= existing.createdAt) {
+      toDelete.push(d.id); // nieuwere is het duplicaat
+    } else {
+      toDelete.push(existing.id);
+      seen.set(key, { id: d.id, createdAt });
+    }
+  });
+
+  for (let i = 0; i < toDelete.length; i += 400) {
+    const batch = writeBatch(db);
+    toDelete.slice(i, i + 400).forEach((id) => batch.delete(doc(db, 'businessTasks', id)));
+    await batch.commit();
+  }
+
+  return toDelete.length;
+};
+
+/**
  * Verwijder een taak
  */
 export const deleteTask = async (taskId: string, userId: string): Promise<void> => {
