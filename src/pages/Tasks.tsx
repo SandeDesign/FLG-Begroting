@@ -34,6 +34,7 @@ import {
   getAdminNonEmployeeUsers,
 } from '../services/firebase';
 import { filterEmployeesForCompany } from '../utils/companyHelpers';
+import { isTaskOverdue } from '../utils/taskDeadline';
 import { getInternalProjects } from '../services/internalProjectService';
 import { getProjectColorMeta } from './InternalProjects';
 import { computeTaskCompletionPatch } from '../utils/taskCompletion';
@@ -433,10 +434,7 @@ const Tasks: React.FC = () => {
     });
   };
 
-  const isOverdue = (task: BusinessTask) => {
-    if (task.status === 'completed' || task.status === 'cancelled') return false;
-    return new Date(task.dueDate) < new Date();
-  };
+  const isOverdue = (task: BusinessTask) => isTaskOverdue(task);
 
   // Herbruikbare taakkaart (lijst, kanban-kolom en Voltooid-tab).
   const renderTaskListCard = (task: BusinessTask) => {
@@ -811,7 +809,7 @@ const Tasks: React.FC = () => {
                     : t.status === 'completed';
                 const scheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.isScheduled);
                 const unscheduled = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && t.status !== 'overdue' && !t.isScheduled);
-                const overdue = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && (t.status === 'overdue' || (!t.isScheduled && new Date(t.dueDate) < new Date())));
+                const overdue = empTasks.filter(t => !isCompletedForPerson(t) && t.status !== 'cancelled' && (t.status === 'overdue' || (!t.isScheduled && isTaskOverdue(t))));
 
                 const statGroups = [
                   { label: 'Ingepland', count: scheduled.length, tasks: scheduled, icon: CalendarClock, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-gray-700', border: 'border-blue-200 dark:border-blue-800' },

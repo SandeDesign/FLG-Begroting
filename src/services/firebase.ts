@@ -20,6 +20,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { Company, Branch, Employee, TimeEntry, UserRole, LeaveRequest, LeaveBalance, SickLeave, AbsenceStatistics, Expense, EmployeeWithCompanies, CompanyWithEmployees, UserSettings, BudgetItem, BudgetType, BusinessTask } from '../types';
 import { generatePoortwachterMilestones, shouldActivatePoortwachter } from '../utils/poortwachterTracking';
+import { isTaskOverdue } from '../utils/taskDeadline';
 import { AuditService } from './auditService';
 
 // Helper function to remove undefined values from objects (Firebase doesn't accept undefined)
@@ -1764,11 +1765,8 @@ export const subscribeCompanyTasks = (
       const tasks = snap.docs
         .map((d) => convertTimestamps({ ...d.data(), id: d.id }) as BusinessTask)
         .map((task) => {
-          if (
-            task.status !== 'completed' &&
-            task.status !== 'cancelled' &&
-            new Date(task.dueDate) < now
-          ) {
+          // Pas 'te laat' ná 17:00 op de vervaldag (niet al om middernacht).
+          if (isTaskOverdue(task, now)) {
             return { ...task, status: 'overdue' as BusinessTask['status'] };
           }
           return task;
