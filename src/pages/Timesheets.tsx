@@ -179,8 +179,11 @@ export default function Timesheets() {
       const projects = await getInternalProjects(queryUserId, selectedCompany.id);
       setInternalProjects(projects);
 
-      // Taken laden voor de huidige medewerker (voor taakselectie bij werkactiviteiten)
-      const tasks = await getTasksAssignedToUser(currentEmployeeId || user.uid, selectedCompany.id);
+      // Taken laden voor de huidige medewerker (voor taakselectie bij werkactiviteiten).
+      // GEEN company-filter: taken kunnen onder een ander (project)bedrijf zijn
+      // aangemaakt dan waar de medewerker zijn uren invult (bv. taken onder
+      // DeInstallatie, uren onder Buddy). Anders zag de medewerker geen taken.
+      const tasks = await getTasksAssignedToUser(currentEmployeeId || user.uid);
       setAssignedTasks(tasks as BusinessTask[]);
 
       if (sheets.length > 0) {
@@ -1791,7 +1794,7 @@ export default function Timesheets() {
                               type="number"
                               min="0"
                               max="24"
-                              step="0.5"
+                              step="0.25"
                               value={entry.regularHours}
                               onChange={(e) => updateEntry(index, 'regularHours', parseFloat(e.target.value) || 0)}
                               disabled={isReadOnly || isImported || (!!entry.dayStatus && entry.dayStatus !== 'worked' && entry.dayStatus !== 'partial_work')}
@@ -1960,7 +1963,7 @@ export default function Timesheets() {
                               type="number"
                               min="0"
                               max="24"
-                              step="0.5"
+                              step="0.25"
                               value={activity.hours}
                               onChange={(e) => updateWorkActivity(index, actIdx, 'hours', parseFloat(e.target.value) || 0)}
                               disabled={isReadOnly || activity.isITKnechtImport}
