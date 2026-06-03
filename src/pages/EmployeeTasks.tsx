@@ -30,7 +30,7 @@ import { isTaskOverdue } from '../utils/taskDeadline';
 type EmployeeTaskView = 'active' | 'done';
 type ActiveBucket = 'overdue' | 'today' | 'week' | 'later' | 'recurring';
 
-const EmployeeTasks: React.FC = () => {
+const EmployeeTasks: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { user, userRole } = useAuth();
   const { currentEmployeeId } = useApp();
   const { success, error } = useToast();
@@ -317,23 +317,25 @@ const EmployeeTasks: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mijn Taken</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
-            {activeTasks.length} openstaand{overdueCount > 0 && `, ${overdueCount} te laat`}
-          </p>
+      {!embedded && (
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mijn Taken</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
+              {activeTasks.length} openstaand{overdueCount > 0 && `, ${overdueCount} te laat`}
+            </p>
+          </div>
+          {userRole === 'employee' && (
+            <Link
+              to="/employee-dashboard/agenda"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+            >
+              <CalendarDays className="h-4 w-4" />
+              Agenda
+            </Link>
+          )}
         </div>
-        {userRole === 'employee' && (
-          <Link
-            to="/employee-dashboard/agenda"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-          >
-            <CalendarDays className="h-4 w-4" />
-            Agenda
-          </Link>
-        )}
-      </div>
+      )}
 
       {/* Tab toggle: Actief / Voltooid */}
       <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden w-fit">

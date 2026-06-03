@@ -13,7 +13,6 @@ interface EmployeeLayoutProps {
 const navigation = [
   { name: 'Dashboard',  href: '/employee-dashboard',            icon: Home,         emoji: '📊' },
   { name: 'Uren',       href: '/employee-dashboard/timesheets', icon: Clock,        emoji: '⏱️' },
-  { name: 'Agenda',     href: '/employee-dashboard/agenda',     icon: CalendarDays, emoji: '📅' },
   { name: 'Mijn Taken', href: '/employee-dashboard/tasks',      icon: ListChecks,   emoji: '☑️' },
   { name: 'Declaraties', href: '/employee-dashboard/expenses',  icon: Receipt,      emoji: '🧾' },
   { name: 'Mijn Auto',  href: '/employee-dashboard/vehicle',    icon: Car,          emoji: '🚗' },
@@ -25,7 +24,6 @@ const navigation = [
 const bottomNavItems = [
   { name: 'Home',    href: '/employee-dashboard',            icon: Home,         emoji: '🏠' },
   { name: 'Uren',    href: '/employee-dashboard/timesheets', icon: Clock,        emoji: '⏱️' },
-  { name: 'Agenda',  href: '/employee-dashboard/agenda',     icon: CalendarDays, emoji: '📅' },
   { name: 'Taken',   href: '/employee-dashboard/tasks',      icon: ListChecks,   emoji: '☑️' },
   { name: 'Profiel', href: '/settings',                      icon: Settings,     emoji: '⚙️' },
 ];
