@@ -31,7 +31,7 @@ type EmployeeTaskView = 'active' | 'done';
 type ActiveBucket = 'overdue' | 'today' | 'week' | 'later' | 'recurring';
 
 const EmployeeTasks: React.FC = () => {
-  const { user, adminUserId, userRole } = useAuth();
+  const { user, userRole } = useAuth();
   const { currentEmployeeId } = useApp();
   const { success, error } = useToast();
   usePageTitle('Mijn Taken');
@@ -64,9 +64,18 @@ const EmployeeTasks: React.FC = () => {
   }, [user, currentEmployeeId]);
 
   const handleStatusChange = async (task: BusinessTask, newStatus: TaskStatus) => {
-    if (!user || !adminUserId) return;
+    if (!user) return;
     try {
-      const selfId = currentEmployeeId || user.uid;
+      // Acteer met de identiteit die ÉCHT in assignedTo staat (employee doc-ID
+      // of auth-UID). Dat is nodig zowel voor de per-persoon voltooiing als voor
+      // de toegangscheck in updateTask (taken aangemaakt door een manager hebben
+      // userId = manager, dus de employee moet als assignee herkend worden).
+      const assigned = task.assignedTo || [];
+      const selfId =
+        (currentEmployeeId && assigned.includes(currentEmployeeId)) ? currentEmployeeId :
+        assigned.includes(user.uid) ? user.uid :
+        (currentEmployeeId || user.uid);
+
       let patch: Record<string, unknown>;
       if (newStatus === 'completed') {
         patch = { ...computeTaskCompletionPatch(task, selfId, true) };
@@ -75,7 +84,7 @@ const EmployeeTasks: React.FC = () => {
       } else {
         patch = { status: newStatus };
       }
-      await updateTask(task.id, adminUserId, patch);
+      await updateTask(task.id, selfId, patch);
       success('Status bijgewerkt');
     } catch (err) {
       console.error('Error updating status:', err);
@@ -84,8 +93,14 @@ const EmployeeTasks: React.FC = () => {
   };
 
   const toggleTaskSubtask = async (task: BusinessTask, subtaskId: string) => {
-    if (!user || !adminUserId) return;
+    if (!user) return;
     try {
+      const assigned = task.assignedTo || [];
+      const selfId =
+        (currentEmployeeId && assigned.includes(currentEmployeeId)) ? currentEmployeeId :
+        assigned.includes(user.uid) ? user.uid :
+        (currentEmployeeId || user.uid);
+
       const updatedChecklist = (task.checklist || []).map(item => {
         if (item.id === subtaskId) {
           return {
@@ -99,7 +114,7 @@ const EmployeeTasks: React.FC = () => {
       });
       const completedCount = updatedChecklist.filter(item => item.completed).length;
       const progress = updatedChecklist.length > 0 ? Math.round((completedCount / updatedChecklist.length) * 100) : 0;
-      await updateTask(task.id, adminUserId, { checklist: updatedChecklist, progress });
+      await updateTask(task.id, selfId, { checklist: updatedChecklist, progress });
     } catch (err) {
       console.error('Error updating subtask:', err);
       error('Fout', 'Fout bij bijwerken van subtaak');
