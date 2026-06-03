@@ -80,6 +80,7 @@ const Tasks: React.FC = () => {
     isRecurring: false,
     frequency: 'monthly' as TaskFrequency,
     recurrenceDay: 1,
+    weekdaysOnly: false,
     checklist: [] as TaskChecklistItem[],
     assignedTo: [] as string[],
     estimatedHours: '' as string,
@@ -286,6 +287,7 @@ const Tasks: React.FC = () => {
       isRecurring: task.isRecurring,
       frequency: task.frequency || 'monthly',
       recurrenceDay: task.recurrenceDay || 1,
+      weekdaysOnly: task.weekdaysOnly || false,
       checklist: task.checklist || [],
       assignedTo: task.assignedTo || [],
       estimatedHours: task.estimatedHours !== undefined ? String(task.estimatedHours) : '',
@@ -305,6 +307,7 @@ const Tasks: React.FC = () => {
       isRecurring: false,
       frequency: 'monthly',
       recurrenceDay: 1,
+      weekdaysOnly: false,
       checklist: [],
       assignedTo: [],
       estimatedHours: '',
@@ -1289,6 +1292,20 @@ const Tasks: React.FC = () => {
                   className="w-32 rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
+            )}
+
+            {formData.isRecurring && (
+              <label className="mt-3 flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.weekdaysOnly}
+                  onChange={(e) => setFormData({ ...formData, weekdaysOnly: e.target.checked })}
+                  className="rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-200">
+                  Alleen op werkdagen (weekend → eerstvolgende maandag)
+                </span>
+              </label>
             )}
           </div>
 

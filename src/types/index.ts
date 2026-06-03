@@ -908,6 +908,7 @@ export interface BusinessTask {
   isRecurring: boolean;
   frequency?: TaskFrequency;  // Frequentie van herhaling
   recurrenceDay?: number;  // Dag van de maand (1-31) of week (1-7)
+  weekdaysOnly?: boolean;  // Alleen op werkdagen: weekend wordt doorgeschoven naar maandag (bv. eerste werkdag van de maand)
   nextOccurrence?: Date;  // Wanneer is de volgende occurrence
   lastGenerated?: Date;  // Wanneer is de laatste occurrence gegenereerd
 
