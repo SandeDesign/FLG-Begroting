@@ -84,6 +84,7 @@ const Tasks: React.FC = () => {
     assignedTo: [] as string[],
     estimatedHours: '' as string,
     internalProjectId: '' as string,
+    schedulingType: 'fixed' as 'fixed' | 'flexible',
   });
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
 
@@ -289,6 +290,7 @@ const Tasks: React.FC = () => {
       assignedTo: task.assignedTo || [],
       estimatedHours: task.estimatedHours !== undefined ? String(task.estimatedHours) : '',
       internalProjectId: task.internalProjectId || '',
+      schedulingType: task.schedulingType === 'flexible' ? 'flexible' : 'fixed',
     });
     setShowTaskModal(true);
   };
@@ -307,6 +309,7 @@ const Tasks: React.FC = () => {
       assignedTo: [],
       estimatedHours: '',
       internalProjectId: '',
+      schedulingType: 'fixed',
     });
     setNewSubtaskTitle('');
     setEditingTask(null);
@@ -1015,6 +1018,48 @@ const Tasks: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
               className="w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white dark:bg-gray-800 dark:text-gray-100"
             />
+            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
+              {formData.schedulingType === 'flexible'
+                ? 'Bij flexibel plannen geldt deze datum als deadline van de week.'
+                : 'De taak staat vast op deze dag in de agenda van de medewerker.'}
+            </p>
+          </div>
+
+          {/* Planning: vaste datum vs medewerker plant zelf in */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-1.5">
+              <Calendar className="h-4 w-4" />
+              Planning
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: 'fixed' as const, label: 'Vaste datum', icon: Calendar },
+                { value: 'flexible' as const, label: 'Medewerker plant zelf in', icon: CalendarClock },
+              ].map(option => {
+                const isSelected = formData.schedulingType === option.value;
+                const Icon = option.icon;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, schedulingType: option.value })}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                      isSelected
+                        ? 'border-primary-500 bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-400 ring-1 ring-primary-500'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1.5">
+              {formData.schedulingType === 'flexible'
+                ? 'De medewerker plaatst deze taak zelf op een dag in zijn agenda.'
+                : 'Jij bepaalt de dag; de taak verschijnt vast op de plandatum.'}
+            </p>
           </div>
 
           {/* Toewijzen aan */}

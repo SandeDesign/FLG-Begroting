@@ -7,7 +7,6 @@ import {
   Repeat,
   ChevronDown,
   ChevronRight,
-  PlayCircle,
   CalendarDays,
   AlertCircle,
   Sun,
@@ -187,21 +186,12 @@ const EmployeeTasks: React.FC = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3 flex-1">
               <button
-                onClick={() => {
-                  if (task.status === 'completed') handleStatusChange(task, 'pending');
-                  else if (task.status === 'in_progress') handleStatusChange(task, 'completed');
-                  else handleStatusChange(task, 'in_progress');
-                }}
+                onClick={() => handleStatusChange(task, task.status === 'completed' ? 'pending' : 'completed')}
                 className="mt-1 flex-shrink-0"
-                title={
-                  task.status === 'completed' ? 'Markeer als te doen' :
-                  task.status === 'in_progress' ? 'Markeer als voltooid' : 'Start taak'
-                }
+                title={task.status === 'completed' ? 'Markeer als te doen' : 'Markeer als gedaan'}
               >
                 {task.status === 'completed' ? (
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
-                ) : task.status === 'in_progress' ? (
-                  <PlayCircle className="h-5 w-5 text-blue-600" />
                 ) : (
                   <Circle className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
                 )}

@@ -925,6 +925,7 @@ export interface BusinessTask {
   checklist?: TaskChecklistItem[];
 
   // Scheduling door werknemer
+  schedulingType?: 'fixed' | 'flexible'; // 'fixed' = manager plant op dueDate; 'flexible' = medewerker plant zelf in de week
   scheduledDate?: Date;         // Wanneer werknemer de taak heeft ingepland
   scheduledStartTime?: string;  // "09:00" format
   scheduledEndTime?: string;    // "10:30" format
