@@ -10,7 +10,8 @@ import {
   where,
   orderBy,
   Timestamp,
-  runTransaction
+  runTransaction,
+  deleteField
 } from 'firebase/firestore';
 // Firebase Storage niet meer gebruikt — alles via uploadFile → internedata.nl
 import { db } from '../lib/firebase';
@@ -518,6 +519,74 @@ export const incomingInvoiceService = {
       console.error('Error updating invoice:', error);
       throw new Error('Kon factuur niet bijwerken');
     }
+  },
+
+  /**
+   * Verplaats een inkoopbon naar een andere administratie (ander bedrijf van
+   * dezelfde admin). Het originele bestand wordt opgehaald van internedata.nl
+   * en opnieuw geüpload naar de Inkoop-map van het doel-bedrijf met een nieuw
+   * INK-{jaar}-#### referentienummer. De bon komt op 'pending' te staan zodat
+   * deze in de nieuwe administratie opnieuw goedgekeurd moet worden.
+   *
+   * Volgorde is bewust: bestand ophalen + uploaden gebeurt VÓÓR de Firestore
+   * update. Faalt een van die stappen, dan blijft de bon ongewijzigd in de
+   * oorspronkelijke administratie (niet-destructief).
+   */
+  async moveInvoiceToCompany(
+    invoice: IncomingInvoice,
+    target: { id: string; name: string; userId: string },
+    movedBy: string
+  ): Promise<{ newReference: string; newFileUrl: string }> {
+    if (!invoice.id) throw new Error('Factuur heeft geen id');
+    if (target.id === invoice.companyId) {
+      throw new Error('De bon staat al in deze administratie');
+    }
+    if (!invoice.fileUrl) {
+      throw new Error('Bon heeft geen bestand om te verplaatsen');
+    }
+
+    // 1. Origineel bestand ophalen van internedata.nl
+    let blob: Blob;
+    try {
+      const res = await fetch(invoice.fileUrl);
+      if (!res.ok) throw new Error(`status ${res.status}`);
+      blob = await res.blob();
+    } catch (err) {
+      console.error('Kon origineel bestand niet ophalen:', err);
+      throw new Error('Kon origineel bestand niet ophalen voor verplaatsing');
+    }
+
+    const ext = (invoice.fileName?.split('.').pop() || 'pdf').toLowerCase();
+    const file = new File([blob], invoice.fileName || `bon.${ext}`, {
+      type: blob.type || 'application/octet-stream',
+    });
+
+    // 2. Nieuw referentienummer voor het doel-bedrijf
+    const newRef = await generateIncomingInvoiceReference(target.id);
+
+    // 3. Re-upload naar de Inkoop-map van het doel-bedrijf
+    const up = await uploadFile(file, target.name, 'Inkoop', newRef, target.id);
+
+    // 4. Firestore-doc in-place bijwerken (echte verplaatsing, geen duplicaat)
+    const now = new Date();
+    const docRef = doc(db, COLLECTION_NAME, invoice.id);
+    await updateDoc(docRef, {
+      companyId: target.id,
+      userId: target.userId,
+      referenceNumber: newRef,
+      invoiceNumber: newRef,
+      fileName: `${newRef}.${ext}`,
+      fileUrl: up.fileUrl,
+      status: 'pending',
+      approvedAt: deleteField(),
+      approvedBy: deleteField(),
+      previousCompanyId: invoice.companyId,
+      movedAt: Timestamp.fromDate(now),
+      movedBy,
+      updatedAt: Timestamp.fromDate(now),
+    });
+
+    return { newReference: newRef, newFileUrl: up.fileUrl };
   },
 
   // Delete invoice
