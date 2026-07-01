@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Send, Search, Calendar, Euro, Building2, User, CheckCircle, AlertCircle, Clock, Edit, Trash2, ChevronDown, X, ArrowLeft, TrendingUp, Eye, Factory, Copy, MailCheck, MailX, Loader2 } from 'lucide-react';
+import { Plus, Send, Search, Calendar, Euro, Building2, User, CheckCircle, AlertCircle, Clock, Edit, Trash2, ChevronDown, X, ArrowLeft, TrendingUp, Eye, Factory, Copy, MailCheck, MailX, Loader2, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
 import Button from '../components/ui/Button';
@@ -8,6 +8,7 @@ import { useToast } from '../hooks/useToast';
 import { EmptyState } from '../components/ui/EmptyState';
 import Card from '../components/ui/Card';
 import { outgoingInvoiceService, OutgoingInvoice, CompanyInfo } from '../services/outgoingInvoiceService';
+import { downloadInvoicePDF, downloadAllInvoicesPDF } from '../lib/generateInvoicePDF';
 import { collection, getDocs, query, where, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { usePageTitle } from '../contexts/PageTitleContext';
@@ -71,6 +72,9 @@ const OutgoingInvoices: React.FC = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [vatRate, setVatRate] = useState<0 | 9 | 21>(21);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [downloadingAll, setDownloadingAll] = useState(false);
+  const [downloadAllProgress, setDownloadAllProgress] = useState({ done: 0, total: 0 });
 
   // Production Import State
   const [showProductionImport, setShowProductionImport] = useState(false);
@@ -634,6 +638,50 @@ const OutgoingInvoices: React.FC = () => {
       showError('Fout', 'Kon niet dupliceren');
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const buildCompanyInfo = (): CompanyInfo => ({
+    id: selectedCompany?.id || '',
+    name: selectedCompany?.name || '',
+    kvk: selectedCompany?.kvk || '',
+    taxNumber: selectedCompany?.taxNumber || '',
+    bankAccount: selectedCompany?.bankAccount || '',
+    contactInfo: { email: selectedCompany?.contactInfo?.email || '', phone: selectedCompany?.contactInfo?.phone || '' },
+    address: { street: selectedCompany?.address?.street || '', city: selectedCompany?.address?.city || '', zipCode: selectedCompany?.address?.zipCode || '', country: selectedCompany?.address?.country || '' },
+    themeColor: selectedCompany?.themeColor,
+    logoUrl: selectedCompany?.logoUrl,
+  });
+
+  const handleDownloadInvoice = async (invoice: OutgoingInvoice) => {
+    setDownloadingId(invoice.id!);
+    try {
+      await downloadInvoicePDF(invoice, buildCompanyInfo());
+      success('Gedownload', `Factuur ${invoice.invoiceNumber} als PDF opgeslagen`);
+    } catch (e) {
+      showError('Fout', 'Kon PDF niet genereren');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    if (filteredInvoices.length === 0) {
+      showError('Fout', 'Geen facturen om te downloaden');
+      return;
+    }
+    setDownloadingAll(true);
+    setDownloadAllProgress({ done: 0, total: filteredInvoices.length });
+    try {
+      await downloadAllInvoicesPDF(filteredInvoices, buildCompanyInfo(), (done, total) => {
+        setDownloadAllProgress({ done, total });
+      });
+      success('Gedownload', `${filteredInvoices.length} facturen als PDF opgeslagen`);
+    } catch (e) {
+      showError('Fout', 'Kon PDF niet genereren');
+    } finally {
+      setDownloadingAll(false);
+      setDownloadAllProgress({ done: 0, total: 0 });
     }
   };
 
@@ -1238,6 +1286,20 @@ const OutgoingInvoices: React.FC = () => {
           >
             {showFilters ? 'Sluiten' : 'Filter'}
           </Button>
+          {filteredInvoices.length > 0 && (
+            <Button
+              onClick={handleDownloadAll}
+              variant="secondary"
+              size="sm"
+              icon={Download}
+              loading={downloadingAll}
+              title="Download alle facturen als PDF"
+            >
+              {downloadingAll
+                ? `PDF ${downloadAllProgress.done}/${downloadAllProgress.total}`
+                : 'Download alle'}
+            </Button>
+          )}
           {!isReadOnly && (
             <Button onClick={handleCreateNew} icon={Plus} size="sm">
               Nieuw
@@ -1427,6 +1489,20 @@ const OutgoingInvoices: React.FC = () => {
                           )}
                         </div>
                       )}
+
+                      <div className="flex gap-1.5 flex-wrap text-xs">
+                        <Button
+                          onClick={() => handleDownloadInvoice(invoice)}
+                          variant="secondary"
+                          size="sm"
+                          icon={Download}
+                          loading={downloadingId === invoice.id}
+                          className="flex-1"
+                          title="Download deze factuur als PDF"
+                        >
+                          {downloadingId === invoice.id ? 'Bezig...' : 'Download PDF'}
+                        </Button>
+                      </div>
 
                       {!isReadOnly && (
                         <div className="flex gap-1.5 flex-wrap text-xs">
