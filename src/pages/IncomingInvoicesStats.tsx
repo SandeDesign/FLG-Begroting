@@ -15,7 +15,8 @@ import {
   RotateCw,
   MoreVertical,
   Upload,
-  Filter
+  Filter,
+  ArrowRightLeft
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useApp } from '../contexts/AppContext';
@@ -27,6 +28,7 @@ import { useToast } from '../hooks/useToast';
 import { usePageTitle } from '../contexts/PageTitleContext';
 import { isInQuarter } from '../utils/dateFilters';
 import ActionMenu from '../components/ui/ActionMenu';
+import MoveInvoiceModal from '../components/invoices/MoveInvoiceModal';
 import {
   incomingInvoiceService,
   IncomingInvoice,
@@ -39,7 +41,7 @@ import { supplierService } from '../services/supplierService';
 
 const IncomingInvoicesStats: React.FC = () => {
   const { user, adminUserId, userRole } = useAuth();
-  const { selectedCompany, selectedYear, selectedQuarter, queryUserId } = useApp();
+  const { selectedCompany, selectedYear, selectedQuarter, queryUserId, companies } = useApp();
   const { success, error: showError } = useToast();
   usePageTitle('Inkoopbonnen');
 
@@ -66,6 +68,7 @@ const IncomingInvoicesStats: React.FC = () => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; invoice: IncomingInvoice } | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [movingInvoice, setMovingInvoice] = useState<IncomingInvoice | null>(null);
 
   // Load Invoices from Firestore
   const loadInvoices = useCallback(async () => {
@@ -620,6 +623,20 @@ const IncomingInvoicesStats: React.FC = () => {
     }
   };
 
+  // Verplaats een bon naar een andere administratie
+  const handleMove = (invoice: IncomingInvoice) => {
+    setMovingInvoice(invoice);
+  };
+
+  const handleMoved = ({ targetName, newReference }: { targetName: string; newReference: string }) => {
+    setMovingInvoice(null);
+    success(
+      'Bon verplaatst',
+      `Verplaatst naar ${targetName} met nummer ${newReference} — staat daar op "In behandeling".`
+    );
+    loadInvoices();
+  };
+
   // Close context menu on outside click or scroll
   useEffect(() => {
     if (!contextMenu) return;
@@ -908,6 +925,13 @@ const IncomingInvoicesStats: React.FC = () => {
                           label: 'Markeer als betaald',
                           icon: ArrowDownLeft,
                           onClick: () => handleMarkPaid(invoice),
+                        }]
+                      : []),
+                    ...(isAdmin && invoice.status !== 'paid'
+                      ? [{
+                          label: 'Verplaats naar administratie',
+                          icon: ArrowRightLeft,
+                          onClick: () => handleMove(invoice),
                         }]
                       : []),
                     ...(invoice.fileUrl || (invoice as any).driveWebLink
@@ -1312,6 +1336,17 @@ const IncomingInvoicesStats: React.FC = () => {
             </button>
           )}
 
+          {/* Verplaats naar andere administratie - admin, niet betaald */}
+          {isAdmin && contextMenu.invoice.status !== 'paid' && (
+            <button
+              onClick={() => { handleMove(contextMenu.invoice); setContextMenu(null); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <ArrowRightLeft className="w-4 h-4 text-primary-600" />
+              Verplaats naar administratie
+            </button>
+          )}
+
           {/* Opnieuw OCR - admin, onvolledige data */}
           {isAdmin && contextMenu.invoice.fileUrl && (contextMenu.invoice.supplierName === 'Onbekend' || contextMenu.invoice.totalAmount === 0) && (
             <button
@@ -1373,6 +1408,18 @@ const IncomingInvoicesStats: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Verplaats naar andere administratie */}
+      <MoveInvoiceModal
+        isOpen={!!movingInvoice}
+        invoice={movingInvoice}
+        companies={companies}
+        currentCompanyId={selectedCompany?.id || ''}
+        movedBy={adminUserId || user?.uid || ''}
+        onClose={() => setMovingInvoice(null)}
+        onMoved={handleMoved}
+        onError={(msg) => showError(msg)}
+      />
     </div>
   );
 };
