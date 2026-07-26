@@ -516,33 +516,68 @@ const OutgoingInvoices: React.FC = () => {
       };
       const html = await outgoingInvoiceService.generateInvoiceHTML(invoice, info);
       const callbackUrl = `${window.location.origin}/api/invoice-delivery-callback`;
-      const payload = {
-        event: 'invoice.sent',
-        timestamp: new Date().toISOString(),
-        client: { name: invoice.clientName, email: invoice.clientEmail, phone: invoice.clientPhone || null },
-        invoice: {
-          id: invoice.id,
-          invoiceNumber: invoice.invoiceNumber,
-          status: 'sent',
-          totalAmount: invoice.totalAmount,
-          items: invoice.items,
-          ExtraOntvangers: invoice.ExtraOntvangers || (invoice.additionalRecipients && invoice.additionalRecipients.length > 0 ? 'ja' : 'nee'),
-          additionalRecipients: invoice.additionalRecipients || []
-        },
-        company: { id: selectedCompany?.id, name: selectedCompany?.name },
-        user: { id: user?.uid, email: user?.email },
-        htmlContent: html,
-        callbackUrl,
-      };
-      const res = await fetch(MAKE_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(10000)
-      });
-      if (!res.ok) throw new Error('Webhook error');
+
+      // Bouw de ontvangerslijst: hoofdontvanger + extra ontvangers, ontdubbeld.
+      // We versturen per ontvanger een aparte webhook-call, zodat iedere ontvanger
+      // een eigen e-mail krijgt in plaats van samen in één bericht.
+      const seen = new Set<string>();
+      const recipients = [invoice.clientEmail, ...(invoice.additionalRecipients || [])]
+        .map(e => (e || '').trim())
+        .filter(e => {
+          const key = e.toLowerCase();
+          if (!e || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
+      if (recipients.length === 0) {
+        showError('Fout', 'Geen geldig e-mailadres om naar te versturen');
+        return;
+      }
+
+      const failed: string[] = [];
+      for (const recipient of recipients) {
+        const payload = {
+          event: 'invoice.sent',
+          timestamp: new Date().toISOString(),
+          client: { name: invoice.clientName, email: recipient, phone: invoice.clientPhone || null },
+          invoice: {
+            id: invoice.id,
+            invoiceNumber: invoice.invoiceNumber,
+            status: 'sent',
+            totalAmount: invoice.totalAmount,
+            items: invoice.items,
+            // Elke call gaat naar precies één ontvanger.
+            ExtraOntvangers: 'nee',
+            additionalRecipients: []
+          },
+          company: { id: selectedCompany?.id, name: selectedCompany?.name },
+          user: { id: user?.uid, email: user?.email },
+          htmlContent: html,
+          callbackUrl,
+        };
+        try {
+          const res = await fetch(MAKE_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(10000)
+          });
+          if (!res.ok) throw new Error('Webhook error');
+        } catch {
+          failed.push(recipient);
+        }
+      }
+
+      if (failed.length > 0) {
+        showError('Deels mislukt', `Niet verzonden naar: ${failed.join(', ')}`);
+        return;
+      }
+
       await outgoingInvoiceService.sendInvoice(invoiceId);
-      success('Verstuurd', 'Factuur succesvol verzonden');
+      success('Verstuurd', recipients.length > 1
+        ? `Factuur verzonden naar ${recipients.length} ontvangers`
+        : 'Factuur succesvol verzonden');
       loadInvoices();
     } catch (e) {
       showError('Fout', 'Kon niet versturen');
