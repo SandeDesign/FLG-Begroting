@@ -146,8 +146,11 @@ export function berekenMiddel(middel: Middel, aannames: Aannames): number {
  *   totaal           = bruto + vakantiegeld + werkgeverslasten + pensioen + overig
  *
  * De percentages zijn breuken: 8% staat als 0,08 in het model.
+ *
+ * Deze functie heeft de aannames niet nodig: loondienst rekent met de eigen
+ * urenPerWeek, en beide ZZP-vormen dragen hun eigen dagenPerMaand bij zich.
  */
-export function berekenInzet(inzet: Inzet, _aannames: Aannames): number {
+export function berekenInzet(inzet: Inzet): number {
   const model = inzet.model;
 
   switch (model.soort) {
@@ -359,13 +362,13 @@ export function berekenBegroting(
 
   // ── Inzet
   const actieveInzet = budget.inzet.filter((inzet) => inzet.actief);
-  const kostenInzet = som(actieveInzet.map((inzet) => berekenInzet(inzet, aannames)));
+  const kostenInzet = som(actieveInzet.map((inzet) => berekenInzet(inzet)));
 
   const inzetPerOpdracht = new Map<string, number>();
   let inzetOpEntiteit = 0;
 
   actieveInzet.forEach((inzet) => {
-    const kosten = berekenInzet(inzet, aannames);
+    const kosten = berekenInzet(inzet);
 
     // Loondienst mag alleen op een entiteit met personeel. In de UI is het
     // geblokkeerd; hier melden we het alsnog, want data kan van elders komen.
