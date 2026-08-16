@@ -111,9 +111,9 @@ const BegrotingNieuw: React.FC = () => {
         subtitle="Leeg beginnen of een bestaand scenario dupliceren"
         emoji="➕"
         actions={
-          <Button variant="outline" onClick={() => navigate('/begrotingen')}>
+          <Button variant="outline" onClick={() => navigate('/begrotingen')} title="Terug" aria-label="Terug">
             <ArrowLeft className="h-4 w-4" aria-hidden />
-            Terug
+            <span className="hidden sm:inline">Terug</span>
           </Button>
         }
       />

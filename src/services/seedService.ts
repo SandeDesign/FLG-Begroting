@@ -106,6 +106,7 @@ function bus(
   return {
     id,
     naam,
+    soort: 'voertuig',
     hoortBij,
     actief: true,
     financiering: 'lease',

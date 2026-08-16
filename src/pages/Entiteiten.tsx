@@ -116,9 +116,9 @@ const Entiteiten: React.FC = () => {
         subtitle="De BV's van de groep"
         emoji="🏢"
         actions={
-          <Button onClick={openNieuw}>
+          <Button onClick={openNieuw} title="Nieuwe entiteit" aria-label="Nieuwe entiteit">
             <Plus className="h-4 w-4" aria-hidden />
-            Nieuwe entiteit
+            <span className="hidden sm:inline">Nieuwe entiteit</span>
           </Button>
         }
       />

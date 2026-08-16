@@ -72,10 +72,17 @@ function naarOpdrachten(ruw: unknown): Opdracht[] {
   }));
 }
 
-/** Vult het BTW-tarief aan op middelen van vóór dat veld. */
+/**
+ * Vult het BTW-tarief en de soort aan op middelen van vóór die velden. Tot dan
+ * was elk middel een voertuig, dus dat is de juiste terugval.
+ */
 function naarMiddelen(ruw: unknown): Middel[] {
   const lijst = (ruw as Middel[]) ?? [];
-  return lijst.map((middel) => ({ ...middel, btw: middel.btw ?? 'hoog' }));
+  return lijst.map((middel) => ({
+    ...middel,
+    btw: middel.btw ?? 'hoog',
+    soort: middel.soort ?? 'voertuig',
+  }));
 }
 
 /** Idem voor de ZZP-inzet; over loon zit geen BTW. */

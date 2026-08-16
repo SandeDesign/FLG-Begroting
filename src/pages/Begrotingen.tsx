@@ -139,9 +139,9 @@ const Begrotingen: React.FC = () => {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PeriodSelector />
-            <Button onClick={() => navigate('/begrotingen/nieuw')}>
+            <Button onClick={() => navigate('/begrotingen/nieuw')} title="Nieuwe begroting" aria-label="Nieuwe begroting">
               <Plus className="h-4 w-4" aria-hidden />
-              Nieuwe begroting
+              <span className="hidden sm:inline">Nieuwe begroting</span>
             </Button>
           </div>
         }
@@ -201,9 +201,9 @@ const Begrotingen: React.FC = () => {
               </div>
             </div>
 
-            <Button variant="danger" onClick={() => void ruimWezenOp()} loading={opruimenBezig}>
+            <Button variant="danger" onClick={() => void ruimWezenOp()} loading={opruimenBezig} title="Alles opruimen" aria-label="Alles opruimen">
               <Trash2 className="h-4 w-4" aria-hidden />
-              Alles opruimen
+              <span className="hidden sm:inline">Alles opruimen</span>
             </Button>
           </div>
         </Card>

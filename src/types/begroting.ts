@@ -221,9 +221,113 @@ export const FINANCIERING_LABEL: Record<Financiering, string> = {
 /** Waarde die `hoortBij` krijgt als iets op de entiteit zelf drukt. */
 export const HOORT_BIJ_ENTITEIT = 'entiteit';
 
+/**
+ * Wat voor soort middel het is. Een middel is niet per se een auto: het is
+ * alles wat geld kost om de opdracht te kunnen uitvoeren.
+ *
+ * De soort bepaalt welke kostenposten je te zien krijgt. Wegenbelasting hoort
+ * bij een bus en niet bij een laptop; een heftruck verbruikt wel energie maar
+ * rijdt geen kilometers over de weg. Zo staat er nooit een veld in beeld dat
+ * voor dit middel niet bestaat.
+ */
+export type MiddelSoort = 'voertuig' | 'materieel' | 'gereedschap' | 'ict' | 'overig';
+
+export const MIDDEL_SOORTEN: MiddelSoort[] = [
+  'voertuig',
+  'materieel',
+  'gereedschap',
+  'ict',
+  'overig',
+];
+
+export const MIDDEL_SOORT_LABEL: Record<MiddelSoort, string> = {
+  voertuig: 'Voertuig',
+  materieel: 'Materieel',
+  gereedschap: 'Gereedschap',
+  ict: 'ICT',
+  overig: 'Overig',
+};
+
+export const MIDDEL_SOORT_UITLEG: Record<MiddelSoort, string> = {
+  voertuig: 'Een bus, auto of aanhanger. Rijdt over de weg, dus met brandstof en wegenbelasting.',
+  materieel: 'Een heftruck, machine, container of steiger. Kost energie en onderhoud, maar geen wegenbelasting.',
+  gereedschap: 'Handgereedschap, meetapparatuur, klein materieel. Vooral onderhoud en vervanging.',
+  ict: 'Laptops, telefoons, scanners, software. Abonnementen en support in plaats van brandstof.',
+  overig: 'Alles wat in geen van de andere hokjes past.',
+};
+
+/** Voorbeeld in het naamveld, zodat meteen duidelijk is wat er wordt bedoeld. */
+export const MIDDEL_SOORT_VOORBEELD: Record<MiddelSoort, string> = {
+  voertuig: 'Opel Combo',
+  materieel: 'Heftruck',
+  gereedschap: 'Boorhamer',
+  ict: 'Laptop en scanner',
+  overig: 'Aanhangwagen',
+};
+
+/**
+ * Welke kostenposten bij welke soort horen, en hoe ze daar heten. `null`
+ * betekent: die post bestaat niet voor dit soort middel — hij wordt dan niet
+ * getoond en op nul gezet, zodat er nooit een onzichtbaar bedrag meetelt.
+ */
+export interface MiddelKostenposten {
+  brandstof: string | null;
+  verzekering: string | null;
+  wegenbelasting: string | null;
+  onderhoud: string | null;
+  overig: string;
+  /** Onderhoud uit kilometers laten berekenen; alleen zinnig bij een voertuig. */
+  kilometers: boolean;
+}
+
+export const MIDDEL_SOORT_KOSTEN: Record<MiddelSoort, MiddelKostenposten> = {
+  voertuig: {
+    brandstof: 'Brandstof',
+    verzekering: 'Verzekering',
+    wegenbelasting: 'Wegenbelasting',
+    onderhoud: 'Onderhoud',
+    overig: 'Overig',
+    kilometers: true,
+  },
+  materieel: {
+    brandstof: 'Brandstof of energie',
+    verzekering: 'Verzekering',
+    wegenbelasting: null,
+    onderhoud: 'Onderhoud en keuring',
+    overig: 'Overig',
+    kilometers: false,
+  },
+  gereedschap: {
+    brandstof: null,
+    verzekering: 'Verzekering',
+    wegenbelasting: null,
+    onderhoud: 'Onderhoud en vervanging',
+    overig: 'Overig',
+    kilometers: false,
+  },
+  ict: {
+    brandstof: null,
+    verzekering: null,
+    wegenbelasting: null,
+    onderhoud: 'Abonnementen en support',
+    overig: 'Overig',
+    kilometers: false,
+  },
+  overig: {
+    brandstof: 'Verbruik',
+    verzekering: 'Verzekering',
+    wegenbelasting: null,
+    onderhoud: 'Onderhoud',
+    overig: 'Overig',
+    kilometers: false,
+  },
+};
+
 export interface Middel {
   id: string;
   naam: string;
+  /** Wat voor middel dit is; bepaalt welke kostenposten van toepassing zijn. */
+  soort: MiddelSoort;
   /** Een opdrachtId, of 'entiteit' als het middel op de entiteit zelf drukt. */
   hoortBij: string;
   actief: boolean;

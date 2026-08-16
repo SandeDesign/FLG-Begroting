@@ -541,6 +541,8 @@ function alsMiddel(
   return {
     id,
     naam,
+    // De schaalknoppen gaan over routes, dus over bussen.
+    soort: 'voertuig',
     hoortBij,
     actief: true,
     financiering: 'lease',

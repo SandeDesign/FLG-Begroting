@@ -17,19 +17,27 @@ import {
 import { naarMaand } from '../../utils/periode';
 import EenheidKeuze from './EenheidKeuze';
 import BtwKeuze from './BtwKeuze';
+import { MIDDEL_SOORT_ICOON } from './middelSoortIcoon';
 import {
   FINANCIERING_LABEL,
   HOORT_BIJ_ENTITEIT,
+  MIDDEL_SOORT_KOSTEN,
+  MIDDEL_SOORT_LABEL,
+  MIDDEL_SOORT_UITLEG,
+  MIDDEL_SOORT_VOORBEELD,
+  MIDDEL_SOORTEN,
   type Aannames,
   type BtwTarief,
   type Eenheid,
   type Financiering,
   type Middel,
+  type MiddelSoort,
   type Opdracht,
 } from '../../types/begroting';
 
 interface FormWaarden {
   naam: string;
+  soort: MiddelSoort;
   hoortBij: string;
   actief: boolean;
   financiering: Financiering;
@@ -49,6 +57,7 @@ interface FormWaarden {
 
 const LEEG: FormWaarden = {
   naam: '',
+  soort: 'voertuig',
   hoortBij: HOORT_BIJ_ENTITEIT,
   actief: true,
   financiering: 'lease',
@@ -96,8 +105,28 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
   const financiering = watch('financiering');
   const eenheid = watch('eenheid');
   const btw = watch('btw');
+  const soort = watch('soort');
   const onderhoudBerekenen = watch('onderhoudBerekenen');
   const huidig = watch();
+
+  // Welke kostenposten bij deze soort horen, en hoe ze hier heten.
+  const posten = MIDDEL_SOORT_KOSTEN[soort] ?? MIDDEL_SOORT_KOSTEN.voertuig;
+
+  /**
+   * Bij een andere soort verdwijnen posten die daar niet bestaan. Die worden
+   * meteen op nul gezet: een onzichtbaar bedrag dat wél meetelt is het ergste
+   * wat een begroting kan overkomen.
+   */
+  const kiesSoort = (nieuw: MiddelSoort) => {
+    const nieuwePosten = MIDDEL_SOORT_KOSTEN[nieuw];
+    setValue('soort', nieuw, { shouldDirty: true });
+
+    if (!nieuwePosten.brandstof) setValue('brandstof', 0, { shouldDirty: true });
+    if (!nieuwePosten.verzekering) setValue('verzekering', 0, { shouldDirty: true });
+    if (!nieuwePosten.wegenbelasting) setValue('wegenbelasting', 0, { shouldDirty: true });
+    if (!nieuwePosten.onderhoud) setValue('onderhoud', 0, { shouldDirty: true });
+    if (!nieuwePosten.kilometers) setValue('onderhoudBerekenen', false, { shouldDirty: true });
+  };
 
   // Direct laten zien wat dit middel per maand kost.
   const proefMiddel: Middel = { ...huidig, id: middel?.id ?? 'proef' };
@@ -127,14 +156,14 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={middel ? `${middel.naam} bewerken` : 'Nieuw middel'}
+      title={middel ? `${middel.naam} bewerken` : `Nieuw middel · ${MIDDEL_SOORT_LABEL[soort]}`}
       size="lg"
     >
       <form onSubmit={verstuur} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label="Naam"
-            placeholder="Opel Combo"
+            placeholder={MIDDEL_SOORT_VOORBEELD[soort]}
             error={errors.naam?.message}
             {...register('naam', { required: 'Vul een naam in' })}
           />
@@ -155,6 +184,36 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+            Wat voor middel is dit
+          </span>
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+            {MIDDEL_SOORTEN.map((optie) => {
+              const Icoon = MIDDEL_SOORT_ICOON[optie];
+              return (
+                <button
+                  key={optie}
+                  type="button"
+                  onClick={() => kiesSoort(optie)}
+                  aria-pressed={soort === optie}
+                  className={`flex flex-col items-center gap-1 px-2 py-2.5 text-xs font-medium rounded-lg border transition-colors ${
+                    soort === optie
+                      ? 'border-primary-400 bg-primary-50/60 dark:bg-primary-900/20 text-primary-700 dark:text-primary-200'
+                      : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/40'
+                  }`}
+                >
+                  <Icoon className="h-4 w-4" aria-hidden />
+                  <span className="truncate w-full text-center">{MIDDEL_SOORT_LABEL[optie]}</span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {MIDDEL_SOORT_UITLEG[soort]}
+          </p>
         </div>
 
         <div className="space-y-1.5">
@@ -226,29 +285,35 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          {posten.brandstof && (
+            <Input
+              label={posten.brandstof}
+              type="number"
+              step="0.01"
+              min="0"
+              {...register('brandstof', { setValueAs: veiligGetal })}
+            />
+          )}
+          {posten.verzekering && (
+            <Input
+              label={posten.verzekering}
+              type="number"
+              step="0.01"
+              min="0"
+              {...register('verzekering', { setValueAs: veiligGetal })}
+            />
+          )}
+          {posten.wegenbelasting && (
+            <Input
+              label={posten.wegenbelasting}
+              type="number"
+              step="0.01"
+              min="0"
+              {...register('wegenbelasting', { setValueAs: veiligGetal })}
+            />
+          )}
           <Input
-            label="Brandstof"
-            type="number"
-            step="0.01"
-            min="0"
-            {...register('brandstof', { setValueAs: veiligGetal })}
-          />
-          <Input
-            label="Verzekering"
-            type="number"
-            step="0.01"
-            min="0"
-            {...register('verzekering', { setValueAs: veiligGetal })}
-          />
-          <Input
-            label="Wegenbelasting"
-            type="number"
-            step="0.01"
-            min="0"
-            {...register('wegenbelasting', { setValueAs: veiligGetal })}
-          />
-          <Input
-            label="Overig"
+            label={posten.overig}
             type="number"
             step="0.01"
             min="0"
@@ -256,24 +321,28 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
           />
         </div>
 
-        <div className="space-y-2">
-          <Input
-            label="Onderhoud"
-            type="number"
-            step="0.01"
-            min="0"
-            disabled={onderhoudBerekenen}
-            {...register('onderhoud', { setValueAs: veiligGetal })}
-          />
-          <label className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              {...register('onderhoudBerekenen')}
+        {posten.onderhoud && (
+          <div className="space-y-2">
+            <Input
+              label={posten.onderhoud}
+              type="number"
+              step="0.01"
+              min="0"
+              disabled={onderhoudBerekenen}
+              {...register('onderhoud', { setValueAs: veiligGetal })}
             />
-            Onderhoud berekenen uit de kilometers uit de aannames
-          </label>
-        </div>
+            {posten.kilometers && (
+              <label className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  {...register('onderhoudBerekenen')}
+                />
+                Onderhoud berekenen uit de kilometers uit de aannames
+              </label>
+            )}
+          </div>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-3 sm:items-end">
           <div className="space-y-1.5">
@@ -329,17 +398,29 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
                     ? 'Annuïteit over de looptijd, met de rente uit de aannames'
                     : 'Waarde min restwaarde, gedeeld over de looptijd',
             },
-            { label: 'Brandstof', bedrag: perMaand(huidig.brandstof) },
-            { label: 'Verzekering', bedrag: perMaand(huidig.verzekering) },
-            { label: 'Wegenbelasting', bedrag: perMaand(huidig.wegenbelasting) },
-            {
-              label: 'Onderhoud',
-              bedrag: berekenOnderhoud(proefMiddel, aannames),
-              berekening: huidig.onderhoudBerekenen
-                ? `${aannames.kmPerDagPerMiddel} km × ${aannames.dagenPerMaand} dagen × € ${aannames.onderhoudPerKm}`
-                : undefined,
-            },
-            { label: 'Overig', bedrag: perMaand(huidig.overig) },
+            // Alleen de posten die bij deze soort horen; de rest staat op nul
+            // en zou de opsomming alleen maar langer maken.
+            ...(posten.brandstof
+              ? [{ label: posten.brandstof, bedrag: perMaand(huidig.brandstof) }]
+              : []),
+            ...(posten.verzekering
+              ? [{ label: posten.verzekering, bedrag: perMaand(huidig.verzekering) }]
+              : []),
+            ...(posten.wegenbelasting
+              ? [{ label: posten.wegenbelasting, bedrag: perMaand(huidig.wegenbelasting) }]
+              : []),
+            ...(posten.onderhoud
+              ? [
+                  {
+                    label: posten.onderhoud,
+                    bedrag: berekenOnderhoud(proefMiddel, aannames),
+                    berekening: huidig.onderhoudBerekenen
+                      ? `${aannames.kmPerDagPerMiddel} km × ${aannames.dagenPerMaand} dagen × € ${aannames.onderhoudPerKm}`
+                      : undefined,
+                  },
+                ]
+              : []),
+            { label: posten.overig, bedrag: perMaand(huidig.overig) },
           ]}
           totaal={{ label: 'Totaal per maand', bedrag: berekenMiddel(proefMiddel, aannames) }}
         />

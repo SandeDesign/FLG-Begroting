@@ -30,6 +30,7 @@ import { useAuth } from '../contexts/AuthContext';
 import PageHeader from '../components/ui/PageHeader';
 import ActionMenu from '../components/ui/ActionMenu';
 import TabKiezer from '../components/begroting/TabKiezer';
+import { MIDDEL_SOORT_ICOON } from '../components/begroting/middelSoortIcoon';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -80,6 +81,8 @@ import {
   HOORT_BIJ_ENTITEIT,
   INZET_SOORT_LABEL,
   isSchaalRegel,
+  MIDDEL_SOORT_KOSTEN,
+  MIDDEL_SOORT_LABEL,
   OPBRENGST_SOORT_LABEL,
   VERDEELSLEUTEL_LABEL,
   type Aannames,
@@ -596,9 +599,9 @@ const BegrotingWerkblad: React.FC = () => {
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
               Opdrachten
             </h3>
-            <Button size="sm" onClick={() => setOpdrachtModal({ open: true, item: null })}>
+            <Button size="sm" onClick={() => setOpdrachtModal({ open: true, item: null })} title="Opdracht toevoegen" aria-label="Opdracht toevoegen">
               <Plus className="h-4 w-4" aria-hidden />
-              Opdracht
+              <span className="hidden sm:inline">Opdracht</span>
             </Button>
           </div>
 
@@ -683,9 +686,9 @@ const BegrotingWerkblad: React.FC = () => {
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
               Middelen
             </h3>
-            <Button size="sm" onClick={() => setMiddelModal({ open: true, item: null })}>
+            <Button size="sm" onClick={() => setMiddelModal({ open: true, item: null })} title="Middel toevoegen" aria-label="Middel toevoegen">
               <Plus className="h-4 w-4" aria-hidden />
-              Middel
+              <span className="hidden sm:inline">Middel</span>
             </Button>
           </div>
 
@@ -703,8 +706,10 @@ const BegrotingWerkblad: React.FC = () => {
                 <RegelKaart
                   key={middel.id}
                   titel={middel.naam}
+                  icoon={MIDDEL_SOORT_ICOON[middel.soort]}
                   ondertitel={`hoort bij ${naamVanOpdracht(middel.hoortBij)}`}
                   labels={[
+                    { tekst: MIDDEL_SOORT_LABEL[middel.soort] },
                     { tekst: FINANCIERING_LABEL[middel.financiering] },
                     ...(isSchaalRegel(middel.id)
                       ? [{ tekst: 'Uit de schaalknoppen', toon: 'schaal' as const }]
@@ -713,13 +718,7 @@ const BegrotingWerkblad: React.FC = () => {
                   ]}
                   bedrag={om(berekenMiddel(middel, aannames))}
                   bedragLabel={`Kosten ${EENHEID_LABEL[eenheid]}`}
-                  opbouw={[
-                    { label: 'Brandstof', bedrag: om(middelPost(middel.brandstof, middel, aannames)) },
-                    { label: 'Verzekering', bedrag: om(middelPost(middel.verzekering, middel, aannames)) },
-                    { label: 'Wegenbelasting', bedrag: om(middelPost(middel.wegenbelasting, middel, aannames)) },
-                    { label: 'Onderhoud', bedrag: om(berekenOnderhoud(middel, aannames)) },
-                    { label: 'Overig', bedrag: om(middelPost(middel.overig, middel, aannames)) },
-                  ]}
+                  opbouw={middelOpbouw(middel, aannames, om)}
                   actief={middel.actief}
                   vanSchaal={isSchaalRegel(middel.id)}
                   onNaarSchaal={() => zetTab('schaal')}
@@ -744,9 +743,9 @@ const BegrotingWerkblad: React.FC = () => {
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
               Inzet
             </h3>
-            <Button size="sm" onClick={() => setInzetModal({ open: true, item: null })}>
+            <Button size="sm" onClick={() => setInzetModal({ open: true, item: null })} title="Inzet toevoegen" aria-label="Inzet toevoegen">
               <Plus className="h-4 w-4" aria-hidden />
-              Inzet
+              <span className="hidden sm:inline">Inzet</span>
             </Button>
           </div>
 
@@ -840,9 +839,9 @@ const BegrotingWerkblad: React.FC = () => {
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
               Subsidies
             </h3>
-            <Button size="sm" onClick={() => setSubsidieModal({ open: true, item: null })}>
+            <Button size="sm" onClick={() => setSubsidieModal({ open: true, item: null })} title="Subsidie toevoegen" aria-label="Subsidie toevoegen">
               <Plus className="h-4 w-4" aria-hidden />
-              Subsidie
+              <span className="hidden sm:inline">Subsidie</span>
             </Button>
           </div>
 
@@ -904,9 +903,9 @@ const BegrotingWerkblad: React.FC = () => {
                 size="sm"
                 onClick={() => setLeveringModal({ open: true, item: null })}
                 disabled={andereEntiteiten.length === 0 || budget.opdrachten.length === 0}
-              >
+               title="Levering toevoegen" aria-label="Levering toevoegen">
                 <Plus className="h-4 w-4" aria-hidden />
-                Levering
+                <span className="hidden sm:inline">Levering</span>
               </Button>
             </div>
 
@@ -1324,6 +1323,45 @@ const BegrotingWerkblad: React.FC = () => {
  */
 function middelPost(bedrag: number, middel: Middel, aannames: Aannames): number {
   return naarMaand(bedrag, middel.eenheid, aannames);
+}
+
+/**
+ * De opbouw van een middel, met alleen de kostenposten die bij die soort horen.
+ * Op een laptop staat geen wegenbelasting, dus die regel hoort er ook niet te
+ * staan — al helemaal niet op nul, want dan lijkt het een keuze.
+ */
+function middelOpbouw(
+  middel: Middel,
+  aannames: Aannames,
+  om: (bedrag: number) => number
+): Array<{ label: string; bedrag: number }> {
+  const posten = MIDDEL_SOORT_KOSTEN[middel.soort] ?? MIDDEL_SOORT_KOSTEN.voertuig;
+
+  return [
+    ...(posten.brandstof
+      ? [{ label: posten.brandstof, bedrag: om(middelPost(middel.brandstof, middel, aannames)) }]
+      : []),
+    ...(posten.verzekering
+      ? [
+          {
+            label: posten.verzekering,
+            bedrag: om(middelPost(middel.verzekering, middel, aannames)),
+          },
+        ]
+      : []),
+    ...(posten.wegenbelasting
+      ? [
+          {
+            label: posten.wegenbelasting,
+            bedrag: om(middelPost(middel.wegenbelasting, middel, aannames)),
+          },
+        ]
+      : []),
+    ...(posten.onderhoud
+      ? [{ label: posten.onderhoud, bedrag: om(berekenOnderhoud(middel, aannames)) }]
+      : []),
+    { label: posten.overig, bedrag: om(middelPost(middel.overig, middel, aannames)) },
+  ];
 }
 
 function som(waarden: number[]): number {

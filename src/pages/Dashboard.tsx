@@ -59,13 +59,13 @@ const Dashboard: React.FC = () => {
         emoji="📊"
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => navigate('/keten')}>
+            <Button variant="outline" onClick={() => navigate('/keten')} title="Ketenoverzicht" aria-label="Ketenoverzicht">
               <Network className="h-4 w-4" aria-hidden />
-              Keten<span className="hidden sm:inline">overzicht</span>
+              <span className="hidden sm:inline">Ketenoverzicht</span>
             </Button>
-            <Button onClick={() => navigate('/begrotingen/nieuw')}>
+            <Button onClick={() => navigate('/begrotingen/nieuw')} title="Nieuwe begroting" aria-label="Nieuwe begroting">
               <Plus className="h-4 w-4" aria-hidden />
-              Nieuw<span className="hidden sm:inline">e begroting</span>
+              <span className="hidden sm:inline">Nieuwe begroting</span>
             </Button>
           </div>
         }

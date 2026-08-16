@@ -152,9 +152,9 @@ const VasteLasten: React.FC = () => {
         emoji="🧾"
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => navigate('/entiteiten')}>
+            <Button variant="outline" onClick={() => navigate('/entiteiten')} title="Terug" aria-label="Terug">
               <ArrowLeft className="h-4 w-4" aria-hidden />
-              Terug
+              <span className="hidden sm:inline">Terug</span>
             </Button>
             <Button onClick={() => void bewaar()} loading={bezig} disabled={!gewijzigd}>
               Opslaan

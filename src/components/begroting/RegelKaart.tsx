@@ -11,6 +11,11 @@ import { formatEuro } from '../../utils/periode';
 interface RegelKaartProps {
   titel: string;
   ondertitel?: string;
+  /**
+   * Icoon links van de titel. Bij middelen laat dat meteen zien waar de
+   * kostenregel over gaat: een bus, een heftruck of een laptop.
+   */
+  icoon?: React.ComponentType<{ className?: string }>;
   /** Kleine labels onder de titel, bijvoorbeeld "Per stuk" of "Inactief". */
   labels?: Array<{ tekst: string; toon?: 'neutraal' | 'goed' | 'waarschuwing' | 'schaal' }>;
   /** Het bedrag in de weergave-eenheid. */
@@ -41,6 +46,7 @@ const LABEL_KLEUR = {
 const RegelKaart: React.FC<RegelKaartProps> = ({
   titel,
   ondertitel,
+  icoon: Icoon,
   labels = [],
   bedrag,
   bedragLabel,
@@ -59,14 +65,21 @@ const RegelKaart: React.FC<RegelKaartProps> = ({
         : 'border-gray-100 dark:border-gray-700 hover:border-primary-200 dark:hover:border-primary-800'
     } ${actief ? '' : 'opacity-60'}`}
   >
-    <div className="flex items-start gap-3">
+    <div className="flex flex-wrap sm:flex-nowrap items-start gap-2 sm:gap-3">
       <button
         type="button"
         onClick={vanSchaal ? onNaarSchaal : onBewerken}
         className="flex-1 min-w-0 text-left"
       >
-        <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-          {titel}
+        <span className="flex items-center gap-2 min-w-0">
+          {Icoon && (
+            <span className="flex-shrink-0 h-7 w-7 rounded-lg bg-gray-100 dark:bg-gray-700/60 flex items-center justify-center">
+              <Icoon className="h-3.5 w-3.5 text-gray-500 dark:text-gray-300" aria-hidden />
+            </span>
+          )}
+          <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {titel}
+          </span>
         </span>
         {ondertitel && (
           <span className="block text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -89,8 +102,8 @@ const RegelKaart: React.FC<RegelKaartProps> = ({
         )}
       </button>
 
-      <div className="text-right flex-shrink-0">
-        <span className="block text-[11px] text-gray-400 dark:text-gray-500">{bedragLabel}</span>
+      <div className="order-last w-full flex items-baseline justify-between gap-3 sm:order-none sm:w-auto sm:block sm:text-right sm:flex-shrink-0">
+        <span className="text-[11px] text-gray-400 dark:text-gray-500 sm:block">{bedragLabel}</span>
         <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
           {formatEuro(bedrag)}
         </span>
