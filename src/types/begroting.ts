@@ -249,11 +249,16 @@ export const MIDDEL_SOORT_LABEL: Record<MiddelSoort, string> = {
 };
 
 export const MIDDEL_SOORT_UITLEG: Record<MiddelSoort, string> = {
-  voertuig: 'Een bus, auto of aanhanger. Rijdt over de weg, dus met brandstof en wegenbelasting.',
-  materieel: 'Een heftruck, machine, container of steiger. Kost energie en onderhoud, maar geen wegenbelasting.',
-  gereedschap: 'Handgereedschap, meetapparatuur, klein materieel. Vooral onderhoud en vervanging.',
-  ict: 'Laptops, telefoons, scanners, software. Abonnementen en support in plaats van brandstof.',
-  overig: 'Alles wat in geen van de andere hokjes past.',
+  voertuig:
+    'Een bus, auto of aanhanger. Als enige uitgesplitst naar brandstof, verzekering, wegenbelasting en onderhoud — daar zit bij een voertuig het verschil.',
+  materieel:
+    'Een heftruck, machine, container of steiger. Alleen de financiering en wat er verder nog bij komt.',
+  gereedschap:
+    'Handgereedschap, meetapparatuur, klein materieel. Alleen de financiering en wat er verder nog bij komt.',
+  ict:
+    'Laptops, telefoons, scanners, software. Alleen de financiering en wat er verder nog bij komt.',
+  overig:
+    'Alles wat in geen van de andere hokjes past. Alleen de financiering en wat er verder nog bij komt.',
 };
 
 /** Voorbeeld in het naamveld, zodat meteen duidelijk is wat er wordt bedoeld. */
@@ -280,6 +285,21 @@ export interface MiddelKostenposten {
   kilometers: boolean;
 }
 
+/**
+ * Alleen een voertuig heeft een uitsplitsing. Bij een heftruck, een boormachine
+ * of een laptop zegt "brandstof, verzekering, wegenbelasting, onderhoud" niets
+ * extra's: daar is het de financiering plus wat er verder nog bij komt. Vier
+ * velden die je toch allemaal op nul laat staan maken het scherm alleen langer.
+ */
+const ALLEEN_BIJKOMEND: MiddelKostenposten = {
+  brandstof: null,
+  verzekering: null,
+  wegenbelasting: null,
+  onderhoud: null,
+  overig: 'Bijkomende kosten',
+  kilometers: false,
+};
+
 export const MIDDEL_SOORT_KOSTEN: Record<MiddelSoort, MiddelKostenposten> = {
   voertuig: {
     brandstof: 'Brandstof',
@@ -289,38 +309,10 @@ export const MIDDEL_SOORT_KOSTEN: Record<MiddelSoort, MiddelKostenposten> = {
     overig: 'Overig',
     kilometers: true,
   },
-  materieel: {
-    brandstof: 'Brandstof of energie',
-    verzekering: 'Verzekering',
-    wegenbelasting: null,
-    onderhoud: 'Onderhoud en keuring',
-    overig: 'Overig',
-    kilometers: false,
-  },
-  gereedschap: {
-    brandstof: null,
-    verzekering: 'Verzekering',
-    wegenbelasting: null,
-    onderhoud: 'Onderhoud en vervanging',
-    overig: 'Overig',
-    kilometers: false,
-  },
-  ict: {
-    brandstof: null,
-    verzekering: null,
-    wegenbelasting: null,
-    onderhoud: 'Abonnementen en support',
-    overig: 'Overig',
-    kilometers: false,
-  },
-  overig: {
-    brandstof: 'Verbruik',
-    verzekering: 'Verzekering',
-    wegenbelasting: null,
-    onderhoud: 'Onderhoud',
-    overig: 'Overig',
-    kilometers: false,
-  },
+  materieel: ALLEEN_BIJKOMEND,
+  gereedschap: ALLEEN_BIJKOMEND,
+  ict: ALLEEN_BIJKOMEND,
+  overig: ALLEEN_BIJKOMEND,
 };
 
 export interface Middel {

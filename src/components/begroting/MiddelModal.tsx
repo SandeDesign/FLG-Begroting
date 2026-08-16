@@ -317,6 +317,11 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
             type="number"
             step="0.01"
             min="0"
+            helperText={
+              posten.brandstof
+                ? undefined
+                : 'Alles wat er naast de financiering nog bij komt, in één bedrag'
+            }
             {...register('overig', { setValueAs: veiligGetal })}
           />
         </div>

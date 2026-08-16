@@ -22,6 +22,7 @@ import { db } from '../lib/firebase';
 import { schoonVoorFirestore } from '../utils/firestoreSchoon';
 import {
   LEGE_SCHAAL,
+  MIDDEL_SOORT_KOSTEN,
   STANDAARD_AANNAMES,
   type Aannames,
   type BegrotingStatus,
@@ -75,14 +76,31 @@ function naarOpdrachten(ruw: unknown): Opdracht[] {
 /**
  * Vult het BTW-tarief en de soort aan op middelen van vóór die velden. Tot dan
  * was elk middel een voertuig, dus dat is de juiste terugval.
+ *
+ * En het belangrijkste: kostenposten die bij de soort niet bestaan worden hier
+ * op nul gezet. Alleen bij een voertuig splitsen we uit naar brandstof,
+ * verzekering, wegenbelasting en onderhoud; staat er bij een laptop nog een oud
+ * bedrag in zo'n veld, dan zou dat meetellen zonder dat je het ergens ziet
+ * staan. Dat mag een begroting nooit doen.
  */
 function naarMiddelen(ruw: unknown): Middel[] {
   const lijst = (ruw as Middel[]) ?? [];
-  return lijst.map((middel) => ({
-    ...middel,
-    btw: middel.btw ?? 'hoog',
-    soort: middel.soort ?? 'voertuig',
-  }));
+
+  return lijst.map((middel) => {
+    const soort = middel.soort ?? 'voertuig';
+    const posten = MIDDEL_SOORT_KOSTEN[soort] ?? MIDDEL_SOORT_KOSTEN.voertuig;
+
+    return {
+      ...middel,
+      btw: middel.btw ?? 'hoog',
+      soort,
+      brandstof: posten.brandstof ? middel.brandstof : 0,
+      verzekering: posten.verzekering ? middel.verzekering : 0,
+      wegenbelasting: posten.wegenbelasting ? middel.wegenbelasting : 0,
+      onderhoud: posten.onderhoud ? middel.onderhoud : 0,
+      onderhoudBerekenen: posten.kilometers ? middel.onderhoudBerekenen : false,
+    };
+  });
 }
 
 /** Idem voor de ZZP-inzet; over loon zit geen BTW. */
