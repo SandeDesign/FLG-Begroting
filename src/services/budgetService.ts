@@ -53,6 +53,20 @@ function naarAannames(ruw: unknown): Aannames {
   };
 }
 
+/**
+ * Vult velden aan die later aan het model zijn toegevoegd, zodat begrotingen die
+ * eerder zijn opgeslagen gewoon blijven werken.
+ */
+function naarOpdrachten(ruw: unknown): Opdracht[] {
+  const lijst = (ruw as Opdracht[]) ?? [];
+  return lijst.map((opdracht) => ({
+    ...opdracht,
+    toeslagen: opdracht.toeslagen ?? 0,
+    overigeOpbrengst: opdracht.overigeOpbrengst ?? 0,
+    extraEenheid: opdracht.extraEenheid ?? 'maand',
+  }));
+}
+
 function naarBudget(id: string, data: Record<string, unknown>): Budget {
   const leveringen = (data.onderlingeLeveringen as OnderlingeLevering[]) ?? [];
 
@@ -66,7 +80,7 @@ function naarBudget(id: string, data: Record<string, unknown>): Budget {
     scenarioVan: (data.scenarioVan as string | null) ?? null,
     weergaveEenheid: (data.weergaveEenheid as Eenheid) ?? 'maand',
     aannames: naarAannames(data.aannames),
-    opdrachten: (data.opdrachten as Opdracht[]) ?? [],
+    opdrachten: naarOpdrachten(data.opdrachten),
     middelen: (data.middelen as Middel[]) ?? [],
     inzet: (data.inzet as Inzet[]) ?? [],
     subsidies: (data.subsidies as Subsidie[]) ?? [],

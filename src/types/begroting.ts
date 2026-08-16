@@ -65,6 +65,12 @@ export interface Entity {
   actief: boolean;
   /** Alleen een entiteit met personeel mag inzet in loondienst hebben. */
   heeftPersoneel: boolean;
+  /**
+   * De holding boven de entiteiten. Daar zitten de vaste lasten van de groep,
+   * die dus niet op een werkende entiteit drukken. Een holding heeft normaal
+   * gesproken geen eigen opdrachten.
+   */
+  isHolding: boolean;
   /** Hex-kleur, voor herkenning in het ketenoverzicht. */
   kleur: string;
   volgorde: number;
@@ -75,6 +81,42 @@ export interface Entity {
 
 /** Wat er nodig is om een entiteit aan te maken; id en timestamps komen erbij. */
 export type NieuweEntity = Omit<Entity, 'id' | 'createdAt' | 'updatedAt'>;
+
+/**
+ * De drie soorten entiteit, zoals je ze in de UI kiest. Intern blijven het twee
+ * losse vlaggen, zodat een entiteit die ooit anders wordt ingericht niet vastzit
+ * aan één hokje.
+ */
+export type EntiteitSoort = 'bv' | 'bv_met_personeel' | 'holding';
+
+export const ENTITEIT_SOORT_LABEL: Record<EntiteitSoort, string> = {
+  bv: 'BV',
+  bv_met_personeel: 'BV met personeel',
+  holding: 'Holding',
+};
+
+export const ENTITEIT_SOORT_UITLEG: Record<EntiteitSoort, string> = {
+  bv: 'Een werkende BV zonder eigen personeel. Inzet gaat via ZZP of via een andere entiteit.',
+  bv_met_personeel: 'Een werkende BV met mensen in loondienst. Alleen hier kun je loondienst-inzet toevoegen.',
+  holding: 'Staat boven de entiteiten en draagt de vaste lasten van de groep. Heeft normaal geen eigen opdrachten.',
+};
+
+/** Leidt de soort af uit de twee vlaggen op de entiteit. */
+export function entiteitSoort(entiteit: Pick<Entity, 'heeftPersoneel' | 'isHolding'>): EntiteitSoort {
+  if (entiteit.isHolding) return 'holding';
+  return entiteit.heeftPersoneel ? 'bv_met_personeel' : 'bv';
+}
+
+/** En andersom: van een gekozen soort naar de twee vlaggen. */
+export function soortNaarVlaggen(soort: EntiteitSoort): {
+  heeftPersoneel: boolean;
+  isHolding: boolean;
+} {
+  return {
+    heeftPersoneel: soort === 'bv_met_personeel',
+    isHolding: soort === 'holding',
+  };
+}
 
 // ─── Opdracht ───────────────────────────────────────────────────────────────
 
@@ -114,6 +156,12 @@ export interface Opdracht {
   voorWie: string;
   actief: boolean;
   opbrengst: OpbrengstModel;
+  /** Toeslagen bovenop de opbrengst, bijvoorbeeld een brandstoftoeslag. */
+  toeslagen: number;
+  /** Overige opbrengst die niet uit het model volgt. */
+  overigeOpbrengst: number;
+  /** De eenheid van toeslagen en overige opbrengst. */
+  extraEenheid: Eenheid;
 }
 
 // ─── Middel ─────────────────────────────────────────────────────────────────
@@ -350,6 +398,15 @@ export interface OpdrachtResultaat {
   aandeelVasteLasten: number;
   overNaVasteLasten: number;
   breakEven: BreakEven;
+  /**
+   * Het aantal stuks of uren per maand waar deze opdracht op draait. Nul bij een
+   * opdracht met een vast bedrag.
+   */
+  volumePerMaand: number;
+  /** Hoe dat volume heet, voor de labels in de UI. */
+  volumeEenheid: 'stuks' | 'uren' | 'geen';
+  /** Wat er per stuk of per uur overblijft na de vaste lasten. */
+  resultaatPerEenheid: number;
 }
 
 export interface LeveringRegel {
@@ -411,6 +468,13 @@ export interface BegrotingResultaat {
 
   onderlingUit: LeveringRegel[];
   onderlingIn: LeveringRegel[];
+
+  /** Totaal aantal stuks per maand over alle opdrachten die op stuks draaien. */
+  stuksPerMaand: number;
+  /** Wat er per stuk overblijft, over de hele begroting. */
+  resultaatPerStuk: number;
+  /** Wat er per actieve opdracht gemiddeld overblijft. */
+  resultaatPerOpdracht: number;
 
   /** Waarschuwingen over de invoer, bijvoorbeeld loondienst zonder personeel. */
   waarschuwingen: string[];

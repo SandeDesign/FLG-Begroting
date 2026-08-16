@@ -45,13 +45,13 @@ function som(waarden: number[]): number {
 // ─── Opbrengst per opdracht ─────────────────────────────────────────────────
 
 /**
- * De opbrengst van één opdracht, per maand.
+ * De kale opbrengst uit het model, zonder toeslagen. Per maand.
  *
  * - uren:  aantalMensen × urenPerWeek × 52 / 12 × productiviteit × tariefPerUur
  * - stuks: stuksPerDag × tariefPerStuk × dagenPerMaand
  * - vast:  het bedrag omgerekend naar maand
  */
-export function berekenOpbrengst(opdracht: Opdracht, aannames: Aannames): number {
+export function berekenBasisOpbrengst(opdracht: Opdracht, aannames: Aannames): number {
   const model = opdracht.opbrengst;
 
   switch (model.soort) {
@@ -67,6 +67,45 @@ export function berekenOpbrengst(opdracht: Opdracht, aannames: Aannames): number
       return getal(model.stuksPerDag * model.tariefPerStuk * model.dagenPerMaand);
     case 'vast':
       return naarMaand(model.bedrag, model.eenheid, aannames);
+  }
+}
+
+/**
+ * De volledige opbrengst van één opdracht per maand: het model plus eventuele
+ * toeslagen en overige opbrengst.
+ */
+export function berekenOpbrengst(opdracht: Opdracht, aannames: Aannames): number {
+  return som([
+    berekenBasisOpbrengst(opdracht, aannames),
+    naarMaand(opdracht.toeslagen ?? 0, opdracht.extraEenheid ?? 'maand', aannames),
+    naarMaand(opdracht.overigeOpbrengst ?? 0, opdracht.extraEenheid ?? 'maand', aannames),
+  ]);
+}
+
+/**
+ * Het volume waar een opdracht op draait, per maand: stuks of declarabele uren.
+ * Bij een vast bedrag valt er niets te tellen.
+ */
+export function berekenVolume(
+  opdracht: Opdracht
+): { volume: number; eenheid: 'stuks' | 'uren' | 'geen' } {
+  const model = opdracht.opbrengst;
+
+  switch (model.soort) {
+    case 'stuks':
+      return { volume: getal(model.stuksPerDag * model.dagenPerMaand), eenheid: 'stuks' };
+    case 'uren':
+      return {
+        volume: getal(
+          model.aantalMensen *
+            model.urenPerWeek *
+            (WEKEN_PER_JAAR / MAANDEN_PER_JAAR) *
+            model.productiviteit
+        ),
+        eenheid: 'uren',
+      };
+    case 'vast':
+      return { volume: 0, eenheid: 'geen' };
   }
 }
 
@@ -287,6 +326,8 @@ export function bepaalVerdeling(
  * dat is precies wat we hier niet willen.
  */
 export function berekenBreakEven(opdracht: Opdracht, tekortTeDekken: number): BreakEven {
+  // Toeslagen en overige opbrengst dekken al een deel van de kosten, dus het
+  // model hoeft alleen de rest goed te maken.
   const model = opdracht.opbrengst;
 
   switch (model.soort) {
@@ -430,6 +471,8 @@ export function berekenBegroting(
     const directeKosten = kostenMiddelenOpdracht + kostenInzetOpdracht;
     const aandeelVasteLasten = getal(vasteLasten * (verdeling.get(opdracht.id) ?? 0));
     const overVoorVasteLasten = opbrengst - directeKosten;
+    const overNaVasteLasten = overVoorVasteLasten - aandeelVasteLasten;
+    const { volume, eenheid: volumeEenheid } = berekenVolume(opdracht);
 
     return {
       opdrachtId: opdracht.id,
@@ -441,8 +484,17 @@ export function berekenBegroting(
       directeKosten,
       overVoorVasteLasten,
       aandeelVasteLasten,
-      overNaVasteLasten: overVoorVasteLasten - aandeelVasteLasten,
-      breakEven: berekenBreakEven(opdracht, directeKosten + aandeelVasteLasten),
+      overNaVasteLasten,
+      breakEven: berekenBreakEven(
+        opdracht,
+        directeKosten +
+          aandeelVasteLasten -
+          naarMaand(opdracht.toeslagen ?? 0, opdracht.extraEenheid ?? 'maand', aannames) -
+          naarMaand(opdracht.overigeOpbrengst ?? 0, opdracht.extraEenheid ?? 'maand', aannames)
+      ),
+      volumePerMaand: volume,
+      volumeEenheid,
+      resultaatPerEenheid: volume > 0 ? getal(overNaVasteLasten / volume) : 0,
     };
   });
 
@@ -450,6 +502,13 @@ export function berekenBegroting(
   const totaleOpbrengst = opbrengstOpdrachten + opbrengstOnderlingUit;
   const totaleKosten = kostenMiddelen + kostenInzet + kostenOnderlingIn + vasteLasten;
   const resultaat = totaleOpbrengst + subsidies - totaleKosten;
+
+  // Kengetallen: waar draait het op en wat blijft er per eenheid over.
+  const stuksPerMaand = som(
+    opdrachten
+      .filter((regel) => regel.volumeEenheid === 'stuks')
+      .map((regel) => regel.volumePerMaand)
+  );
 
   return {
     budgetId: budget.id,
@@ -481,6 +540,10 @@ export function berekenBegroting(
 
     onderlingUit,
     onderlingIn,
+
+    stuksPerMaand,
+    resultaatPerStuk: stuksPerMaand > 0 ? getal(resultaat / stuksPerMaand) : 0,
+    resultaatPerOpdracht: opdrachten.length > 0 ? getal(resultaat / opdrachten.length) : 0,
 
     waarschuwingen,
   };

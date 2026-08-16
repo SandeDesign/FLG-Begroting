@@ -28,6 +28,7 @@ function naarEntity(id: string, data: Record<string, unknown>): Entity {
     kvk: (data.kvk as string) ?? '',
     actief: (data.actief as boolean) ?? true,
     heeftPersoneel: (data.heeftPersoneel as boolean) ?? false,
+    isHolding: (data.isHolding as boolean) ?? false,
     kleur: (data.kleur as string) ?? '#cd853f',
     volgorde: (data.volgorde as number) ?? 0,
     vasteLasten: (data.vasteLasten as VasteLast[]) ?? [],

@@ -19,7 +19,13 @@ import {
   werkEntiteitBij,
 } from '../services/entityService';
 import { naarMaand, formatEuro } from '../utils/periode';
-import { STANDAARD_AANNAMES, type Entity, type NieuweEntity } from '../types/begroting';
+import {
+  ENTITEIT_SOORT_LABEL,
+  entiteitSoort,
+  STANDAARD_AANNAMES,
+  type Entity,
+  type NieuweEntity,
+} from '../types/begroting';
 
 const Entiteiten: React.FC = () => {
   usePageTitle('Entiteiten');
@@ -157,11 +163,17 @@ const Entiteiten: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap gap-1.5 mb-4">
-                {entiteit.heeftPersoneel && (
-                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200">
-                    Heeft personeel
-                  </span>
-                )}
+                <span
+                  className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                    entiteit.isHolding
+                      ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-800 dark:text-primary-200'
+                      : entiteit.heeftPersoneel
+                        ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200'
+                        : 'bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-200'
+                  }`}
+                >
+                  {ENTITEIT_SOORT_LABEL[entiteitSoort(entiteit)]}
+                </span>
                 {!entiteit.actief && (
                   <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                     Inactief

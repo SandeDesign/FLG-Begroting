@@ -62,7 +62,7 @@ import {
   splitsLoondienst,
 } from '../utils/begroting.calc';
 import { periodeBereikLabel } from '../utils/dateFilters';
-import { formatEuro, formatPercentage, naarMaand, vanMaand } from '../utils/periode';
+import { formatEuro, formatGetal, formatPercentage, naarMaand, vanMaand } from '../utils/periode';
 import {
   BEGROTING_STATUS_LABEL,
   EENHEID_LABEL,
@@ -438,6 +438,24 @@ const BegrotingWerkblad: React.FC = () => {
                   <dt className="text-gray-600 dark:text-gray-300">Onderlinge leveringen in</dt>
                   <dd className="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
                     {formatEuro(om(resultaat.kostenOnderlingIn))}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-gray-600 dark:text-gray-300">Stuks per maand</dt>
+                  <dd className="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
+                    {formatGetal(resultaat.stuksPerMaand, 0)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-gray-600 dark:text-gray-300">Resultaat per stuk</dt>
+                  <dd className="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
+                    {formatEuro(resultaat.resultaatPerStuk)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-gray-600 dark:text-gray-300">Resultaat per opdracht</dt>
+                  <dd className="font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
+                    {formatEuro(om(resultaat.resultaatPerOpdracht))}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">

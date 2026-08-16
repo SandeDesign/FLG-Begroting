@@ -74,6 +74,15 @@ const Ketenoverzicht: React.FC = () => {
   const aannames = selectie[0]?.resultaat.aannames ?? STANDAARD_AANNAMES;
   const om = (bedrag: number) => vanMaand(bedrag, eenheid, aannames);
 
+  // De holding staat boven de entiteiten en draagt de vaste lasten van de groep.
+  // Die zetten we onderaan apart, want het is geen werkende entiteit.
+  const werkendeEntiteiten = selectie.filter((item) => !item.entiteit.isHolding);
+  const holdings = selectie.filter((item) => item.entiteit.isHolding);
+  const vasteLastenGroep = holdings.reduce(
+    (totaal, item) => totaal + item.resultaat.vasteLasten,
+    0
+  );
+
   if (laden) return <LoadingSpinner />;
 
   return (
@@ -192,7 +201,7 @@ const Ketenoverzicht: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {selectie.map(({ entiteit, budget, resultaat }) => (
+                  {[...werkendeEntiteiten, ...holdings].map(({ entiteit, budget, resultaat }) => (
                     <tr key={budget.id}>
                       <td className="py-2.5 pr-3">
                         <button
@@ -208,6 +217,11 @@ const Ketenoverzicht: React.FC = () => {
                           <span>
                             <span className="block font-medium text-gray-900 dark:text-gray-100">
                               {entiteit.naam}
+                              {entiteit.isHolding && (
+                                <span className="ml-1.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-800 dark:text-primary-200 align-middle">
+                                  holding
+                                </span>
+                              )}
                             </span>
                             <span className="block text-[11px] text-gray-400 dark:text-gray-500">
                               {budget.naam}
@@ -334,6 +348,15 @@ const Ketenoverzicht: React.FC = () => {
                   gedempt: true,
                 },
                 { label: 'Kosten naar buiten toe', bedrag: keten.kostenNetto, vet: true },
+                ...(vasteLastenGroep > 0
+                  ? [
+                      {
+                        label: 'Waarvan vaste lasten bij de holding',
+                        bedrag: vasteLastenGroep,
+                        gedempt: true,
+                      },
+                    ]
+                  : []),
               ].map((regel, index) => (
                 <div
                   key={`${regel.label}-${index}`}

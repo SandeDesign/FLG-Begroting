@@ -8,7 +8,17 @@ import * as yup from 'yup';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import type { Entity, NieuweEntity } from '../../types/begroting';
+import {
+  ENTITEIT_SOORT_LABEL,
+  ENTITEIT_SOORT_UITLEG,
+  entiteitSoort,
+  soortNaarVlaggen,
+  type Entity,
+  type EntiteitSoort,
+  type NieuweEntity,
+} from '../../types/begroting';
+
+const SOORTEN = Object.keys(ENTITEIT_SOORT_LABEL) as EntiteitSoort[];
 
 /** Een handvol herkenbare kleuren voor in het ketenoverzicht. */
 const KLEUREN = [
@@ -27,7 +37,7 @@ interface FormWaarden {
   kvk: string;
   volgorde: number;
   actief: boolean;
-  heeftPersoneel: boolean;
+  soort: EntiteitSoort;
   kleur: string;
 }
 
@@ -40,7 +50,10 @@ const schema: yup.ObjectSchema<FormWaarden> = yup.object({
     .min(0, 'Mag niet negatief zijn')
     .required('Vul een volgorde in'),
   actief: yup.boolean().required(),
-  heeftPersoneel: yup.boolean().required(),
+  soort: yup
+    .mixed<EntiteitSoort>()
+    .oneOf(SOORTEN)
+    .required('Kies wat voor entiteit dit is'),
   kleur: yup.string().required(),
 });
 
@@ -75,12 +88,13 @@ const EntiteitModal: React.FC<EntiteitModalProps> = ({
       kvk: '',
       volgorde: aantalBestaand + 1,
       actief: true,
-      heeftPersoneel: false,
+      soort: 'bv',
       kleur: KLEUREN[0],
     },
   });
 
   const gekozenKleur = watch('kleur');
+  const gekozenSoort = watch('soort');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -90,7 +104,7 @@ const EntiteitModal: React.FC<EntiteitModalProps> = ({
       kvk: entiteit?.kvk ?? '',
       volgorde: entiteit?.volgorde ?? aantalBestaand + 1,
       actief: entiteit?.actief ?? true,
-      heeftPersoneel: entiteit?.heeftPersoneel ?? false,
+      soort: entiteit ? entiteitSoort(entiteit) : 'bv',
       kleur: entiteit?.kleur ?? KLEUREN[aantalBestaand % KLEUREN.length],
     });
   }, [isOpen, entiteit, aantalBestaand, reset]);
@@ -101,7 +115,7 @@ const EntiteitModal: React.FC<EntiteitModalProps> = ({
       kvk: waarden.kvk.trim(),
       volgorde: waarden.volgorde,
       actief: waarden.actief,
-      heeftPersoneel: waarden.heeftPersoneel,
+      ...soortNaarVlaggen(waarden.soort),
       kleur: waarden.kleur,
       // De vaste lasten blijven staan; die beheer je op een eigen pagina.
       vasteLasten: entiteit?.vasteLasten ?? [],
@@ -161,21 +175,30 @@ const EntiteitModal: React.FC<EntiteitModalProps> = ({
           </p>
         </div>
 
-        <label className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-            {...register('heeftPersoneel')}
-          />
-          <span>
-            <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">
-              Heeft personeel
-            </span>
-            <span className="block text-xs text-gray-500 dark:text-gray-400">
-              Alleen dan kun je inzet in loondienst toevoegen. ZZP kan overal.
-            </span>
+        <div>
+          <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight mb-2">
+            Wat voor entiteit is dit
           </span>
-        </label>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {SOORTEN.map((soort) => (
+              <button
+                key={soort}
+                type="button"
+                onClick={() => setValue('soort', soort, { shouldDirty: true })}
+                className={`px-3 py-2.5 text-sm font-medium rounded-lg border transition-colors text-left ${
+                  gekozenSoort === soort
+                    ? 'border-primary-400 bg-primary-50/60 dark:bg-primary-900/20 text-primary-700 dark:text-primary-200'
+                    : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/40'
+                }`}
+              >
+                {ENTITEIT_SOORT_LABEL[soort]}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {ENTITEIT_SOORT_UITLEG[gekozenSoort]}
+          </p>
+        </div>
 
         <label className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
           <input

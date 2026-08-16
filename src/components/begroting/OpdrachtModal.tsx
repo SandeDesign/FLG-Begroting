@@ -31,6 +31,9 @@ interface FormWaarden {
   dagenPerMaand: number;
   vastBedrag: number;
   vastEenheid: Eenheid;
+  toeslagen: number;
+  overigeOpbrengst: number;
+  extraEenheid: Eenheid;
 }
 
 const LEEG: FormWaarden = {
@@ -47,6 +50,9 @@ const LEEG: FormWaarden = {
   dagenPerMaand: 26,
   vastBedrag: 0,
   vastEenheid: 'maand',
+  toeslagen: 0,
+  overigeOpbrengst: 0,
+  extraEenheid: 'maand',
 };
 
 /** Zet een bestaande opdracht om naar de platte formuliervorm. */
@@ -57,6 +63,9 @@ function naarForm(opdracht: Opdracht): FormWaarden {
     voorWie: opdracht.voorWie,
     actief: opdracht.actief,
     soort: opdracht.opbrengst.soort,
+    toeslagen: opdracht.toeslagen ?? 0,
+    overigeOpbrengst: opdracht.overigeOpbrengst ?? 0,
+    extraEenheid: opdracht.extraEenheid ?? 'maand',
   };
 
   switch (opdracht.opbrengst.soort) {
@@ -120,6 +129,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
 
   const soort = watch('soort');
   const vastEenheid = watch('vastEenheid');
+  const extraEenheid = watch('extraEenheid');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -133,6 +143,9 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
       voorWie: waarden.voorWie.trim(),
       actief: waarden.actief,
       opbrengst: naarOpbrengst(waarden),
+      toeslagen: waarden.toeslagen,
+      overigeOpbrengst: waarden.overigeOpbrengst,
+      extraEenheid: waarden.extraEenheid,
     });
     onClose();
   });
@@ -266,6 +279,35 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
             </div>
           </div>
         )}
+
+        <div className="grid gap-4 sm:grid-cols-3 sm:items-end">
+          <Input
+            label="Toeslagen"
+            type="number"
+            step="0.01"
+            min="0"
+            helperText="Bijvoorbeeld een brandstoftoeslag"
+            {...register('toeslagen', { setValueAs: veiligGetal })}
+          />
+          <Input
+            label="Overige opbrengst"
+            type="number"
+            step="0.01"
+            min="0"
+            helperText="Wat niet uit het model volgt"
+            {...register('overigeOpbrengst', { setValueAs: veiligGetal })}
+          />
+          <div className="space-y-1.5">
+            <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+              Eenheid
+            </span>
+            <EenheidKeuze
+              waarde={extraEenheid}
+              onChange={(nieuw) => setValue('extraEenheid', nieuw, { shouldDirty: true })}
+              className="w-full"
+            />
+          </div>
+        </div>
 
         <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
           <input

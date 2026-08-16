@@ -4,8 +4,8 @@ Dit document hoort bij [`src/utils/begroting.calc.ts`](../src/utils/begroting.ca
 en [`src/utils/periode.ts`](../src/utils/periode.ts). Elke uitkomst hieronder komt
 uit de code en is met een rekenmachine na te rekenen.
 
-De cijfers zijn die van het startpunt uit de opdracht: Buddy BV en De Installatie BV,
-met de opdrachten Bezorging en Detachering Riset.
+De cijfers komen uit **Begroting_ZZP_pakket.xlsx**, de Excel-begroting die aan deze
+app ten grondslag ligt. Sectie 11 zet die sheet regel voor regel naast de motor.
 
 **Maand is overal de rekenbasis.** Alle bedragen hieronder zijn per maand, tenzij
 er expliciet iets anders staat.
@@ -324,3 +324,59 @@ tot het volledige bedrag.
 
 Zijn er helemaal geen actieve opdrachten, dan blijven de vaste lasten staan als
 *niet verdeeld* en drukken ze rechtstreeks op het resultaat van de entiteit.
+
+
+---
+
+## 11. Vergelijking met de Excel-begroting
+
+De bezorgingskant komt uit de sheets Input, Omzet, Bussen, Personeel en ZZP. De
+motor geeft daar exact dezelfde uitkomsten:
+
+| Regel uit de Excel | Excel | Rekenmotor |
+|---|---|---|
+| Route 1 — 100 pakketten × € 2,60 × 26 | € 6.760,00 | **€ 6.760,00** |
+| Route 2 — 70 pakketten × € 2,60 × 26 | € 4.732,00 | **€ 4.732,00** |
+| ZZP-routes — 200 pakketten × € 2,60 × 26 | € 13.520,00 | **€ 13.520,00** |
+| Opel Combo — 190 + 1.000 + 150 + 50 + 150 | € 1.540,00 | **€ 1.540,00** |
+| Ford grote bus — 390 + 1.000 + 150 + 50 + 150 | € 1.740,00 | **€ 1.740,00** |
+| ZZP-kosten — € 2,25 × 200 × 26 | € 11.700,00 | **€ 11.700,00** |
+| Medewerker — 3.014 + 241 + 716 + 50 | € 4.021,00 | € 4.021,26 |
+
+De medewerker wijkt 26 cent af. Dat komt doordat de Excel het vakantiegeld en de
+werkgeverslasten als **afgeronde bedragen** invult (241 en 716), terwijl de motor
+ze uit percentages berekent (8% en 22%). Op € 4.021 is dat 0,006% — te
+verwaarlozen, maar wel goed om te weten waar het vandaan komt.
+
+Wil je exact de Excel-bedragen, zet dan het uurloon en de percentages zo dat de
+uitkomst klopt, of vul het verschil in bij "Overig".
+
+### Wat de Excel wél had en de motor nu ook
+
+- **Toeslagen en overige opbrengst per route** (kolom F en G op de sheet Omzet).
+  Staan nu per opdracht, met een eigen eenheid.
+- **Marge per pakket op ZZP-routes** (Input B50). Verschijnt als "per stuk" in de
+  tabel per opdracht: € 2,60 − € 2,25 = **€ 0,35 per pakket**.
+- **Resultaat per pakket en per route** (Totaal B31 en B32). Staan onder "In het
+  kort" op het tabblad Overzicht.
+- **De controlerijen onder elke sheet.** Dat is precies wat `controleerBegroting`
+  doet, alleen dan automatisch en met de afwijking erbij in plaats van een 0.
+
+### Wat er bewust anders is
+
+**De vaste lasten staan niet bij een werkende entiteit.** In de Excel staan ze op
+een eigen sheet en tellen ze mee in het totaal van de bezorging. In de app horen
+ze bij **FLG Holding**, die boven de entiteiten staat. Buddy draagt ze dus niet;
+de holding laat ze zien als eigen resultaat, en in het ketenoverzicht tellen ze
+gewoon mee in het geheel.
+
+Concreet voor de seed:
+
+| | Per maand |
+|---|---|
+| FLG Holding — alleen vaste lasten | − € 2.870,00 |
+| Buddy BV — bezorging, detachering en subsidie | € 425,72 |
+| De Installatie BV — Riset min de inkoop bij Buddy | € 7.575,60 |
+| **Keten, na wegstrepen van de € 9.000 onderling** | **€ 5.131,33** |
+
+Op alle drie de begrotingen en op de keten geeft de motor **nul afwijkingen**.

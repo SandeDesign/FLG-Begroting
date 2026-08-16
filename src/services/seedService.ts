@@ -1,14 +1,22 @@
 // src/services/seedService.ts
-// Voorbeelddata om mee te beginnen: de drie entiteiten en hun begrotingen.
+// Voorbeelddata om mee te beginnen.
 //
-// Dit is nadrukkelijk een startpunt, geen waarheid. Alle bedragen, tarieven en
-// uren zijn in de app aan te passen; de seed zorgt er alleen voor dat je niet
-// tegen een leeg scherm aankijkt en dat de controles meteen iets te controleren
-// hebben.
+// De bezorgingskant komt rechtstreeks uit de Excel-begroting die aan deze app
+// ten grondslag ligt: dezelfde routes, dezelfde bussen, hetzelfde personeel en
+// dezelfde ZZP-tarieven. De vaste lasten uit die sheet staan hier bewust niet
+// bij een werkende entiteit maar bij FLG Holding — die staat boven de
+// entiteiten en draagt de vaste lasten van de groep.
+//
+// Alles is in de app aan te passen; dit is een startpunt, geen waarheid.
 
 import { maakEntiteit } from './entityService';
 import { maakBegroting } from './budgetService';
-import { STANDAARD_AANNAMES, type NieuweBudget, type NieuweEntity } from '../types/begroting';
+import {
+  STANDAARD_AANNAMES,
+  type NieuweBudget,
+  type NieuweEntity,
+  type Opdracht,
+} from '../types/begroting';
 
 /** Wat er is aangemaakt, om terug te melden aan de gebruiker. */
 export interface SeedResultaat {
@@ -18,17 +26,47 @@ export interface SeedResultaat {
 
 const PERIODE_VAN = '2026-01';
 const PERIODE_TOT = '2026-12';
+const RIJDAGEN = 26;
 
-// Het personeel zit allemaal bij Buddy. Deze waarden zijn een startpunt —
-// uurloon en uren pas je per medewerker aan onder het tabblad Inzet.
-const UURLOON = 17.39;
+// Personeel volgens de Excel: bruto 3.014, vakantiegeld 241, werkgeverslasten
+// 716, kleding/telefoon/scanner 50. Bruto volgt hier uit uurloon maal uren, dus
+// het uurloon is teruggerekend: 3.014 ÷ (40 × 52 ÷ 12) = 17,3885.
+const UURLOON = 17.3885;
 const UREN_PER_WEEK = 40;
 const VAKANTIEGELD = 0.08;
 const WERKGEVERSLASTEN = 0.22;
-const OVERIG_PER_MAAND = 50;
+const KLEDING_TELEFOON_SCANNER = 50;
 
-/** Bouwt een loondienst-inzet met de standaardwaarden hierboven. */
-function loondienst(id: string, naam: string, hoortBij: string): NieuweBudget['inzet'][number] {
+function opdracht(
+  id: string,
+  naam: string,
+  voorWie: string,
+  opbrengst: Opdracht['opbrengst']
+): Opdracht {
+  return {
+    id,
+    naam,
+    voorWie,
+    actief: true,
+    opbrengst,
+    toeslagen: 0,
+    overigeOpbrengst: 0,
+    extraEenheid: 'maand',
+  };
+}
+
+/** Een route die op pakketten draait. */
+function route(id: string, naam: string, voorWie: string, pakkettenPerDag: number, tarief: number) {
+  return opdracht(id, naam, voorWie, {
+    soort: 'stuks',
+    stuksPerDag: pakkettenPerDag,
+    tariefPerStuk: tarief,
+    dagenPerMaand: RIJDAGEN,
+  });
+}
+
+/** Een medewerker in loondienst met de standaardposten uit de Excel. */
+function medewerker(id: string, naam: string, hoortBij: string): NieuweBudget['inzet'][number] {
   return {
     id,
     naam,
@@ -41,16 +79,16 @@ function loondienst(id: string, naam: string, hoortBij: string): NieuweBudget['i
       vakantiegeldPct: VAKANTIEGELD,
       werkgeverslastenPct: WERKGEVERSLASTEN,
       pensioen: 0,
-      overig: OVERIG_PER_MAAND,
+      overig: KLEDING_TELEFOON_SCANNER,
     },
   };
 }
 
-/** Bouwt een bestelbus met de posten uit het startpunt. */
+/** Een bus met de postenindeling uit de Excel. */
 function bus(
   id: string,
   naam: string,
-  leasetermijn: number,
+  lease: number,
   hoortBij: string
 ): NieuweBudget['middelen'][number] {
   return {
@@ -59,7 +97,7 @@ function bus(
     hoortBij,
     actief: true,
     financiering: 'lease',
-    leasetermijn,
+    leasetermijn: lease,
     waarde: 0,
     looptijdMaanden: 0,
     restwaarde: 0,
@@ -75,26 +113,42 @@ function bus(
 
 const ENTITEITEN: NieuweEntity[] = [
   {
+    naam: 'FLG Holding',
+    kvk: '',
+    actief: true,
+    heeftPersoneel: false,
+    isHolding: true,
+    kleur: '#673d28',
+    volgorde: 0,
+    // De vaste lasten van de groep. Uit de sheet Vaste lasten.
+    vasteLasten: [
+      { id: 'vl-huur', omschrijving: 'Kantoorhuur', bedrag: 2000, eenheid: 'maand', categorie: 'huisvesting' },
+      { id: 'vl-gwl', omschrijving: 'Gas, water en licht', bedrag: 330, eenheid: 'maand', categorie: 'huisvesting' },
+      { id: 'vl-internet', omschrijving: 'Internet en telefonie', bedrag: 150, eenheid: 'maand', categorie: 'ict' },
+      { id: 'vl-boekhouding', omschrijving: 'Boekhouding en salarisadministratie', bedrag: 200, eenheid: 'maand', categorie: 'administratie' },
+      { id: 'vl-avb', omschrijving: 'Bedrijfsaansprakelijkheid', bedrag: 0, eenheid: 'maand', categorie: 'verzekering' },
+      { id: 'vl-software', omschrijving: 'Software (route, scan, boekhouding)', bedrag: 130, eenheid: 'maand', categorie: 'ict' },
+      { id: 'vl-bank', omschrijving: 'Bankkosten', bedrag: 60, eenheid: 'maand', categorie: 'administratie' },
+      { id: 'vl-pand', omschrijving: 'Verzekering pand en inventaris', bedrag: 0, eenheid: 'maand', categorie: 'verzekering' },
+      { id: 'vl-schade', omschrijving: 'Schade, boetes, eigen risico', bedrag: 0, eenheid: 'maand', categorie: 'overig' },
+    ],
+  },
+  {
     naam: 'Buddy BV',
     kvk: '',
     actief: true,
     heeftPersoneel: true,
+    isHolding: false,
     kleur: '#cd853f',
     volgorde: 1,
-    vasteLasten: [
-      { id: 'vl-huur', omschrijving: 'Kantoorhuur', bedrag: 2000, eenheid: 'maand', categorie: 'huisvesting' },
-      { id: 'vl-gwl', omschrijving: 'Gas, water en licht', bedrag: 330, eenheid: 'maand', categorie: 'huisvesting' },
-      { id: 'vl-internet', omschrijving: 'Internet', bedrag: 150, eenheid: 'maand', categorie: 'ict' },
-      { id: 'vl-boekhouding', omschrijving: 'Boekhouding', bedrag: 200, eenheid: 'maand', categorie: 'administratie' },
-      { id: 'vl-software', omschrijving: 'Software', bedrag: 130, eenheid: 'maand', categorie: 'ict' },
-      { id: 'vl-bank', omschrijving: 'Bankkosten', bedrag: 60, eenheid: 'maand', categorie: 'administratie' },
-    ],
+    vasteLasten: [],
   },
   {
     naam: 'De Installatie BV',
     kvk: '',
     actief: true,
     heeftPersoneel: false,
+    isHolding: false,
     kleur: '#3B82F6',
     volgorde: 2,
     vasteLasten: [],
@@ -104,11 +158,32 @@ const ENTITEITEN: NieuweEntity[] = [
     kvk: '',
     actief: false,
     heeftPersoneel: false,
+    isHolding: false,
     kleur: '#10B981',
     volgorde: 3,
     vasteLasten: [],
   },
 ];
+
+/** Een lege begroting voor een entiteit die nog niets doet. */
+function legeBegroting(entityId: string, naam: string, createdBy: string): NieuweBudget {
+  return {
+    entityId,
+    naam,
+    periodeVan: PERIODE_VAN,
+    periodeTot: PERIODE_TOT,
+    status: 'concept',
+    scenarioVan: null,
+    weergaveEenheid: 'maand',
+    aannames: { ...STANDAARD_AANNAMES, dagenPerMaand: RIJDAGEN },
+    opdrachten: [],
+    middelen: [],
+    inzet: [],
+    subsidies: [],
+    onderlingeLeveringen: [],
+    createdBy,
+  };
+}
 
 /**
  * Zet de voorbeelddata neer. Geeft terug hoeveel entiteiten en begrotingen er
@@ -118,56 +193,51 @@ const ENTITEITEN: NieuweEntity[] = [
  * krijg je alles dubbel. De knop in de app waarschuwt daarvoor.
  */
 export async function laadVoorbeelddata(createdBy: string): Promise<SeedResultaat> {
-  const [buddyId, installatieId, smartId] = await Promise.all(
+  const [holdingId, buddyId, installatieId, smartId] = await Promise.all(
     ENTITEITEN.map((entiteit) => maakEntiteit(entiteit))
   );
 
-  // ── Buddy: bezorging op eigen rekening, en detachering naar De Installatie.
+  // ── FLG Holding: draagt de vaste lasten van de groep, verder niets.
+  const holding = legeBegroting(holdingId, 'FLG Holding 2026', createdBy);
+
+  // ── Buddy: de bezorging uit de Excel, plus de detachering naar De Installatie.
   //
   // De opdracht Detachering Riset heeft zelf geen tarief: wat Buddy daaraan
-  // verdient loopt via de onderlinge levering hieronder. Zou de opdracht óók
-  // een tarief hebben, dan telde die opbrengst dubbel.
+  // verdient loopt via de onderlinge levering hieronder. Zou de opdracht óók een
+  // tarief hebben, dan telde die opbrengst dubbel.
   const buddy: NieuweBudget = {
-    entityId: buddyId,
-    naam: 'Buddy 2026 basis',
-    periodeVan: PERIODE_VAN,
-    periodeTot: PERIODE_TOT,
-    status: 'concept',
-    scenarioVan: null,
-    weergaveEenheid: 'maand',
-    aannames: STANDAARD_AANNAMES,
+    ...legeBegroting(buddyId, 'Buddy 2026 basis', createdBy),
     opdrachten: [
-      {
-        id: 'opdracht-bezorging',
-        naam: 'Bezorging',
-        voorWie: 'Smart Transport',
-        actief: true,
-        opbrengst: { soort: 'stuks', stuksPerDag: 165, tariefPerStuk: 2.6, dagenPerMaand: 26 },
-      },
-      {
-        id: 'opdracht-detachering',
-        naam: 'Detachering Riset',
-        voorWie: 'De Installatie BV',
-        actief: true,
-        opbrengst: {
-          soort: 'uren',
-          aantalMensen: 3,
-          urenPerWeek: 32,
-          tariefPerUur: 0,
-          productiviteit: 0.92,
-        },
-      },
+      route('opdracht-route-1', 'Route 1', 'Smart Transport', 100, 2.6),
+      route('opdracht-route-2', 'Route 2', 'Smart Transport', 70, 2.6),
+      route('opdracht-zzp-routes', 'ZZP-routes', 'Smart Transport', 200, 2.6),
+      opdracht('opdracht-detachering', 'Detachering Riset', 'De Installatie BV', {
+        soort: 'uren',
+        aantalMensen: 3,
+        urenPerWeek: 32,
+        tariefPerUur: 0,
+        productiviteit: 0.92,
+      }),
     ],
     middelen: [
-      bus('middel-combo', 'Opel Combo', 200, 'opdracht-bezorging'),
-      bus('middel-ford', 'Ford grote bus', 390, 'opdracht-bezorging'),
+      bus('middel-combo', 'Opel Combo', 190, 'opdracht-route-1'),
+      bus('middel-ford', 'Ford grote bus', 390, 'opdracht-route-2'),
     ],
     inzet: [
-      loondienst('inzet-bezorging-1', 'Bezorger 1', 'opdracht-bezorging'),
-      loondienst('inzet-bezorging-2', 'Bezorger 2', 'opdracht-bezorging'),
-      loondienst('inzet-detachering-1', 'Gedetacheerd 1', 'opdracht-detachering'),
-      loondienst('inzet-detachering-2', 'Gedetacheerd 2', 'opdracht-detachering'),
-      loondienst('inzet-detachering-3', 'Gedetacheerd 3', 'opdracht-detachering'),
+      medewerker('inzet-mw-1', 'Medewerker 1', 'opdracht-route-1'),
+      medewerker('inzet-mw-2', 'Medewerker 2', 'opdracht-route-2'),
+      {
+        id: 'inzet-zzp',
+        naam: "ZZP'ers op de ZZP-routes",
+        hoortBij: 'opdracht-zzp-routes',
+        actief: true,
+        // Wat jij de ZZP'er betaalt: € 2,25 per pakket. Jouw tarief is € 2,60,
+        // dus de marge is € 0,35 per pakket.
+        model: { soort: 'zzp_stuk', tariefPerStuk: 2.25, stuksPerDag: 200, dagenPerMaand: RIJDAGEN },
+      },
+      medewerker('inzet-detachering-1', 'Gedetacheerd 1', 'opdracht-detachering'),
+      medewerker('inzet-detachering-2', 'Gedetacheerd 2', 'opdracht-detachering'),
+      medewerker('inzet-detachering-3', 'Gedetacheerd 3', 'opdracht-detachering'),
     ],
     subsidies: [
       {
@@ -175,7 +245,7 @@ export async function laadVoorbeelddata(createdBy: string): Promise<SeedResultaa
         omschrijving: 'Loonkostensubsidie medewerker 1',
         bedrag: 1500,
         eenheid: 'maand',
-        inzetId: 'inzet-bezorging-1',
+        inzetId: 'inzet-mw-1',
         einddatum: null,
       },
     ],
@@ -192,61 +262,32 @@ export async function laadVoorbeelddata(createdBy: string): Promise<SeedResultaa
         eenheid: 'maand',
       },
     ],
-    createdBy,
   };
 
   // ── De Installatie: factureert Riset en betaalt Buddy voor de mensen.
   const installatie: NieuweBudget = {
-    entityId: installatieId,
-    naam: 'De Installatie 2026 basis',
-    periodeVan: PERIODE_VAN,
-    periodeTot: PERIODE_TOT,
-    status: 'concept',
-    scenarioVan: null,
-    weergaveEenheid: 'maand',
-    aannames: STANDAARD_AANNAMES,
+    ...legeBegroting(installatieId, 'De Installatie 2026 basis', createdBy),
     opdrachten: [
-      {
-        id: 'opdracht-riset',
-        naam: 'Riset',
-        voorWie: 'Riset',
-        actief: true,
-        opbrengst: {
-          soort: 'uren',
-          aantalMensen: 3,
-          urenPerWeek: 32,
-          tariefPerUur: 43.31,
-          productiviteit: 0.92,
-        },
-      },
+      opdracht('opdracht-riset', 'Riset', 'Riset', {
+        soort: 'uren',
+        aantalMensen: 3,
+        urenPerWeek: 32,
+        tariefPerUur: 43.31,
+        productiviteit: 0.92,
+      }),
     ],
-    middelen: [],
-    inzet: [],
-    subsidies: [],
-    onderlingeLeveringen: [],
-    createdBy,
   };
 
   // ── Smart Transport: leeg en inactief. De begroting staat er alvast, zodat de
-  // opdracht Bezorging er straks met één knop naartoe verplaatst kan worden.
-  const smart: NieuweBudget = {
-    entityId: smartId,
-    naam: 'Smart Transport 2026 basis',
-    periodeVan: PERIODE_VAN,
-    periodeTot: PERIODE_TOT,
-    status: 'concept',
-    scenarioVan: null,
-    weergaveEenheid: 'maand',
-    aannames: STANDAARD_AANNAMES,
-    opdrachten: [],
-    middelen: [],
-    inzet: [],
-    subsidies: [],
-    onderlingeLeveringen: [],
-    createdBy,
-  };
+  // routes er straks met één knop naartoe verplaatst kunnen worden.
+  const smart = legeBegroting(smartId, 'Smart Transport 2026', createdBy);
 
-  await Promise.all([maakBegroting(buddy), maakBegroting(installatie), maakBegroting(smart)]);
+  await Promise.all([
+    maakBegroting(holding),
+    maakBegroting(buddy),
+    maakBegroting(installatie),
+    maakBegroting(smart),
+  ]);
 
-  return { entiteiten: ENTITEITEN.length, begrotingen: 3 };
+  return { entiteiten: ENTITEITEN.length, begrotingen: 4 };
 }

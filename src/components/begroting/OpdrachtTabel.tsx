@@ -48,7 +48,7 @@ const OpdrachtTabel: React.FC<OpdrachtTabelProps> = ({ resultaat, eenheid }) => 
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[720px]">
+        <table className="w-full text-sm min-w-[860px]">
           <thead>
             <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
               <th className="text-left font-semibold py-2 pr-3">Opdracht</th>
@@ -64,6 +64,9 @@ const OpdrachtTabel: React.FC<OpdrachtTabelProps> = ({ resultaat, eenheid }) => 
               </th>
               <th className="text-right font-semibold py-2 px-3 whitespace-nowrap">
                 Over ná vaste lasten
+              </th>
+              <th className="text-right font-semibold py-2 px-3 whitespace-nowrap">
+                Per stuk / uur
               </th>
               <th className="text-right font-semibold py-2 pl-3 whitespace-nowrap">Quitte bij</th>
             </tr>
@@ -108,6 +111,26 @@ const OpdrachtTabel: React.FC<OpdrachtTabelProps> = ({ resultaat, eenheid }) => 
                 >
                   {formatEuro(om(opdracht.overNaVasteLasten))}
                 </td>
+                <td className="py-2.5 px-3 text-right text-xs whitespace-nowrap">
+                  {opdracht.volumeEenheid === 'geen' ? (
+                    <span className="text-gray-400 dark:text-gray-500">—</span>
+                  ) : (
+                    <>
+                      <span
+                        className={`font-semibold tabular-nums ${
+                          opdracht.resultaatPerEenheid >= 0
+                            ? 'text-emerald-700 dark:text-emerald-300'
+                            : 'text-red-700 dark:text-red-300'
+                        }`}
+                      >
+                        {formatEuro(opdracht.resultaatPerEenheid)}
+                      </span>
+                      <span className="block text-[11px] text-gray-400 dark:text-gray-500">
+                        {formatGetal(opdracht.volumePerMaand, 0)} {opdracht.volumeEenheid} p/mnd
+                      </span>
+                    </>
+                  )}
+                </td>
                 <td className="py-2.5 pl-3 text-right text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   {breakEvenTekst(opdracht.breakEven)}
                 </td>
@@ -118,9 +141,10 @@ const OpdrachtTabel: React.FC<OpdrachtTabelProps> = ({ resultaat, eenheid }) => 
       </div>
 
       <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-        "Quitte bij" is wat er nodig is om precies de directe kosten plus het aandeel in de vaste
-        lasten te dekken. Het aandeel in de vaste lasten blijft daarbij staan op de huidige
-        verdeling.
+        "Per stuk / uur" is wat er na de vaste lasten overblijft, gedeeld door het volume van die
+        opdracht. "Quitte bij" is wat er nodig is om precies de directe kosten plus het aandeel in
+        de vaste lasten te dekken; het aandeel in de vaste lasten blijft daarbij staan op de
+        huidige verdeling.
       </p>
     </div>
   );
