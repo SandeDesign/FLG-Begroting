@@ -205,6 +205,55 @@ maand. In het ketenoverzicht staat ze onderaan apart.
 
 ---
 
+## 6b. BTW — overal bijgehouden, nergens meegerekend
+
+Vrijwel elke factuur bevat BTW. Alleen wat wij naar de bezorging factureren gaat
+met **verlegde BTW**, zo afgesproken met de opdrachtgever.
+
+Elke regel met een bedrag heeft daarom een tarief: `hoog` (21%), `laag` (9%),
+`geen` of `verlegd`. Verlegd en geen leveren allebei € 0 BTW op, maar betekenen
+iets anders: bij verlegd geeft de ontvanger hem zelf aan.
+
+De BTW komt **nooit** in het resultaat terecht — dat is van begin tot eind
+exclusief. Hij wordt apart opgeteld:
+
+```
+af te dragen      = BTW over de opdrachten
+                  + BTW over de onderlinge leveringen die wij uitsturen
+
+terug te vorderen = BTW over de middelen
+                  + BTW over de ZZP-inzet        (over loon zit geen BTW)
+                  + BTW over de vaste lasten
+                  + BTW over de onderlinge leveringen aan ons
+
+saldo             = af te dragen − terug te vorderen
+```
+
+### Voorbeeld, met de hand na te rekenen
+
+| Regel | Bedrag | Tarief | BTW |
+|---|---|---|---|
+| Opdracht Bezorging | € 1.000 | verlegd | € 0,00 |
+| Opdracht Installatie | € 500 | 21% | € 105,00 |
+| Onderlinge levering uit | € 900 | 21% | € 189,00 |
+| **Af te dragen** | | | **€ 294,00** |
+| Middel — bus | € 200 | 21% | € 42,00 |
+| Inzet — ZZP'er | € 300 | 21% | € 63,00 |
+| Inzet — loondienst | € 400 | — | € 0,00 |
+| Vaste last — verzekering | € 100 | geen | € 0,00 |
+| Vaste last — software | € 100 | 21% | € 21,00 |
+| **Terug te vorderen** | | | **€ 126,00** |
+| **Saldo naar de Belastingdienst** | | | **€ 168,00** |
+
+Het resultaat van deze begroting is € 2.400 − € 1.100 = **€ 1.300**, en dat
+verandert niet door de BTW.
+
+In het ketenoverzicht worden de saldi van de entiteiten opgeteld. De BTW op de
+onderlinge facturen valt daar vanzelf tegen elkaar weg: wat de één afdraagt
+vordert de ander terug.
+
+---
+
 ## 7. Resultatenstaat — Buddy BV
 
 | Regel | Bedrag |

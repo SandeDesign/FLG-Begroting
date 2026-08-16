@@ -78,14 +78,20 @@ const Entiteiten: React.FC = () => {
 
   const verwijder = async (entiteit: Entity) => {
     const bevestigd = window.confirm(
-      `${entiteit.naam} verwijderen? De begrotingen van deze entiteit blijven staan, maar horen dan nergens meer bij.`
+      `${entiteit.naam} verwijderen? De begrotingen van deze entiteit en de onderlinge leveringen die haar noemen gaan mee. Dit kan niet ongedaan gemaakt worden.`
     );
     if (!bevestigd) return;
 
     try {
-      await verwijderEntiteit(entiteit.id);
+      const aantalBegrotingen = await verwijderEntiteit(entiteit.id);
       await herlaadEntiteiten();
-      setMelding(`${entiteit.naam} is verwijderd.`);
+      setMelding(
+        aantalBegrotingen === 0
+          ? `${entiteit.naam} is verwijderd.`
+          : `${entiteit.naam} is verwijderd, met ${aantalBegrotingen} ${
+              aantalBegrotingen === 1 ? 'begroting' : 'begrotingen'
+            }.`
+      );
     } catch {
       setMelding('Verwijderen mislukt. Probeer het opnieuw.');
     }

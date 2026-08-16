@@ -8,6 +8,7 @@
 
 import type {
   Aannames,
+  BtwTarief,
   Afwijking,
   BegrotingResultaat,
   BreakEven,
@@ -41,6 +42,20 @@ function getal(waarde: number): number {
 
 function som(waarden: number[]): number {
   return waarden.reduce((totaal, waarde) => totaal + getal(waarde), 0);
+}
+
+// ─── BTW ────────────────────────────────────────────────────────────────────
+
+/**
+ * De BTW over een bedrag, gegeven een tarief.
+ *
+ * Bij "verlegd" komt er geen BTW op de factuur: de ontvanger geeft hem zelf aan
+ * en trekt hem in dezelfde aangifte weer af. Bij "geen" is de prestatie
+ * vrijgesteld. In beide gevallen is de uitkomst nul, maar de reden verschilt —
+ * daarom staan het als twee aparte keuzes in het model.
+ */
+export function btwOver(bedrag: number, tarief: BtwTarief | undefined): number {
+  return getal(bedrag * BTW_PERCENTAGE[tarief ?? 'hoog']);
 }
 
 // ─── Opbrengst per opdracht ─────────────────────────────────────────────────
@@ -307,8 +322,7 @@ export function berekenLevering(levering: OnderlingeLevering, aannames: Aannames
  * factuur niet met wat je in de begroting ziet staan.
  */
 export function berekenLeveringBtw(levering: OnderlingeLevering, aannames: Aannames): number {
-  const tarief = BTW_PERCENTAGE[levering.btw ?? 'hoog'];
-  return getal(berekenLevering(levering, aannames) * tarief);
+  return btwOver(berekenLevering(levering, aannames), levering.btw);
 }
 
 function naarLeveringRegel(levering: OnderlingeLevering, aannames: Aannames): LeveringRegel {
@@ -541,6 +555,8 @@ function alsMiddel(
     onderhoudBerekenen: false,
     overig: getal(standaard.overig * aantal),
     eenheid: 'maand',
+    // Op een bus, brandstof en onderhoud zit altijd gewoon BTW.
+    btw: 'hoog',
   };
 }
 
@@ -578,6 +594,7 @@ export function pasSchaalToe(budget: Budget): Budget {
       toeslagen: 0,
       overigeOpbrengst: 0,
       extraEenheid: 'maand',
+      btw: schaal.btw,
     });
 
     if (afgeleid.extraMiddelen > 0) {
@@ -622,6 +639,7 @@ export function pasSchaalToe(budget: Budget): Budget {
       toeslagen: 0,
       overigeOpbrengst: 0,
       extraEenheid: 'maand',
+      btw: schaal.btw,
     });
 
     if (afgeleid.zzpMiddelen > 0) {
@@ -646,6 +664,8 @@ export function pasSchaalToe(budget: Budget): Budget {
         tariefPerStuk: schaal.zzpKostenPerStuk,
         stuksPerDag: afgeleid.zzpStuksPerDag,
         dagenPerMaand: aannames.dagenPerMaand,
+        // Een ZZP'er factureert met BTW; die vorderen we terug.
+        btw: 'hoog',
       },
     });
   }
@@ -776,6 +796,34 @@ export function berekenBegroting(
   const btwOnderlingUit = som(onderlingUit.map((regel) => regel.btwBedrag));
   const btwOnderlingIn = som(onderlingIn.map((regel) => regel.btwBedrag));
 
+  // ── BTW over alles wat er in- en uitgaat.
+  //
+  // Deze telt nergens mee in het resultaat: wat je afdraagt over je omzet
+  // vorder je terug over je inkoop, en het verschil betaal je aan de fiscus.
+  // Maar het gaat wel echt de deur uit, dus het hoort in beeld.
+  const btwOverOpdrachten = som(
+    actieveOpdrachten.map((opdracht) => btwOver(berekenOpbrengst(opdracht, aannames), opdracht.btw))
+  );
+  const btwOverMiddelen = som(
+    actieveMiddelen.map((middel) => btwOver(berekenMiddel(middel, aannames), middel.btw))
+  );
+  const btwOverInzet = som(
+    actieveInzet.map((item) =>
+      item.model.soort === 'loondienst'
+        ? 0
+        : btwOver(berekenInzet(item), item.model.btw)
+    )
+  );
+  const btwOverVasteLasten = som(
+    entity.vasteLasten.map((last) =>
+      btwOver(naarMaand(last.bedrag, last.eenheid, aannames), last.btw)
+    )
+  );
+
+  const afTeDragen = btwOverOpdrachten + btwOnderlingUit;
+  const terugTeVorderen =
+    btwOverMiddelen + btwOverInzet + btwOverVasteLasten + btwOnderlingIn;
+
   budget.onderlingeLeveringen
     .filter((levering) => levering.vanEntityId !== entity.id)
     .forEach((levering) => {
@@ -879,6 +927,17 @@ export function berekenBegroting(
     onderlingIn,
     btwOnderlingUit,
     btwOnderlingIn,
+    btw: {
+      overOpdrachten: btwOverOpdrachten,
+      overOnderlingUit: btwOnderlingUit,
+      afTeDragen,
+      overMiddelen: btwOverMiddelen,
+      overInzet: btwOverInzet,
+      overVasteLasten: btwOverVasteLasten,
+      overOnderlingIn: btwOnderlingIn,
+      terugTeVorderen,
+      saldo: afTeDragen - terugTeVorderen,
+    },
 
     stuksPerMaand,
     resultaatPerStuk: stuksPerMaand > 0 ? getal(resultaat / stuksPerMaand) : 0,

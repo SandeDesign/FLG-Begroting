@@ -9,12 +9,13 @@
 //
 // Alles is in de app aan te passen; dit is een startpunt, geen waarheid.
 
-import { maakEntiteit } from './entityService';
-import { maakBegroting } from './budgetService';
+import { haalEntiteiten, maakEntiteit, verwijderEntiteit } from './entityService';
+import { haalBegrotingen, maakBegroting, verwijderBegroting } from './budgetService';
 import {
   LEGE_SCHAAL,
   STANDAARD_AANNAMES,
   type NieuweBudget,
+  type BtwTarief,
   type NieuweEntity,
   type Opdracht,
 } from '../types/begroting';
@@ -42,7 +43,8 @@ function opdracht(
   id: string,
   naam: string,
   voorWie: string,
-  opbrengst: Opdracht['opbrengst']
+  opbrengst: Opdracht['opbrengst'],
+  btw: BtwTarief = 'hoog'
 ): Opdracht {
   return {
     id,
@@ -53,17 +55,26 @@ function opdracht(
     toeslagen: 0,
     overigeOpbrengst: 0,
     extraEenheid: 'maand',
+    btw,
   };
 }
 
 /** Een route die op pakketten draait. */
 function route(id: string, naam: string, voorWie: string, pakkettenPerDag: number, tarief: number) {
-  return opdracht(id, naam, voorWie, {
-    soort: 'stuks',
-    stuksPerDag: pakkettenPerDag,
-    tariefPerStuk: tarief,
-    dagenPerMaand: RIJDAGEN,
-  });
+  // Op wat wij naar de bezorgingsopdrachtgever factureren is de BTW verlegd —
+  // zo is het met de opdrachtgever afgesproken.
+  return opdracht(
+    id,
+    naam,
+    voorWie,
+    {
+      soort: 'stuks',
+      stuksPerDag: pakkettenPerDag,
+      tariefPerStuk: tarief,
+      dagenPerMaand: RIJDAGEN,
+    },
+    'verlegd'
+  );
 }
 
 /** Een medewerker in loondienst met de standaardposten uit de Excel. */
@@ -109,6 +120,7 @@ function bus(
     onderhoudBerekenen: false,
     overig: 0,
     eenheid: 'maand',
+    btw: 'hoog',
   };
 }
 
@@ -123,15 +135,15 @@ const ENTITEITEN: NieuweEntity[] = [
     volgorde: 0,
     // De vaste lasten van de groep. Uit de sheet Vaste lasten.
     vasteLasten: [
-      { id: 'vl-huur', omschrijving: 'Kantoorhuur', bedrag: 2000, eenheid: 'maand', categorie: 'huisvesting' },
-      { id: 'vl-gwl', omschrijving: 'Gas, water en licht', bedrag: 330, eenheid: 'maand', categorie: 'huisvesting' },
-      { id: 'vl-internet', omschrijving: 'Internet en telefonie', bedrag: 150, eenheid: 'maand', categorie: 'ict' },
-      { id: 'vl-boekhouding', omschrijving: 'Boekhouding en salarisadministratie', bedrag: 200, eenheid: 'maand', categorie: 'administratie' },
-      { id: 'vl-avb', omschrijving: 'Bedrijfsaansprakelijkheid', bedrag: 0, eenheid: 'maand', categorie: 'verzekering' },
-      { id: 'vl-software', omschrijving: 'Software (route, scan, boekhouding)', bedrag: 130, eenheid: 'maand', categorie: 'ict' },
-      { id: 'vl-bank', omschrijving: 'Bankkosten', bedrag: 60, eenheid: 'maand', categorie: 'administratie' },
-      { id: 'vl-pand', omschrijving: 'Verzekering pand en inventaris', bedrag: 0, eenheid: 'maand', categorie: 'verzekering' },
-      { id: 'vl-schade', omschrijving: 'Schade, boetes, eigen risico', bedrag: 0, eenheid: 'maand', categorie: 'overig' },
+      { id: 'vl-huur', omschrijving: 'Kantoorhuur', bedrag: 2000, eenheid: 'maand', categorie: 'huisvesting', btw: 'hoog' },
+      { id: 'vl-gwl', omschrijving: 'Gas, water en licht', bedrag: 330, eenheid: 'maand', categorie: 'huisvesting', btw: 'hoog' },
+      { id: 'vl-internet', omschrijving: 'Internet en telefonie', bedrag: 150, eenheid: 'maand', categorie: 'ict', btw: 'hoog' },
+      { id: 'vl-boekhouding', omschrijving: 'Boekhouding en salarisadministratie', bedrag: 200, eenheid: 'maand', categorie: 'administratie', btw: 'hoog' },
+      { id: 'vl-avb', omschrijving: 'Bedrijfsaansprakelijkheid', bedrag: 0, eenheid: 'maand', categorie: 'verzekering', btw: 'geen' },
+      { id: 'vl-software', omschrijving: 'Software (route, scan, boekhouding)', bedrag: 130, eenheid: 'maand', categorie: 'ict', btw: 'hoog' },
+      { id: 'vl-bank', omschrijving: 'Bankkosten', bedrag: 60, eenheid: 'maand', categorie: 'administratie', btw: 'geen' },
+      { id: 'vl-pand', omschrijving: 'Verzekering pand en inventaris', bedrag: 0, eenheid: 'maand', categorie: 'verzekering', btw: 'geen' },
+      { id: 'vl-schade', omschrijving: 'Schade, boetes, eigen risico', bedrag: 0, eenheid: 'maand', categorie: 'overig', btw: 'hoog' },
     ],
   },
   {
@@ -191,10 +203,18 @@ function legeBegroting(entityId: string, naam: string, createdBy: string): Nieuw
  * Zet de voorbeelddata neer. Geeft terug hoeveel entiteiten en begrotingen er
  * zijn aangemaakt.
  *
- * Er wordt niets gecontroleerd op wat er al staat: draai je dit twee keer, dan
- * krijg je alles dubbel. De knop in de app waarschuwt daarvoor.
+ * Staat er al data, dan stopt deze functie — anders krijg je alles dubbel en
+ * blijf je met een onoverzichtelijke lijst zitten. Wil je opnieuw beginnen, dan
+ * eerst `wisAlleData()`; de knop in de app biedt dat aan.
  */
 export async function laadVoorbeelddata(createdBy: string): Promise<SeedResultaat> {
+  const bestaand = await haalEntiteiten();
+  if (bestaand.length > 0) {
+    throw new Error(
+      'Er staan al entiteiten in de app. Wis die eerst, anders komt alles dubbel te staan.'
+    );
+  }
+
   const [holdingId, buddyId, installatieId, smartId] = await Promise.all(
     ENTITEITEN.map((entiteit) => maakEntiteit(entiteit))
   );
@@ -235,7 +255,13 @@ export async function laadVoorbeelddata(createdBy: string): Promise<SeedResultaa
         actief: true,
         // Wat jij de ZZP'er betaalt: € 2,25 per pakket. Jouw tarief is € 2,60,
         // dus de marge is € 0,35 per pakket.
-        model: { soort: 'zzp_stuk', tariefPerStuk: 2.25, stuksPerDag: 200, dagenPerMaand: RIJDAGEN },
+        model: {
+          soort: 'zzp_stuk',
+          tariefPerStuk: 2.25,
+          stuksPerDag: 200,
+          dagenPerMaand: RIJDAGEN,
+          btw: 'hoog',
+        },
       },
       medewerker('inzet-detachering-1', 'Gedetacheerd 1', 'opdracht-detachering'),
       medewerker('inzet-detachering-2', 'Gedetacheerd 2', 'opdracht-detachering'),
@@ -293,4 +319,22 @@ export async function laadVoorbeelddata(createdBy: string): Promise<SeedResultaa
   ]);
 
   return { entiteiten: ENTITEITEN.length, begrotingen: 4 };
+}
+
+
+/**
+ * Wist alle entiteiten en alle begrotingen. Bedoeld om schoon opnieuw te kunnen
+ * beginnen met de voorbeelddata.
+ *
+ * De begrotingen gaan eerst en apart, zodat ook begrotingen zonder entiteit —
+ * wezen van een eerder verwijderde entiteit — gegarandeerd meegaan.
+ */
+export async function wisAlleData(): Promise<{ entiteiten: number; begrotingen: number }> {
+  const begrotingen = await haalBegrotingen();
+  await Promise.all(begrotingen.map((begroting) => verwijderBegroting(begroting.id)));
+
+  const entiteiten = await haalEntiteiten();
+  await Promise.all(entiteiten.map((entiteit) => verwijderEntiteit(entiteit.id)));
+
+  return { entiteiten: entiteiten.length, begrotingen: begrotingen.length };
 }

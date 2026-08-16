@@ -55,8 +55,14 @@ const BegrotingKiezer: React.FC<BegrotingKiezerProps> = ({
   const kleurVanEntiteit = (entityId: string) =>
     entiteiten.find((entiteit) => entiteit.id === entityId)?.kleur ?? '#a89d8f';
 
-  // Archief eerst weglaten; daar wil je zelden een uitleg op toepassen.
-  const bruikbaar = begrotingen.filter((begroting) => begroting.status !== 'archief');
+  // Archief weglaten — daar wil je zelden een uitleg op toepassen — en ook
+  // begrotingen waarvan de entiteit niet meer bestaat: daar val je alleen maar
+  // in een leeg scherm.
+  const bruikbaar = begrotingen.filter(
+    (begroting) =>
+      begroting.status !== 'archief' &&
+      entiteiten.some((entiteit) => entiteit.id === begroting.entityId)
+  );
 
   return (
     <div className="absolute inset-0 z-10 bg-white dark:bg-gray-900 flex flex-col">

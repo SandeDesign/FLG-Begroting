@@ -3,7 +3,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Copy, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
+import { AlertTriangle, Copy, Pencil, Plus, Trash2, Wallet } from 'lucide-react';
 import { usePageTitle } from '../contexts/PageTitleContext';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,7 +15,13 @@ import ActionMenu from '../components/ui/ActionMenu';
 import PeriodSelector from '../components/ui/PeriodSelector';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
-import { dupliceerAlsScenario, verwijderBegroting, wijzigStatus } from '../services/budgetService';
+import {
+  dupliceerAlsScenario,
+  verwijderBegroting,
+  verwijderWeesBegrotingen,
+  wijzigStatus,
+  zoekWeesBegrotingen,
+} from '../services/budgetService';
 import { periodeBereikLabel, valtInJaar } from '../utils/dateFilters';
 import { formatEuro, vanMaand } from '../utils/periode';
 import { BEGROTING_STATUS_LABEL, type BegrotingStatus } from '../types/begroting';
@@ -31,8 +37,9 @@ const Begrotingen: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { entiteiten, geselecteerdJaar } = useApp();
-  const { doorgerekend, laden, fout, herlaad } = useBegrotingsdata();
+  const { begrotingen, doorgerekend, laden, fout, herlaad } = useBegrotingsdata();
   const [melding, setMelding] = useState<string | null>(null);
+  const [opruimenBezig, setOpruimenBezig] = useState(false);
 
   // Alleen de begrotingen die het gekozen jaar raken; een begroting die van
   // 2026-01 tot 2027-06 loopt hoort dus bij allebei die jaren.
@@ -54,6 +61,38 @@ const Begrotingen: React.FC = () => {
         .filter((groep) => groep.items.length > 0),
     [entiteiten, zichtbaar]
   );
+
+  // Begrotingen waarvan de entiteit weg is. Die vallen buiten de groepering
+  // hierboven en zouden zonder deze lijst onzichtbaar én onverwijderbaar zijn.
+  const wezen = useMemo(
+    () => zoekWeesBegrotingen(begrotingen, entiteiten.map((entiteit) => entiteit.id)),
+    [begrotingen, entiteiten]
+  );
+
+  const ruimWezenOp = async () => {
+    if (
+      !window.confirm(
+        `${wezen.length} ${wezen.length === 1 ? 'begroting hoort' : 'begrotingen horen'} bij een entiteit die niet meer bestaat. Definitief verwijderen?`
+      )
+    ) {
+      return;
+    }
+
+    setOpruimenBezig(true);
+    setMelding(null);
+
+    try {
+      const aantal = await verwijderWeesBegrotingen(entiteiten.map((entiteit) => entiteit.id));
+      await herlaad();
+      setMelding(
+        `${aantal} ${aantal === 1 ? 'begroting is' : 'begrotingen zijn'} opgeruimd.`
+      );
+    } catch {
+      setMelding('Opruimen mislukt. Probeer het opnieuw.');
+    } finally {
+      setOpruimenBezig(false);
+    }
+  };
 
   const dupliceer = async (budgetId: string, huidigeNaam: string) => {
     const naam = window.prompt('Naam voor het nieuwe scenario', `${huidigeNaam} — variant`);
@@ -120,7 +159,57 @@ const Begrotingen: React.FC = () => {
         </div>
       )}
 
-      {perEntiteit.length === 0 ? (
+      {wezen.length > 0 && (
+        <Card>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="h-9 w-9 rounded-xl bg-amber-50 dark:bg-amber-900/25 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle
+                  className="h-4 w-4 text-amber-600 dark:text-amber-300"
+                  aria-hidden
+                />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+                  {wezen.length} {wezen.length === 1 ? 'begroting zonder' : 'begrotingen zonder'}{' '}
+                  entiteit
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                  De entiteit hiervan is verwijderd. Ze tellen nergens meer mee, maar staan
+                  nog wel in de database.
+                </p>
+                <ul className="mt-3 space-y-1">
+                  {wezen.map((begroting) => (
+                    <li
+                      key={begroting.id}
+                      className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"
+                    >
+                      <span className="font-medium">{begroting.naam}</span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        {periodeBereikLabel(begroting.periodeVan, begroting.periodeTot)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => void verwijder(begroting.id, begroting.naam)}
+                        className="text-xs font-medium text-red-600 dark:text-red-400 hover:underline"
+                      >
+                        Verwijderen
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <Button variant="danger" onClick={() => void ruimWezenOp()} loading={opruimenBezig}>
+              <Trash2 className="h-4 w-4" aria-hidden />
+              Alles opruimen
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {perEntiteit.length === 0 && wezen.length === 0 ? (
         <Card>
           <EmptyState
             icon={Wallet}

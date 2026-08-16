@@ -12,8 +12,10 @@ import { veiligGetal } from '../../utils/firestoreSchoon';
 import Uitkomst from './Uitkomst';
 import { berekenInzet, splitsLoondienst } from '../../utils/begroting.calc';
 import { formatEuro, formatPercentage } from '../../utils/periode';
+import BtwKeuze from './BtwKeuze';
 import {
   INZET_SOORT_LABEL,
+  type BtwTarief,
   type Inzet,
   type InzetModel,
   type InzetSoort,
@@ -35,6 +37,8 @@ interface FormWaarden {
   stuksPerDag: number;
   dagtarief: number;
   dagenPerMaand: number;
+  /** Alleen voor ZZP: over loon zit geen BTW. */
+  btw: BtwTarief;
 }
 
 const LEEG: FormWaarden = {
@@ -53,6 +57,7 @@ const LEEG: FormWaarden = {
   stuksPerDag: 0,
   dagtarief: 0,
   dagenPerMaand: 26,
+  btw: 'hoog',
 };
 
 function naarForm(inzet: Inzet): FormWaarden {
@@ -76,9 +81,9 @@ function naarForm(inzet: Inzet): FormWaarden {
         overig: inzet.model.overig,
       };
     case 'zzp_stuk':
-      return { ...basis, ...inzet.model };
+      return { ...basis, ...inzet.model, btw: inzet.model.btw ?? 'hoog' };
     case 'zzp_dag':
-      return { ...basis, ...inzet.model };
+      return { ...basis, ...inzet.model, btw: inzet.model.btw ?? 'hoog' };
   }
 }
 
@@ -100,12 +105,14 @@ function naarModel(waarden: FormWaarden): InzetModel {
         tariefPerStuk: waarden.tariefPerStuk,
         stuksPerDag: waarden.stuksPerDag,
         dagenPerMaand: waarden.dagenPerMaand,
+        btw: waarden.btw,
       };
     case 'zzp_dag':
       return {
         soort: 'zzp_dag',
         dagtarief: waarden.dagtarief,
         dagenPerMaand: waarden.dagenPerMaand,
+        btw: waarden.btw,
       };
   }
 }
@@ -140,6 +147,7 @@ const InzetModal: React.FC<InzetModalProps> = ({
   } = useForm<FormWaarden>({ defaultValues: LEEG });
 
   const soort = watch('soort');
+  const btw = watch('btw');
   const huidig = watch();
 
   // Wat de ingevulde waarden nú opleveren. Vul je per ongeluk 241 in bij een
@@ -339,6 +347,23 @@ const InzetModal: React.FC<InzetModalProps> = ({
               min="0"
               {...register('dagenPerMaand', { setValueAs: veiligGetal })}
             />
+          </div>
+        )}
+
+        {soort !== 'loondienst' && (
+          <div className="space-y-1.5">
+            <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+              BTW op de factuur van de ZZP'er
+            </span>
+            <BtwKeuze
+              waarde={btw}
+              onChange={(nieuw) => setValue('btw', nieuw, { shouldDirty: true })}
+              className="w-full sm:w-64"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Deze BTW vorder je terug; het tarief hierboven is exclusief BTW. Over loon
+              zit geen BTW, dus bij loondienst staat dit veld er niet.
+            </p>
           </div>
         )}
 

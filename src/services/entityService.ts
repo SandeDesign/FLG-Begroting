@@ -17,6 +17,7 @@ import {
 import { db } from '../lib/firebase';
 import type { Entity, NieuweEntity, VasteLast } from '../types/begroting';
 import { schoonVoorFirestore } from '../utils/firestoreSchoon';
+import { verwijderBegrotingenVanEntiteit } from './budgetService';
 
 const COLLECTIE = 'entities';
 
@@ -31,7 +32,10 @@ function naarEntity(id: string, data: Record<string, unknown>): Entity {
     isHolding: (data.isHolding as boolean) ?? false,
     kleur: (data.kleur as string) ?? '#cd853f',
     volgorde: (data.volgorde as number) ?? 0,
-    vasteLasten: (data.vasteLasten as VasteLast[]) ?? [],
+    vasteLasten: ((data.vasteLasten as VasteLast[]) ?? []).map((last) => ({
+      ...last,
+      btw: last.btw ?? 'hoog',
+    })),
     createdAt: data.createdAt as Entity['createdAt'],
     updatedAt: data.updatedAt as Entity['updatedAt'],
   };
@@ -83,7 +87,17 @@ export async function bewaarVasteLasten(
   });
 }
 
-/** Verwijdert een entiteit. De begrotingen eronder blijven bestaan. */
-export async function verwijderEntiteit(entityId: string): Promise<void> {
+/**
+ * Verwijdert een entiteit, met alles wat eraan hangt: de begrotingen van deze
+ * entiteit en de onderlinge leveringen die haar noemen.
+ *
+ * Zonder dit bleven de begrotingen als wees achter — onzichtbaar in de lijst,
+ * want die groepeert op entiteit, maar wel gewoon nog in de database.
+ *
+ * Geeft terug hoeveel begrotingen zijn meeverwijderd, zodat de UI dat kan melden.
+ */
+export async function verwijderEntiteit(entityId: string): Promise<number> {
+  const aantalBegrotingen = await verwijderBegrotingenVanEntiteit(entityId);
   await deleteDoc(doc(db, COLLECTIE, entityId));
+  return aantalBegrotingen;
 }

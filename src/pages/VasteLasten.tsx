@@ -14,6 +14,7 @@ import Input from '../components/ui/Input';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import EenheidKeuze from '../components/begroting/EenheidKeuze';
+import BtwKeuze from '../components/begroting/BtwKeuze';
 import { bewaarVasteLasten, haalEntiteit } from '../services/entityService';
 import { formatEuro, naarMaand } from '../utils/periode';
 import {
@@ -92,6 +93,7 @@ const VasteLasten: React.FC = () => {
         bedrag: 0,
         eenheid: 'maand',
         categorie: 'overig',
+        btw: 'hoog',
       },
     ]);
     setGewijzigd(true);
@@ -181,7 +183,7 @@ const VasteLasten: React.FC = () => {
             {regels.map((regel) => (
               <div
                 key={regel.id}
-                className="grid gap-3 sm:grid-cols-[1fr_140px_150px_150px_auto] sm:items-end p-3 rounded-lg border border-gray-100 dark:border-gray-700"
+                className="grid gap-3 sm:grid-cols-[1fr_130px_140px_140px_130px_auto] sm:items-end p-3 rounded-lg border border-gray-100 dark:border-gray-700"
               >
                 <Input
                   label="Omschrijving"
@@ -229,6 +231,17 @@ const VasteLasten: React.FC = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+                    BTW
+                  </span>
+                  <BtwKeuze
+                    waarde={regel.btw}
+                    onChange={(btw) => wijzig(regel.id, { btw })}
+                    className="w-full"
+                  />
                 </div>
 
                 <button

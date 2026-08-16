@@ -32,6 +32,40 @@ export const EENHEID_KORT: Record<Eenheid, string> = {
   jaar: 'jr',
 };
 
+// ─── BTW ────────────────────────────────────────────────────────────────────
+
+/**
+ * Het BTW-tarief op een factuur — verkoop én inkoop.
+ *
+ * Vrijwel elke factuur bevat BTW: die op je opdrachten draag je af, die op je
+ * bussen, ZZP'ers en vaste lasten vorder je terug. Soms is de BTW verlegd, zoals
+ * bij de bezorgingsopdrachten waar dat met de opdrachtgever is afgesproken.
+ *
+ * BTW telt nergens mee in het resultaat — dat blijft van begin tot eind
+ * exclusief BTW. Maar hij wordt overal wél bijgehouden, want anders klopt geen
+ * enkel factuurbedrag en zie je niet wat er maandelijks aan de Belastingdienst
+ * heen en weer gaat.
+ */
+export type BtwTarief = 'hoog' | 'laag' | 'geen' | 'verlegd';
+
+export const BTW_TARIEVEN: BtwTarief[] = ['hoog', 'laag', 'geen', 'verlegd'];
+
+export const BTW_LABEL: Record<BtwTarief, string> = {
+  hoog: '21%',
+  laag: '9%',
+  geen: 'Geen BTW',
+  verlegd: 'Verlegd',
+};
+
+export const BTW_PERCENTAGE: Record<BtwTarief, number> = {
+  hoog: 0.21,
+  laag: 0.09,
+  geen: 0,
+  // Bij verlegde BTW staat er geen BTW op de factuur; de ontvanger geeft hem
+  // zelf aan en trekt hem in dezelfde aangifte weer af.
+  verlegd: 0,
+};
+
 // ─── Entiteit ───────────────────────────────────────────────────────────────
 
 export type VasteLastCategorie =
@@ -56,6 +90,11 @@ export interface VasteLast {
   /** De eenheid waarin dit bedrag is ingevoerd. */
   eenheid: Eenheid;
   categorie: VasteLastCategorie;
+  /**
+   * De BTW op deze factuur. Huur is vaak vrijgesteld, bankkosten ook; software
+   * en boekhouding zijn dat meestal niet.
+   */
+  btw: BtwTarief;
 }
 
 export interface Entity {
@@ -162,6 +201,11 @@ export interface Opdracht {
   overigeOpbrengst: number;
   /** De eenheid van toeslagen en overige opbrengst. */
   extraEenheid: Eenheid;
+  /**
+   * De BTW die wij over deze opdracht factureren aan de opdrachtgever. Bij de
+   * bezorging is dat verlegd; bij de meeste andere opdrachten 21%.
+   */
+  btw: BtwTarief;
 }
 
 // ─── Middel ─────────────────────────────────────────────────────────────────
@@ -199,6 +243,8 @@ export interface Middel {
   overig: number;
   /** De eenheid waarin de bedragen van dit middel zijn ingevoerd. */
   eenheid: Eenheid;
+  /** De BTW die de leverancier ons over dit middel factureert. */
+  btw: BtwTarief;
 }
 
 // ─── Inzet ──────────────────────────────────────────────────────────────────
@@ -218,11 +264,15 @@ export type InzetModel =
       tariefPerStuk: number;
       stuksPerDag: number;
       dagenPerMaand: number;
+      /** De BTW op de factuur van de ZZP'er. */
+      btw: BtwTarief;
     }
   | {
       soort: 'zzp_dag';
       dagtarief: number;
       dagenPerMaand: number;
+      /** De BTW op de factuur van de ZZP'er. */
+      btw: BtwTarief;
     };
 
 export type InzetSoort = InzetModel['soort'];
@@ -267,32 +317,6 @@ export const GRONDSLAG_LABEL: Record<Grondslag, string> = {
   per_uur: 'Per uur',
   per_stuk: 'Per stuk',
   vast: 'Vast bedrag',
-};
-
-/**
- * Het BTW-tarief op een onderlinge factuur.
- *
- * BTW telt niet mee in het resultaat: je draagt hem af en de ontvangende
- * entiteit vordert hem terug, dus per saldo is het een doorlopende post. Hij
- * staat er wel bij, omdat het factuurbedrag anders niet klopt met wat er
- * werkelijk heen en weer gaat.
- */
-export type BtwTarief = 'hoog' | 'laag' | 'geen' | 'verlegd';
-
-export const BTW_LABEL: Record<BtwTarief, string> = {
-  hoog: '21%',
-  laag: '9%',
-  geen: 'Geen BTW',
-  verlegd: 'Verlegd',
-};
-
-export const BTW_PERCENTAGE: Record<BtwTarief, number> = {
-  hoog: 0.21,
-  laag: 0.09,
-  geen: 0,
-  // Bij verlegde BTW staat er geen BTW op de factuur; de ontvanger geeft hem
-  // zelf aan en trekt hem in dezelfde aangifte weer af.
-  verlegd: 0,
 };
 
 export interface OnderlingeLevering {
@@ -408,6 +432,13 @@ export interface Schaal {
   zzpKostenPerStuk: number;
   /** 0 = de ZZP'er brengt een eigen bus mee, 1 = onze bus. */
   zzpMiddelenPerRoute: number;
+
+  /**
+   * De BTW op wat wij voor deze routes factureren. Bij bezorging is die meestal
+   * verlegd; staat de schaal voor ander werk, zet hem dan op 21%. Op de bussen
+   * en de ZZP-facturen die hieruit volgen zit altijd gewoon BTW.
+   */
+  btw: BtwTarief;
 }
 
 export const LEGE_SCHAAL: Schaal = {
@@ -437,6 +468,7 @@ export const LEGE_SCHAAL: Schaal = {
   zzpTariefPerStuk: 2.6,
   zzpKostenPerStuk: 2.25,
   zzpMiddelenPerRoute: 0,
+  btw: 'verlegd',
 };
 
 /** De id's die de schaal aan zijn gegenereerde regels geeft. */
@@ -604,6 +636,8 @@ export interface BegrotingResultaat {
   btwOnderlingUit: number;
   /** BTW op de inkomende onderlinge facturen. Telt niet mee in het resultaat. */
   btwOnderlingIn: number;
+  /** Het volledige BTW-beeld, over verkoop én inkoop. */
+  btw: BtwOverzicht;
 
   /** Totaal aantal stuks per maand over alle opdrachten die op stuks draaien. */
   stuksPerMaand: number;
@@ -614,6 +648,31 @@ export interface BegrotingResultaat {
 
   /** Waarschuwingen over de invoer, bijvoorbeeld loondienst zonder personeel. */
   waarschuwingen: string[];
+}
+
+/**
+ * Wat er per maand aan BTW omgaat. Staat los van het resultaat — dat blijft van
+ * begin tot eind exclusief BTW — maar hoort wel in beeld, want het gaat wel
+ * degelijk de deur uit en komt weer terug.
+ */
+export interface BtwOverzicht {
+  /** BTW die wij factureren over onze opdrachten. */
+  overOpdrachten: number;
+  /** BTW die wij factureren aan een andere entiteit. */
+  overOnderlingUit: number;
+  /** Alles wat wij in rekening brengen en dus moeten afdragen. */
+  afTeDragen: number;
+
+  overMiddelen: number;
+  /** Alleen ZZP-facturen; over loon zit geen BTW. */
+  overInzet: number;
+  overVasteLasten: number;
+  overOnderlingIn: number;
+  /** Alles wat ons in rekening wordt gebracht en dus terug te vorderen is. */
+  terugTeVorderen: number;
+
+  /** Af te dragen min terug te vorderen. Positief is betalen aan de fiscus. */
+  saldo: number;
 }
 
 export interface KetenStroom {

@@ -76,12 +76,18 @@ export const HANDBOEK: HandboekHoofdstuk[] = [
       },
       {
         id: 'btw',
-        titel: 'Alle bedragen zijn exclusief BTW',
-        kort: 'Waarom BTW niet meetelt in het resultaat',
+        titel: 'BTW: overal bijgehouden, nergens meegerekend',
+        kort: 'Elke factuur heeft BTW — behalve wat we verlegd factureren',
         tekst: [
-          'Overal in de begroting werk je met bedragen exclusief BTW. Dat is bewust: BTW die je afdraagt vorder je elders weer terug, dus per saldo is het geen kost.',
-          'Bij een **onderlinge levering** kies je wel een BTW-tarief: 21%, 9%, geen of verlegd. Dat bepaalt wat er op de factuur komt te staan tussen de twee BV\'s.',
-          'Die BTW telt niet mee in het resultaat — de leverende entiteit draagt hem af en de ontvangende vordert hem terug — maar staat er wel bij, zodat het factuurbedrag klopt met wat je in de begroting ziet.',
+          'Vrijwel elke factuur bevat BTW. Die op onze opdrachten dragen we af; die op de bussen, de ZZP-facturen, de vaste lasten en de onderlinge facturen vorderen we terug.',
+          'Eén uitzondering: wat **wij naar de bezorging factureren** gaat met **verlegde BTW**. Dat is zo met de opdrachtgever afgesproken — er staat dan geen BTW op onze factuur en de opdrachtgever geeft hem zelf aan.',
+          'Alle bedragen in de begroting zijn **exclusief BTW**, en dat blijft zo: BTW verandert het resultaat niet, want wat je afdraagt vorder je elders terug. Per saldo is het geen kost.',
+          'Maar hij wordt overal wél bijgehouden. Bij elke opdracht, elk middel, elke ZZP-inzet, elke vaste last en elke onderlinge levering kies je een tarief: 21%, 9%, geen BTW of verlegd.',
+          'Op het tabblad **Overzicht** staat onderaan het **BTW-overzicht**: wat je afdraagt, wat je terugvordert en wat er per saldo naar de Belastingdienst gaat. In het ketenoverzicht staat hetzelfde voor de groep als geheel — daar vallen de onderlinge facturen vanzelf tegen elkaar weg.',
+          'Zonder dat overzicht klopt geen enkel factuurbedrag met wat er van de bankrekening gaat. Het resultaat blijft exclusief; het BTW-overzicht laat zien wat er daarnaast heen en weer loopt.',
+        ],
+        verwijzingen: [
+          { label: 'Toon het BTW-overzicht', pad: 'begroting', tab: 'overzicht' },
         ],
       },
     ],
@@ -228,7 +234,7 @@ export const HANDBOEK: HandboekHoofdstuk[] = [
         tekst: [
           'Levert de ene entiteit iets aan de andere — mensen, bussen, administratie, huur — dan leg je dat vast onder **Onderling**, bij de entiteit die levert.',
           'Elke post is een eigen regel. Voeg er zoveel toe als er zijn; onderaan zie je per ontvangende entiteit het totaal.',
-          'Je kiest een grondslag: per uur, per stuk of een vast bedrag. Daarnaast het BTW-tarief dat op de factuur komt.',
+          'Je kiest een grondslag: per uur, per stuk of een vast bedrag. Daarnaast het BTW-tarief dat op de factuur komt — onderling is dat meestal gewoon 21%.',
           'De regel telt bij de leverende entiteit als opbrengst en bij de ontvangende als directe kost. In het ketenoverzicht vallen ze tegen elkaar weg, zodat de groep niet groter lijkt dan hij is.',
           'Bij de ontvangende entiteit zie je de levering wel staan, maar kun je hem niet aanpassen. Dat doe je bij de entiteit die levert.',
         ],

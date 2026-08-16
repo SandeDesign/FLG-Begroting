@@ -16,10 +16,12 @@ import {
 } from '../../utils/begroting.calc';
 import { naarMaand } from '../../utils/periode';
 import EenheidKeuze from './EenheidKeuze';
+import BtwKeuze from './BtwKeuze';
 import {
   FINANCIERING_LABEL,
   HOORT_BIJ_ENTITEIT,
   type Aannames,
+  type BtwTarief,
   type Eenheid,
   type Financiering,
   type Middel,
@@ -42,6 +44,7 @@ interface FormWaarden {
   onderhoudBerekenen: boolean;
   overig: number;
   eenheid: Eenheid;
+  btw: BtwTarief;
 }
 
 const LEEG: FormWaarden = {
@@ -60,6 +63,7 @@ const LEEG: FormWaarden = {
   onderhoudBerekenen: false,
   overig: 0,
   eenheid: 'maand',
+  btw: 'hoog',
 };
 
 interface MiddelModalProps {
@@ -91,6 +95,7 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
 
   const financiering = watch('financiering');
   const eenheid = watch('eenheid');
+  const btw = watch('btw');
   const onderhoudBerekenen = watch('onderhoudBerekenen');
   const huidig = watch();
 
@@ -270,7 +275,7 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
           </label>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 sm:items-end">
+        <div className="grid gap-4 sm:grid-cols-3 sm:items-end">
           <div className="space-y-1.5">
             <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
               Eenheid van de bedragen
@@ -282,6 +287,20 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
             />
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Geldt voor alle bedragen van dit middel.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+              BTW op de facturen
+            </span>
+            <BtwKeuze
+              waarde={btw}
+              onChange={(nieuw) => setValue('btw', nieuw, { shouldDirty: true })}
+              className="w-full"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Deze BTW vorder je terug; de kosten hierboven zijn exclusief BTW.
             </p>
           </div>
 

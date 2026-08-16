@@ -12,6 +12,7 @@ import { veiligGetal } from '../../utils/firestoreSchoon';
 import { berekenSchaalAfgeleid } from '../../utils/begroting.calc';
 import { formatEuro, formatGetal } from '../../utils/periode';
 import type { Aannames, Schaal, StandaardMedewerker, StandaardMiddel } from '../../types/begroting';
+import BtwKeuze from './BtwKeuze';
 
 interface SchaalPaneelProps {
   schaal: Schaal;
@@ -111,6 +112,23 @@ const SchaalPaneel: React.FC<SchaalPaneelProps> = ({
 
       {schaal.actief && (
         <>
+          {/* BTW op wat hier gefactureerd wordt */}
+          <Card>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight mb-1">
+              BTW op deze routes
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Wat wij voor deze routes factureren. Bij bezorging is de BTW meestal verlegd, zo
+              afgesproken met de opdrachtgever. Op de bussen en de ZZP-facturen die hieruit
+              volgen zit altijd gewoon 21% — die vorder je terug.
+            </p>
+            <BtwKeuze
+              waarde={schaal.btw}
+              onChange={(btw) => onWijzigen({ btw })}
+              className="w-full sm:w-64"
+            />
+          </Card>
+
           {/* Extra routes met eigen mensen */}
           <Card>
             <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight mb-1">

@@ -83,6 +83,18 @@ const Ketenoverzicht: React.FC = () => {
     0
   );
 
+  // De BTW van de hele groep bij elkaar. Wat de één onderling afdraagt vordert
+  // de ander terug, dus dat valt in deze optelling vanzelf tegen elkaar weg —
+  // wat overblijft is wat er echt naar de Belastingdienst gaat.
+  const btwKeten = selectie.reduce(
+    (totalen, item) => ({
+      afTeDragen: totalen.afTeDragen + item.resultaat.btw.afTeDragen,
+      terugTeVorderen: totalen.terugTeVorderen + item.resultaat.btw.terugTeVorderen,
+      saldo: totalen.saldo + item.resultaat.btw.saldo,
+    }),
+    { afTeDragen: 0, terugTeVorderen: 0, saldo: 0 }
+  );
+
   if (laden) return <LoadingSpinner />;
 
   return (
@@ -409,6 +421,53 @@ const Ketenoverzicht: React.FC = () => {
                 {formatEuro(om(keten.resultaatZonderSubsidie))}
               </span>
               .
+            </p>
+          </Card>
+
+          {/* De BTW van de groep */}
+          <Card>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight mb-1">
+              BTW van de groep
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Alle entiteiten bij elkaar. De BTW op de onderlinge facturen valt hier vanzelf
+              tegen elkaar weg: de één draagt af wat de ander terugvordert.
+            </p>
+
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <span className="text-sm text-gray-600 dark:text-gray-300">Af te dragen</span>
+                <span className="text-sm tabular-nums text-gray-700 dark:text-gray-200">
+                  {formatEuro(om(btwKeten.afTeDragen))}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 py-2.5">
+                <span className="text-sm text-gray-600 dark:text-gray-300">Terug te vorderen</span>
+                <span className="text-sm tabular-nums text-gray-700 dark:text-gray-200">
+                  {formatEuro(om(btwKeten.terugTeVorderen))}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 pt-3 border-t-2 border-t-gray-300 dark:border-t-gray-600">
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                  {btwKeten.saldo >= 0
+                    ? 'Te betalen aan de Belastingdienst'
+                    : 'Terug van de Belastingdienst'}
+                </span>
+                <span
+                  className={`text-base font-bold tabular-nums ${
+                    btwKeten.saldo >= 0
+                      ? 'text-gray-900 dark:text-gray-100'
+                      : 'text-emerald-700 dark:text-emerald-300'
+                  }`}
+                >
+                  {formatEuro(Math.abs(om(btwKeten.saldo)))}
+                </span>
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+              De BTW verandert het resultaat van de keten niet — alle bedragen hierboven zijn
+              exclusief BTW.
             </p>
           </Card>
         </>

@@ -35,6 +35,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import ControleBalk from '../components/begroting/ControleBalk';
 import EenheidSchakelaar from '../components/begroting/EenheidSchakelaar';
 import ResultatenStaat from '../components/begroting/ResultatenStaat';
+import BtwStaat from '../components/begroting/BtwStaat';
 import OpdrachtTabel from '../components/begroting/OpdrachtTabel';
 import RegelKaart from '../components/begroting/RegelKaart';
 import OpdrachtModal from '../components/begroting/OpdrachtModal';
@@ -565,6 +566,10 @@ const BegrotingWerkblad: React.FC = () => {
 
           <Card>
             <OpdrachtTabel resultaat={resultaat} eenheid={eenheid} />
+          </Card>
+
+          <Card>
+            <BtwStaat resultaat={resultaat} eenheid={eenheid} />
           </Card>
         </div>
       )}

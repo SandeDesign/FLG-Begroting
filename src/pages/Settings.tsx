@@ -12,7 +12,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { applyThemeColor, THEME_COLOR_PRESETS } from '../utils/themeColors';
-import { laadVoorbeelddata } from '../services/seedService';
+import { laadVoorbeelddata, wisAlleData } from '../services/seedService';
 import {
   haalToegestaneUids,
   maakAccount,
@@ -43,6 +43,7 @@ const Settings: React.FC = () => {
   const [accountMelding, setAccountMelding] = useState<string | null>(null);
 
   const [seedBezig, setSeedBezig] = useState(false);
+  const [wisBezig, setWisBezig] = useState(false);
   const [seedMelding, setSeedMelding] = useState<string | null>(null);
 
   // Thema en donkere modus staan in localStorage; met twee accounts op eigen
@@ -152,7 +153,7 @@ const Settings: React.FC = () => {
 
   const laadSeed = async () => {
     const bevestigd = window.confirm(
-      'De voorbeelddata toevoegen? Er wordt niets overschreven — draai je dit twee keer, dan staat alles dubbel in de lijst.'
+      'De voorbeelddata toevoegen? Dit lukt alleen als de app nog leeg is — anders komt alles dubbel te staan.'
     );
     if (!bevestigd) return;
 
@@ -165,10 +166,34 @@ const Settings: React.FC = () => {
       setSeedMelding(
         `${resultaat.entiteiten} entiteiten en ${resultaat.begrotingen} begrotingen toegevoegd.`
       );
-    } catch {
-      setSeedMelding('De voorbeelddata konden niet geladen worden.');
+    } catch (fout) {
+      setSeedMelding(
+        fout instanceof Error ? fout.message : 'De voorbeelddata konden niet geladen worden.'
+      );
     } finally {
       setSeedBezig(false);
+    }
+  };
+
+  const wisAlles = async () => {
+    const bevestigd = window.confirm(
+      'Alle entiteiten en alle begrotingen verwijderen? Dit kan niet ongedaan gemaakt worden.'
+    );
+    if (!bevestigd) return;
+
+    setWisBezig(true);
+    setSeedMelding(null);
+
+    try {
+      const resultaat = await wisAlleData();
+      await herlaadEntiteiten();
+      setSeedMelding(
+        `${resultaat.entiteiten} entiteiten en ${resultaat.begrotingen} begrotingen verwijderd.`
+      );
+    } catch {
+      setSeedMelding('Wissen mislukt. Probeer het opnieuw.');
+    } finally {
+      setWisBezig(false);
     }
   };
 
@@ -398,9 +423,19 @@ const Settings: React.FC = () => {
           </div>
         )}
 
-        <Button variant="outline" onClick={() => void laadSeed()} loading={seedBezig}>
-          Voorbeelddata laden
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => void laadSeed()} loading={seedBezig}>
+            Voorbeelddata laden
+          </Button>
+          <Button variant="danger" onClick={() => void wisAlles()} loading={wisBezig}>
+            Alles wissen
+          </Button>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+          "Alles wissen" haalt alle entiteiten en alle begrotingen weg, ook begrotingen
+          waarvan de entiteit al verwijderd was. Daarna kun je de voorbeelddata opnieuw
+          laden.
+        </p>
       </Card>
     </div>
   );

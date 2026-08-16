@@ -8,12 +8,14 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { veiligGetal } from '../../utils/firestoreSchoon';
 import Uitkomst from './Uitkomst';
-import { berekenBasisOpbrengst, berekenOpbrengst } from '../../utils/begroting.calc';
-import { naarMaand } from '../../utils/periode';
+import { berekenBasisOpbrengst, berekenOpbrengst, btwOver } from '../../utils/begroting.calc';
+import { formatEuro, naarMaand } from '../../utils/periode';
 import EenheidKeuze from './EenheidKeuze';
+import BtwKeuze from './BtwKeuze';
 import {
   OPBRENGST_SOORT_LABEL,
   type Aannames,
+  type BtwTarief,
   type Eenheid,
   type Opdracht,
   type OpbrengstModel,
@@ -38,6 +40,7 @@ interface FormWaarden {
   toeslagen: number;
   overigeOpbrengst: number;
   extraEenheid: Eenheid;
+  btw: BtwTarief;
 }
 
 const LEEG: FormWaarden = {
@@ -57,6 +60,7 @@ const LEEG: FormWaarden = {
   toeslagen: 0,
   overigeOpbrengst: 0,
   extraEenheid: 'maand',
+  btw: 'hoog',
 };
 
 /** Zet een bestaande opdracht om naar de platte formuliervorm. */
@@ -70,6 +74,7 @@ function naarForm(opdracht: Opdracht): FormWaarden {
     toeslagen: opdracht.toeslagen ?? 0,
     overigeOpbrengst: opdracht.overigeOpbrengst ?? 0,
     extraEenheid: opdracht.extraEenheid ?? 'maand',
+    btw: opdracht.btw ?? 'hoog',
   };
 
   switch (opdracht.opbrengst.soort) {
@@ -137,6 +142,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
   const soort = watch('soort');
   const vastEenheid = watch('vastEenheid');
   const extraEenheid = watch('extraEenheid');
+  const btw = watch('btw');
   const huidig = watch();
 
   // Direct laten zien wat er per maand uitkomt, met de berekening erbij.
@@ -149,9 +155,11 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
     toeslagen: huidig.toeslagen,
     overigeOpbrengst: huidig.overigeOpbrengst,
     extraEenheid: huidig.extraEenheid,
+    btw: huidig.btw,
   };
   const basis = berekenBasisOpbrengst(proefOpdracht, aannames);
   const totaalOpbrengst = berekenOpbrengst(proefOpdracht, aannames);
+  const btwOverOpbrengst = btwOver(totaalOpbrengst, huidig.btw);
 
   const berekeningInWoorden = () => {
     switch (huidig.soort) {
@@ -179,6 +187,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
       toeslagen: waarden.toeslagen,
       overigeOpbrengst: waarden.overigeOpbrengst,
       extraEenheid: waarden.extraEenheid,
+      btw: waarden.btw,
     });
     onClose();
   });
@@ -204,6 +213,21 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
             helperText="De opdrachtgever, als vrije tekst"
             {...register('voorWie')}
           />
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+            BTW op onze factuur
+          </span>
+          <BtwKeuze
+            waarde={btw}
+            onChange={(nieuw) => setValue('btw', nieuw, { shouldDirty: true })}
+            className="w-full sm:w-64"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Kies "Verlegd" als de opdrachtgever de BTW zelf aangeeft. Het resultaat
+            blijft altijd exclusief BTW; dit veld bepaalt alleen het BTW-overzicht.
+          </p>
         </div>
 
         <div className="space-y-1.5">
@@ -355,11 +379,15 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
               bedrag: naarMaand(huidig.overigeOpbrengst || 0, huidig.extraEenheid, aannames),
             },
           ]}
-          totaal={{ label: 'Opbrengst per maand', bedrag: totaalOpbrengst }}
+          totaal={{ label: 'Opbrengst per maand (exclusief BTW)', bedrag: totaalOpbrengst }}
           opmerking={
             totaalOpbrengst === 0
               ? 'Nul opbrengst is prima als een andere entiteit hiervoor betaalt — leg dat dan vast onder Onderling. Staat daar niets, dan draagt deze opdracht alleen kosten.'
-              : undefined
+              : huidig.btw === 'verlegd'
+                ? 'BTW verlegd: je factureert zonder BTW en de opdrachtgever geeft die zelf aan.'
+                : btwOverOpbrengst === 0
+                  ? 'Zonder BTW: je factuur is gelijk aan het bedrag hierboven.'
+                  : `Je factureert ${formatEuro(totaalOpbrengst + btwOverOpbrengst)} per maand — ${formatEuro(btwOverOpbrengst)} daarvan is BTW die je afdraagt.`
           }
         />
 

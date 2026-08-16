@@ -66,7 +66,24 @@ function naarOpdrachten(ruw: unknown): Opdracht[] {
     toeslagen: opdracht.toeslagen ?? 0,
     overigeOpbrengst: opdracht.overigeOpbrengst ?? 0,
     extraEenheid: opdracht.extraEenheid ?? 'maand',
+    btw: opdracht.btw ?? 'hoog',
   }));
+}
+
+/** Vult het BTW-tarief aan op middelen van vóór dat veld. */
+function naarMiddelen(ruw: unknown): Middel[] {
+  const lijst = (ruw as Middel[]) ?? [];
+  return lijst.map((middel) => ({ ...middel, btw: middel.btw ?? 'hoog' }));
+}
+
+/** Idem voor de ZZP-inzet; over loon zit geen BTW. */
+function naarInzet(ruw: unknown): Inzet[] {
+  const lijst = (ruw as Inzet[]) ?? [];
+  return lijst.map((item) =>
+    item.model.soort === 'loondienst'
+      ? item
+      : { ...item, model: { ...item.model, btw: item.model.btw ?? 'hoog' } }
+  );
 }
 
 /** Vult de schaal aan voor begrotingen die van vóór deze functie stammen. */
@@ -104,8 +121,8 @@ function naarBudget(id: string, data: Record<string, unknown>): Budget {
     aannames: naarAannames(data.aannames),
     schaal: naarSchaal(data.schaal),
     opdrachten: naarOpdrachten(data.opdrachten),
-    middelen: (data.middelen as Middel[]) ?? [],
-    inzet: (data.inzet as Inzet[]) ?? [],
+    middelen: naarMiddelen(data.middelen),
+    inzet: naarInzet(data.inzet),
     subsidies: (data.subsidies as Subsidie[]) ?? [],
     onderlingeLeveringen: leveringen,
     leveringNaarEntityIds:
@@ -209,6 +226,63 @@ export async function dupliceerAlsScenario(
 
 export async function verwijderBegroting(budgetId: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTIE, budgetId));
+}
+
+/**
+ * Verwijdert alle begrotingen van één entiteit en haalt de onderlinge
+ * leveringen naar die entiteit uit de begrotingen die blijven staan.
+ *
+ * Wordt aangeroepen als een entiteit wordt verwijderd. Zonder dit bleven de
+ * begrotingen als wees achter: onzichtbaar in de lijst, want die groepeert op
+ * entiteit, maar wél nog aanwezig in de database.
+ */
+export async function verwijderBegrotingenVanEntiteit(entityId: string): Promise<number> {
+  const alle = await haalBegrotingen();
+
+  const vanEntiteit = alle.filter((begroting) => begroting.entityId === entityId);
+  await Promise.all(vanEntiteit.map((begroting) => verwijderBegroting(begroting.id)));
+
+  // De leveringen naar of van deze entiteit hebben nu geen tegenpartij meer.
+  const teSchonen = alle.filter(
+    (begroting) =>
+      begroting.entityId !== entityId &&
+      begroting.onderlingeLeveringen.some(
+        (levering) =>
+          levering.naarEntityId === entityId || levering.vanEntityId === entityId
+      )
+  );
+
+  await Promise.all(
+    teSchonen.map((begroting) =>
+      werkBegrotingBij(begroting.id, {
+        onderlingeLeveringen: begroting.onderlingeLeveringen.filter(
+          (levering) =>
+            levering.naarEntityId !== entityId && levering.vanEntityId !== entityId
+        ),
+      })
+    )
+  );
+
+  return vanEntiteit.length;
+}
+
+/**
+ * Zoekt begrotingen waarvan de entiteit niet meer bestaat. Die zijn in de lijst
+ * onzichtbaar — daar wordt op entiteit gegroepeerd — maar staan wel in de weg.
+ */
+export function zoekWeesBegrotingen(
+  begrotingen: Budget[],
+  bestaandeEntityIds: string[]
+): Budget[] {
+  const bestaat = new Set(bestaandeEntityIds);
+  return begrotingen.filter((begroting) => !bestaat.has(begroting.entityId));
+}
+
+/** Ruimt in één keer alle begrotingen op waarvan de entiteit weg is. */
+export async function verwijderWeesBegrotingen(bestaandeEntityIds: string[]): Promise<number> {
+  const wezen = zoekWeesBegrotingen(await haalBegrotingen(), bestaandeEntityIds);
+  await Promise.all(wezen.map((begroting) => verwijderBegroting(begroting.id)));
+  return wezen.length;
 }
 
 /** Wat er allemaal meeverhuist als een opdracht naar een andere entiteit gaat. */
