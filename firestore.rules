@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// Firestore rules voor FLG-Begroting.
+//
+// Er zijn twee accounts en verder niemand. Wie toegang heeft staat in het
+// document settings/access, in het veld allowedUids. Dat document beheer je
+// handmatig in de Firebase console — de app kan het niet schrijven.
+//
+// Deployen: firebase deploy --only firestore:rules
+// (of plakken in Firebase console → Firestore Database → Regels)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Staat deze gebruiker op de whitelist?
+    function magErbij() {
+      return request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/settings/access).data.allowedUids;
+    }
+
+    // De whitelist zelf is leesbaar voor iedereen die is ingelogd. Dat is nodig
+    // zodat de app een nette "Geen toegang"-melding kan tonen in plaats van
+    // overal leesfouten. Schrijven kan alleen via de Firebase console.
+    match /settings/access {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // De entiteiten van de groep, inclusief hun vaste lasten.
+    match /entities/{entityId} {
+      allow read, write: if magErbij();
+    }
+
+    // De begrotingen. Alles zit in één document per begroting, dus hier is
+    // geen aparte regel per subcollectie nodig.
+    match /budgets/{budgetId} {
+      allow read, write: if magErbij();
+    }
+
+    // Alles wat hierboven niet expliciet is toegestaan, is dicht.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
