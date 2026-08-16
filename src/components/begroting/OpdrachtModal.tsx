@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { veiligGetal } from '../../utils/firestoreSchoon';
 import EenheidKeuze from './EenheidKeuze';
 import {
   OPBRENGST_SOORT_LABEL,
@@ -188,14 +189,14 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
               type="number"
               step="1"
               min="0"
-              {...register('aantalMensen', { valueAsNumber: true })}
+              {...register('aantalMensen', { setValueAs: veiligGetal })}
             />
             <Input
               label="Uren per week per persoon"
               type="number"
               step="0.5"
               min="0"
-              {...register('urenPerWeek', { valueAsNumber: true })}
+              {...register('urenPerWeek', { setValueAs: veiligGetal })}
             />
             <Input
               label="Tarief per uur"
@@ -203,7 +204,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
               step="0.01"
               min="0"
               helperText="Wat wij hiervoor rekenen"
-              {...register('tariefPerUur', { valueAsNumber: true })}
+              {...register('tariefPerUur', { setValueAs: veiligGetal })}
             />
             <Input
               label="Productiviteit"
@@ -212,7 +213,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
               min="0"
               max="1"
               helperText="0,92 betekent dat 8% van de uren niet declarabel is"
-              {...register('productiviteit', { valueAsNumber: true })}
+              {...register('productiviteit', { setValueAs: veiligGetal })}
             />
           </div>
         )}
@@ -224,14 +225,14 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
               type="number"
               step="1"
               min="0"
-              {...register('stuksPerDag', { valueAsNumber: true })}
+              {...register('stuksPerDag', { setValueAs: veiligGetal })}
             />
             <Input
               label="Tarief per stuk"
               type="number"
               step="0.01"
               min="0"
-              {...register('tariefPerStuk', { valueAsNumber: true })}
+              {...register('tariefPerStuk', { setValueAs: veiligGetal })}
             />
             <Input
               label="Dagen per maand"
@@ -239,7 +240,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
               step="1"
               min="0"
               helperText="26 bij ma t/m za"
-              {...register('dagenPerMaand', { valueAsNumber: true })}
+              {...register('dagenPerMaand', { setValueAs: veiligGetal })}
             />
           </div>
         )}
@@ -251,7 +252,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
               type="number"
               step="0.01"
               min="0"
-              {...register('vastBedrag', { valueAsNumber: true })}
+              {...register('vastBedrag', { setValueAs: veiligGetal })}
             />
             <div className="space-y-1.5">
               <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">

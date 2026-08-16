@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "date-fns": "^4.1.0",
     "firebase": "^12.3.0",
     "jspdf": "^3.0.4",
     "lucide-react": "^0.344.0",
@@ -23,7 +22,6 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.63.0",
     "react-router-dom": "^6.25.1",
-    "recharts": "^3.2.1",
     "yup": "^1.7.1"
   },
   "devDependencies": {

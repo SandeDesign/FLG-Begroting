@@ -8,6 +8,7 @@ import { ArrowRight } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { veiligGetal } from '../../utils/firestoreSchoon';
 import EenheidKeuze from './EenheidKeuze';
 import {
   GRONDSLAG_LABEL,
@@ -188,7 +189,7 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
             type="number"
             step="0.01"
             min="0"
-            {...register('tarief', { valueAsNumber: true })}
+            {...register('tarief', { setValueAs: veiligGetal })}
           />
 
           {grondslag !== 'vast' && (
@@ -197,7 +198,7 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
               type="number"
               step="0.01"
               min="0"
-              {...register('aantal', { valueAsNumber: true })}
+              {...register('aantal', { setValueAs: veiligGetal })}
             />
           )}
 

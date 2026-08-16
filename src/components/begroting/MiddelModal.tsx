@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { veiligGetal } from '../../utils/firestoreSchoon';
 import EenheidKeuze from './EenheidKeuze';
 import {
   FINANCIERING_LABEL,
@@ -159,7 +160,7 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
               step="0.01"
               min="0"
               helperText="Het bedrag dat je per periode betaalt"
-              {...register('leasetermijn', { valueAsNumber: true })}
+              {...register('leasetermijn', { setValueAs: veiligGetal })}
             />
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">
@@ -169,21 +170,21 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
                 step="0.01"
                 min="0"
                 helperText="Aanschafwaarde"
-                {...register('waarde', { valueAsNumber: true })}
+                {...register('waarde', { setValueAs: veiligGetal })}
               />
               <Input
                 label="Restwaarde"
                 type="number"
                 step="0.01"
                 min="0"
-                {...register('restwaarde', { valueAsNumber: true })}
+                {...register('restwaarde', { setValueAs: veiligGetal })}
               />
               <Input
                 label="Looptijd in maanden"
                 type="number"
                 step="1"
                 min="1"
-                {...register('looptijdMaanden', { valueAsNumber: true })}
+                {...register('looptijdMaanden', { setValueAs: veiligGetal })}
               />
             </div>
           )}
@@ -203,28 +204,28 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
             type="number"
             step="0.01"
             min="0"
-            {...register('brandstof', { valueAsNumber: true })}
+            {...register('brandstof', { setValueAs: veiligGetal })}
           />
           <Input
             label="Verzekering"
             type="number"
             step="0.01"
             min="0"
-            {...register('verzekering', { valueAsNumber: true })}
+            {...register('verzekering', { setValueAs: veiligGetal })}
           />
           <Input
             label="Wegenbelasting"
             type="number"
             step="0.01"
             min="0"
-            {...register('wegenbelasting', { valueAsNumber: true })}
+            {...register('wegenbelasting', { setValueAs: veiligGetal })}
           />
           <Input
             label="Overig"
             type="number"
             step="0.01"
             min="0"
-            {...register('overig', { valueAsNumber: true })}
+            {...register('overig', { setValueAs: veiligGetal })}
           />
         </div>
 
@@ -235,7 +236,7 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
             step="0.01"
             min="0"
             disabled={onderhoudBerekenen}
-            {...register('onderhoud', { valueAsNumber: true })}
+            {...register('onderhoud', { setValueAs: veiligGetal })}
           />
           <label className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
             <input

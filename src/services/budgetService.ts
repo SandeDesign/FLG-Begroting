@@ -17,6 +17,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { schoonVoorFirestore } from '../utils/firestoreSchoon';
 import {
   STANDAARD_AANNAMES,
   type Aannames,
@@ -104,7 +105,7 @@ export async function haalBegroting(budgetId: string): Promise<Budget | null> {
 /** Maakt een nieuwe begroting aan en geeft het nieuwe id terug. */
 export async function maakBegroting(begroting: NieuweBudget): Promise<string> {
   const ref = await addDoc(collection(db, COLLECTIE), {
-    ...begroting,
+    ...schoonVoorFirestore(begroting),
     leveringNaarEntityIds: afgeleideOntvangers(begroting.onderlingeLeveringen),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -125,7 +126,7 @@ export async function werkBegrotingBij(
     : {};
 
   await updateDoc(doc(db, COLLECTIE, budgetId), {
-    ...wijzigingen,
+    ...schoonVoorFirestore(wijzigingen),
     ...afgeleid,
     updatedAt: serverTimestamp(),
   });

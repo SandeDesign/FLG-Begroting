@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Entity, NieuweEntity, VasteLast } from '../types/begroting';
+import { schoonVoorFirestore } from '../utils/firestoreSchoon';
 
 const COLLECTIE = 'entities';
 
@@ -52,7 +53,7 @@ export async function haalEntiteit(entityId: string): Promise<Entity | null> {
 /** Maakt een nieuwe entiteit aan en geeft het nieuwe id terug. */
 export async function maakEntiteit(entiteit: NieuweEntity): Promise<string> {
   const ref = await addDoc(collection(db, COLLECTIE), {
-    ...entiteit,
+    ...schoonVoorFirestore(entiteit),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -65,7 +66,7 @@ export async function werkEntiteitBij(
   wijzigingen: Partial<NieuweEntity>
 ): Promise<void> {
   await updateDoc(doc(db, COLLECTIE, entityId), {
-    ...wijzigingen,
+    ...schoonVoorFirestore(wijzigingen),
     updatedAt: serverTimestamp(),
   });
 }
@@ -76,7 +77,7 @@ export async function bewaarVasteLasten(
   vasteLasten: VasteLast[]
 ): Promise<void> {
   await updateDoc(doc(db, COLLECTIE, entityId), {
-    vasteLasten,
+    vasteLasten: schoonVoorFirestore(vasteLasten),
     updatedAt: serverTimestamp(),
   });
 }

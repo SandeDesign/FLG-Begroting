@@ -8,6 +8,7 @@ import { Info } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { veiligGetal } from '../../utils/firestoreSchoon';
 import {
   INZET_SOORT_LABEL,
   type Inzet,
@@ -238,14 +239,14 @@ const InzetModal: React.FC<InzetModalProps> = ({
               type="number"
               step="0.01"
               min="0"
-              {...register('uurloon', { valueAsNumber: true })}
+              {...register('uurloon', { setValueAs: veiligGetal })}
             />
             <Input
               label="Uren per week"
               type="number"
               step="0.5"
               min="0"
-              {...register('urenPerWeek', { valueAsNumber: true })}
+              {...register('urenPerWeek', { setValueAs: veiligGetal })}
             />
             <Input
               label="Vakantiegeld in procenten"
@@ -253,7 +254,7 @@ const InzetModal: React.FC<InzetModalProps> = ({
               step="0.1"
               min="0"
               helperText="Over het bruto loon"
-              {...register('vakantiegeldPct', { valueAsNumber: true })}
+              {...register('vakantiegeldPct', { setValueAs: veiligGetal })}
             />
             <Input
               label="Werkgeverslasten in procenten"
@@ -261,21 +262,21 @@ const InzetModal: React.FC<InzetModalProps> = ({
               step="0.1"
               min="0"
               helperText="Over bruto plus vakantiegeld"
-              {...register('werkgeverslastenPct', { valueAsNumber: true })}
+              {...register('werkgeverslastenPct', { setValueAs: veiligGetal })}
             />
             <Input
               label="Pensioen per maand"
               type="number"
               step="0.01"
               min="0"
-              {...register('pensioen', { valueAsNumber: true })}
+              {...register('pensioen', { setValueAs: veiligGetal })}
             />
             <Input
               label="Overig per maand"
               type="number"
               step="0.01"
               min="0"
-              {...register('overig', { valueAsNumber: true })}
+              {...register('overig', { setValueAs: veiligGetal })}
             />
           </div>
         )}
@@ -287,21 +288,21 @@ const InzetModal: React.FC<InzetModalProps> = ({
               type="number"
               step="0.01"
               min="0"
-              {...register('tariefPerStuk', { valueAsNumber: true })}
+              {...register('tariefPerStuk', { setValueAs: veiligGetal })}
             />
             <Input
               label="Stuks per dag"
               type="number"
               step="1"
               min="0"
-              {...register('stuksPerDag', { valueAsNumber: true })}
+              {...register('stuksPerDag', { setValueAs: veiligGetal })}
             />
             <Input
               label="Dagen per maand"
               type="number"
               step="1"
               min="0"
-              {...register('dagenPerMaand', { valueAsNumber: true })}
+              {...register('dagenPerMaand', { setValueAs: veiligGetal })}
             />
           </div>
         )}
@@ -313,14 +314,14 @@ const InzetModal: React.FC<InzetModalProps> = ({
               type="number"
               step="0.01"
               min="0"
-              {...register('dagtarief', { valueAsNumber: true })}
+              {...register('dagtarief', { setValueAs: veiligGetal })}
             />
             <Input
               label="Dagen per maand"
               type="number"
               step="1"
               min="0"
-              {...register('dagenPerMaand', { valueAsNumber: true })}
+              {...register('dagenPerMaand', { setValueAs: veiligGetal })}
             />
           </div>
         )}

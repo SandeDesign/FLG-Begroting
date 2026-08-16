@@ -5,7 +5,6 @@
 // puntkomma als scheidingsteken en een komma als decimaalteken. Daarom een
 // eigen writer en geen bibliotheek.
 
-import { jsPDF } from 'jspdf';
 import type {
   BegrotingResultaat,
   Eenheid,
@@ -13,6 +12,15 @@ import type {
 } from '../types/begroting';
 import { EENHEID_LABEL } from '../types/begroting';
 import { vanMaand } from '../utils/periode';
+
+/**
+ * jspdf is een zware bibliotheek en de meeste sessies exporteren nooit een PDF.
+ * Hij wordt daarom pas ingeladen op het moment dat je op de knop drukt.
+ */
+async function laadJsPDF() {
+  const { jsPDF } = await import('jspdf');
+  return jsPDF;
+}
 
 /** Eén regel in een export: een omschrijving met een bedrag. */
 interface ExportRegel {
@@ -220,8 +228,11 @@ const MARGE = 18;
 const REGELHOOGTE = 6;
 const PAGINAHOOGTE = 297;
 
+/** Het type van een geopend document, afgeleid uit de dynamisch geladen module. */
+type PdfDocument = InstanceType<Awaited<ReturnType<typeof laadJsPDF>>>;
+
 /** Begint een nieuwe pagina zodra de onderkant in zicht komt. */
-function nieuweRegel(pdf: jsPDF, y: number): number {
+function nieuweRegel(pdf: PdfDocument, y: number): number {
   if (y > PAGINAHOOGTE - MARGE) {
     pdf.addPage();
     return MARGE;
@@ -229,8 +240,12 @@ function nieuweRegel(pdf: jsPDF, y: number): number {
   return y;
 }
 
-export function exporteerBegrotingPDF(resultaat: BegrotingResultaat, eenheid: Eenheid): void {
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+export async function exporteerBegrotingPDF(
+  resultaat: BegrotingResultaat,
+  eenheid: Eenheid
+): Promise<void> {
+  const JsPDF = await laadJsPDF();
+  const pdf = new JsPDF({ unit: 'mm', format: 'a4' });
   const rechts = 210 - MARGE;
   let y = MARGE;
 
@@ -292,8 +307,12 @@ export function exporteerBegrotingPDF(resultaat: BegrotingResultaat, eenheid: Ee
   pdf.save(`begroting-${veiligeNaam(resultaat.budgetNaam)}.pdf`);
 }
 
-export function exporteerKetenPDF(keten: KetenResultaat, eenheid: Eenheid): void {
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+export async function exporteerKetenPDF(
+  keten: KetenResultaat,
+  eenheid: Eenheid
+): Promise<void> {
+  const JsPDF = await laadJsPDF();
+  const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
   const rechts = 297 - MARGE;
   const aannames = keten.entiteiten[0]?.aannames;
   const om = (bedrag: number) => (aannames ? vanMaand(bedrag, eenheid, aannames) : bedrag);

@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import { veiligGetal } from '../../utils/firestoreSchoon';
 import EenheidKeuze from './EenheidKeuze';
 import type { Eenheid, Inzet, Subsidie } from '../../types/begroting';
 
@@ -100,7 +101,7 @@ const SubsidieModal: React.FC<SubsidieModalProps> = ({
             type="number"
             step="0.01"
             min="0"
-            {...register('bedrag', { valueAsNumber: true })}
+            {...register('bedrag', { setValueAs: veiligGetal })}
           />
           <div className="space-y-1.5">
             <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
