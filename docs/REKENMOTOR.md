@@ -308,12 +308,35 @@ verschil in bij "Overig".
 - **De controlerijen onder elke sheet** — dat is wat `controleerBegroting` doet,
   alleen automatisch en met de afwijking erbij in plaats van een 0
 
-### Wat er nog niet in zit
+### De schaalknoppen
 
-De **schaalknoppen** van de sheet Input: "aantal extra routes" maal een
-standaardbus en een standaardmedewerker. In de app voeg je elke bus en elke
-medewerker los toe. Dat is preciezer, maar minder snel als je wilt zien wat er
-gebeurt bij vijf routes erbij.
+De sheet Input zit er nu ook in, als eigen tabblad **Schaal**. Je draait aan één
+getal en de routes, bussen en mensen schalen mee. Op de cijfers van die sheet —
+3 extra routes en 2 ZZP-routes:
+
+| Afgeleide uit de Excel | Excel | App |
+|---|---|---|
+| Extra bussen (B15) | 3 | **3** |
+| Extra medewerkers (B16) | 3 | **3** |
+| Extra pakketten per dag (B17) | 300 | **300** |
+| Totaal per extra bus (B27) | € 1.600 | **€ 1.600,00** |
+| Totaal per extra medewerker (B37) | € 4.021 | **€ 4.021,00** |
+| ZZP-pakketten per dag (B48) | 200 | **200** |
+| Kosten per ZZP-route (B49) | € 5.850 | **€ 5.850,00** |
+| Marge per pakket (B50) | € 0,35 | **€ 0,35** |
+| Impliciet ZZP-dagtarief (B51) | € 225 | **€ 225,00** |
+
+Twee dingen die anders werken dan in de Excel, allebei met opzet:
+
+**De standaardmedewerker vul je in als bedragen**, net als in de sheet: bruto,
+vakantiegeld, werkgeverslasten, pensioen en overig. De motor rekent intern met
+percentages, dus die worden teruggerekend uit jouw bedragen. Daardoor komt er
+exact € 4.021 uit en niet € 4.021,26 zoals bij een handmatige medewerker.
+
+**De geschaalde regels verschijnen gewoon in de lijsten**, met een stippellijn en
+het label "uit de schaalknoppen". Je kunt ze daar niet aanpassen — ze volgen de
+knoppen. Wil je per bus iets anders, dan zet je ze met één knop vast als losse
+regels; de schaalknoppen gaan daarna uit zodat er niets dubbel telt.
 
 ---
 

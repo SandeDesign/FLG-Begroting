@@ -329,6 +329,103 @@ export const STANDAARD_AANNAMES: Aannames = {
   handmatigeVerdeling: {},
 };
 
+// ─── Schaal ─────────────────────────────────────────────────────────────────
+// De schaalknoppen uit de Excel: één getal waaraan je draait, waarna de routes,
+// de bussen en de mensen meeschalen. Bedoeld om snel te zien wat er gebeurt bij
+// routes erbij, zonder alles los in te voeren.
+//
+// De posten staan hier bewust als bedragen en niet als percentages, precies
+// zoals in de Excel. Wat je invult is wat je terugziet.
+
+/** De vaste posten van één standaardbus, per maand. */
+export interface StandaardMiddel {
+  lease: number;
+  brandstof: number;
+  verzekering: number;
+  wegenbelasting: number;
+  onderhoud: number;
+  overig: number;
+}
+
+/** De vaste posten van één standaardmedewerker, per maand. */
+export interface StandaardMedewerker {
+  bruto: number;
+  vakantiegeld: number;
+  werkgeverslasten: number;
+  pensioen: number;
+  /** Kleding, telefoon, scanner. */
+  overig: number;
+}
+
+export interface Schaal {
+  /** Staat de schaal uit, dan telt er niets van mee. */
+  actief: boolean;
+
+  // Extra routes die je zelf rijdt, met eigen mensen
+  extraRoutes: number;
+  stuksPerRoutePerDag: number;
+  tariefPerStuk: number;
+  middelenPerRoute: number;
+  mensenPerRoute: number;
+
+  standaardMiddel: StandaardMiddel;
+  standaardMedewerker: StandaardMedewerker;
+
+  // Routes die je door ZZP'ers laat rijden
+  zzpRoutes: number;
+  zzpStuksPerRoutePerDag: number;
+  /** Wat wij hiervoor rekenen. */
+  zzpTariefPerStuk: number;
+  /** Wat wij de ZZP'er betalen. */
+  zzpKostenPerStuk: number;
+  /** 0 = de ZZP'er brengt een eigen bus mee, 1 = onze bus. */
+  zzpMiddelenPerRoute: number;
+}
+
+export const LEGE_SCHAAL: Schaal = {
+  actief: false,
+  extraRoutes: 0,
+  stuksPerRoutePerDag: 100,
+  tariefPerStuk: 2.3,
+  middelenPerRoute: 1,
+  mensenPerRoute: 1,
+  standaardMiddel: {
+    lease: 250,
+    brandstof: 1000,
+    verzekering: 150,
+    wegenbelasting: 50,
+    onderhoud: 150,
+    overig: 0,
+  },
+  standaardMedewerker: {
+    bruto: 3014,
+    vakantiegeld: 241,
+    werkgeverslasten: 716,
+    pensioen: 0,
+    overig: 50,
+  },
+  zzpRoutes: 0,
+  zzpStuksPerRoutePerDag: 100,
+  zzpTariefPerStuk: 2.6,
+  zzpKostenPerStuk: 2.25,
+  zzpMiddelenPerRoute: 0,
+};
+
+/** De id's die de schaal aan zijn gegenereerde regels geeft. */
+export const SCHAAL_IDS = {
+  extraOpdracht: 'schaal-extra-routes',
+  extraMiddel: 'schaal-extra-middelen',
+  extraInzet: 'schaal-extra-inzet',
+  zzpOpdracht: 'schaal-zzp-routes',
+  zzpMiddel: 'schaal-zzp-middelen',
+  zzpInzet: 'schaal-zzp-inzet',
+} as const;
+
+/** Herkent een regel die door de schaal is gemaakt in plaats van met de hand. */
+export function isSchaalRegel(id: string): boolean {
+  return id.startsWith('schaal-');
+}
+
 // ─── Begroting ──────────────────────────────────────────────────────────────
 
 export type BegrotingStatus = 'concept' | 'vastgesteld' | 'archief';
@@ -353,6 +450,8 @@ export interface Budget {
   /** De eenheid waarin de gebruiker nu naar de resultatenstaat kijkt. */
   weergaveEenheid: Eenheid;
   aannames: Aannames;
+  /** De schaalknoppen. Genereert extra routes bovenop de handmatige regels. */
+  schaal: Schaal;
   opdrachten: Opdracht[];
   middelen: Middel[];
   inzet: Inzet[];

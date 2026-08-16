@@ -9,6 +9,9 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { veiligGetal } from '../../utils/firestoreSchoon';
+import Uitkomst from './Uitkomst';
+import { berekenInzet, splitsLoondienst } from '../../utils/begroting.calc';
+import { formatEuro, formatPercentage } from '../../utils/periode';
 import {
   INZET_SOORT_LABEL,
   type Inzet,
@@ -137,6 +140,19 @@ const InzetModal: React.FC<InzetModalProps> = ({
   } = useForm<FormWaarden>({ defaultValues: LEEG });
 
   const soort = watch('soort');
+  const huidig = watch();
+
+  // Wat de ingevulde waarden nú opleveren. Vul je per ongeluk 241 in bij een
+  // percentage, dan zie je hier direct een onmogelijk bedrag staan.
+  const proefInzet: Inzet = {
+    id: 'proef',
+    naam: huidig.naam,
+    hoortBij: huidig.hoortBij,
+    actief: true,
+    model: naarModel(huidig),
+  };
+  const proefTotaal = berekenInzet(proefInzet);
+  const proefLoon = splitsLoondienst(proefInzet);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -324,6 +340,55 @@ const InzetModal: React.FC<InzetModalProps> = ({
               {...register('dagenPerMaand', { setValueAs: veiligGetal })}
             />
           </div>
+        )}
+
+        {proefLoon ? (
+          <Uitkomst
+            titel="Wat dit per maand kost"
+            regels={[
+              {
+                label: 'Bruto loon',
+                bedrag: proefLoon.bruto,
+                berekening: `${formatEuro(huidig.uurloon || 0)} × ${huidig.urenPerWeek || 0} uur × 52 ÷ 12`,
+              },
+              {
+                label: 'Vakantiegeld',
+                bedrag: proefLoon.vakantiegeld,
+                berekening: `${formatPercentage((huidig.vakantiegeldPct || 0) / 100, 1)} over het bruto loon`,
+              },
+              {
+                label: 'Werkgeverslasten',
+                bedrag: proefLoon.werkgeverslasten,
+                berekening: `${formatPercentage((huidig.werkgeverslastenPct || 0) / 100, 1)} over bruto plus vakantiegeld`,
+              },
+              { label: 'Pensioen', bedrag: proefLoon.pensioen },
+              { label: 'Overig', bedrag: proefLoon.overig },
+            ]}
+            totaal={{ label: 'Totaal per maand', bedrag: proefTotaal }}
+            opmerking="Vakantiegeld en werkgeverslasten vul je in als percentage, niet als bedrag. Klopt het bedrag hierboven niet, dan staat er waarschijnlijk een bedrag in een percentageveld."
+          />
+        ) : (
+          <Uitkomst
+            titel="Wat dit per maand kost"
+            regels={
+              soort === 'zzp_stuk'
+                ? [
+                    {
+                      label: 'Per stuk',
+                      bedrag: huidig.tariefPerStuk || 0,
+                      berekening: `${huidig.stuksPerDag || 0} stuks per dag × ${huidig.dagenPerMaand || 0} dagen`,
+                    },
+                  ]
+                : [
+                    {
+                      label: 'Dagtarief',
+                      bedrag: huidig.dagtarief || 0,
+                      berekening: `× ${huidig.dagenPerMaand || 0} dagen per maand`,
+                    },
+                  ]
+            }
+            totaal={{ label: 'Totaal per maand', bedrag: proefTotaal }}
+          />
         )}
 
         <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">

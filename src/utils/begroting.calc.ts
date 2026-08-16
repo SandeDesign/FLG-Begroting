@@ -23,8 +23,9 @@ import type {
   OpdrachtResultaat,
   Subsidie,
 } from '../types/begroting';
-import { HOORT_BIJ_ENTITEIT } from '../types/begroting';
+import { HOORT_BIJ_ENTITEIT, LEGE_SCHAAL, SCHAAL_IDS } from '../types/begroting';
 import { EENHEDEN } from '../types/begroting';
+import type { Schaal, StandaardMedewerker, StandaardMiddel } from '../types/begroting';
 import { naarMaand, vanMaand } from './periode';
 
 const WEKEN_PER_JAAR = 52;
@@ -348,6 +349,241 @@ export function berekenBreakEven(opdracht: Opdracht, tekortTeDekken: number): Br
   }
 }
 
+// ─── De schaalknoppen ───────────────────────────────────────────────────────
+
+/** Wat één standaardbus per maand kost. */
+export function totaalStandaardMiddel(middel: StandaardMiddel): number {
+  return som([
+    middel.lease,
+    middel.brandstof,
+    middel.verzekering,
+    middel.wegenbelasting,
+    middel.onderhoud,
+    middel.overig,
+  ]);
+}
+
+/** Wat één standaardmedewerker per maand kost. */
+export function totaalStandaardMedewerker(medewerker: StandaardMedewerker): number {
+  return som([
+    medewerker.bruto,
+    medewerker.vakantiegeld,
+    medewerker.werkgeverslasten,
+    medewerker.pensioen,
+    medewerker.overig,
+  ]);
+}
+
+/** De getallen die uit de schaalknoppen volgen, om in de UI te tonen. */
+export interface SchaalAfgeleid {
+  extraMiddelen: number;
+  extraMensen: number;
+  extraStuksPerDag: number;
+  kostenPerMiddel: number;
+  kostenPerMedewerker: number;
+  zzpMiddelen: number;
+  zzpStuksPerDag: number;
+  kostenPerZzpRoute: number;
+  /** Wat wij rekenen min wat wij de ZZP'er betalen. */
+  margePerStuk: number;
+  /** Tarief per stuk maal stuks per dag: wat een ZZP-route per dag kost. */
+  zzpDagtarief: number;
+}
+
+export function berekenSchaalAfgeleid(schaal: Schaal, aannames: Aannames): SchaalAfgeleid {
+  return {
+    extraMiddelen: getal(schaal.extraRoutes * schaal.middelenPerRoute),
+    extraMensen: getal(schaal.extraRoutes * schaal.mensenPerRoute),
+    extraStuksPerDag: getal(schaal.extraRoutes * schaal.stuksPerRoutePerDag),
+    kostenPerMiddel: totaalStandaardMiddel(schaal.standaardMiddel),
+    kostenPerMedewerker: totaalStandaardMedewerker(schaal.standaardMedewerker),
+    zzpMiddelen: getal(schaal.zzpRoutes * schaal.zzpMiddelenPerRoute),
+    zzpStuksPerDag: getal(schaal.zzpRoutes * schaal.zzpStuksPerRoutePerDag),
+    kostenPerZzpRoute: getal(
+      schaal.zzpKostenPerStuk * schaal.zzpStuksPerRoutePerDag * aannames.dagenPerMaand
+    ),
+    margePerStuk: getal(schaal.zzpTariefPerStuk - schaal.zzpKostenPerStuk),
+    zzpDagtarief: getal(schaal.zzpKostenPerStuk * schaal.zzpStuksPerRoutePerDag),
+  };
+}
+
+/**
+ * Zet een standaardmedewerker om naar een gewone loondienst-inzet.
+ *
+ * De schaal werkt met bedragen en het inzetmodel met percentages, dus de
+ * percentages worden hier teruggerekend. Zo komt er exact hetzelfde bedrag uit
+ * als je in de schaal hebt ingevuld.
+ */
+function alsLoondienst(
+  id: string,
+  naam: string,
+  hoortBij: string,
+  aantal: number,
+  medewerker: StandaardMedewerker,
+  aannames: Aannames
+): Inzet {
+  const urenPerMaand = aannames.contracturenPerWeek * (WEKEN_PER_JAAR / MAANDEN_PER_JAAR);
+  const bruto = getal(medewerker.bruto * aantal);
+
+  return {
+    id,
+    naam,
+    hoortBij,
+    actief: true,
+    model: {
+      soort: 'loondienst',
+      uurloon: urenPerMaand > 0 ? getal(bruto / urenPerMaand) : 0,
+      urenPerWeek: aannames.contracturenPerWeek,
+      vakantiegeldPct: bruto > 0 ? getal((medewerker.vakantiegeld * aantal) / bruto) : 0,
+      werkgeverslastenPct:
+        bruto + medewerker.vakantiegeld * aantal > 0
+          ? getal(
+              (medewerker.werkgeverslasten * aantal) / (bruto + medewerker.vakantiegeld * aantal)
+            )
+          : 0,
+      pensioen: getal(medewerker.pensioen * aantal),
+      overig: getal(medewerker.overig * aantal),
+    },
+  };
+}
+
+/** Zet een standaardbus om naar een gewoon middel, maal het aantal bussen. */
+function alsMiddel(
+  id: string,
+  naam: string,
+  hoortBij: string,
+  aantal: number,
+  standaard: StandaardMiddel
+): Middel {
+  return {
+    id,
+    naam,
+    hoortBij,
+    actief: true,
+    financiering: 'lease',
+    leasetermijn: getal(standaard.lease * aantal),
+    waarde: 0,
+    looptijdMaanden: 0,
+    restwaarde: 0,
+    brandstof: getal(standaard.brandstof * aantal),
+    verzekering: getal(standaard.verzekering * aantal),
+    wegenbelasting: getal(standaard.wegenbelasting * aantal),
+    onderhoud: getal(standaard.onderhoud * aantal),
+    onderhoudBerekenen: false,
+    overig: getal(standaard.overig * aantal),
+    eenheid: 'maand',
+  };
+}
+
+/**
+ * Zet de schaalknoppen om naar gewone opdrachten, middelen en inzet, en plakt ze
+ * achter de handmatige regels.
+ *
+ * Zo hoeft de rest van de rekenmotor niets van de schaal te weten: de totalen,
+ * de verdeling van de vaste lasten en alle controles werken er vanzelf overheen.
+ */
+export function pasSchaalToe(budget: Budget): Budget {
+  const schaal = budget.schaal ?? LEGE_SCHAAL;
+  if (!schaal.actief) return budget;
+
+  const aannames = budget.aannames;
+  const afgeleid = berekenSchaalAfgeleid(schaal, aannames);
+
+  const opdrachten: Opdracht[] = [...budget.opdrachten];
+  const middelen: Middel[] = [...budget.middelen];
+  const inzet: Inzet[] = [...budget.inzet];
+
+  // Extra routes die je zelf rijdt.
+  if (schaal.extraRoutes > 0) {
+    opdrachten.push({
+      id: SCHAAL_IDS.extraOpdracht,
+      naam: `Extra routes (${schaal.extraRoutes} stuks)`,
+      voorWie: 'Uit de schaalknoppen',
+      actief: true,
+      opbrengst: {
+        soort: 'stuks',
+        stuksPerDag: afgeleid.extraStuksPerDag,
+        tariefPerStuk: schaal.tariefPerStuk,
+        dagenPerMaand: aannames.dagenPerMaand,
+      },
+      toeslagen: 0,
+      overigeOpbrengst: 0,
+      extraEenheid: 'maand',
+    });
+
+    if (afgeleid.extraMiddelen > 0) {
+      middelen.push(
+        alsMiddel(
+          SCHAAL_IDS.extraMiddel,
+          `Extra middelen (${afgeleid.extraMiddelen} stuks)`,
+          SCHAAL_IDS.extraOpdracht,
+          afgeleid.extraMiddelen,
+          schaal.standaardMiddel
+        )
+      );
+    }
+
+    if (afgeleid.extraMensen > 0) {
+      inzet.push(
+        alsLoondienst(
+          SCHAAL_IDS.extraInzet,
+          `Extra mensen (${afgeleid.extraMensen} stuks)`,
+          SCHAAL_IDS.extraOpdracht,
+          afgeleid.extraMensen,
+          schaal.standaardMedewerker,
+          aannames
+        )
+      );
+    }
+  }
+
+  // Routes die je door ZZP'ers laat rijden.
+  if (schaal.zzpRoutes > 0) {
+    opdrachten.push({
+      id: SCHAAL_IDS.zzpOpdracht,
+      naam: `ZZP-routes (${schaal.zzpRoutes} stuks)`,
+      voorWie: 'Uit de schaalknoppen',
+      actief: true,
+      opbrengst: {
+        soort: 'stuks',
+        stuksPerDag: afgeleid.zzpStuksPerDag,
+        tariefPerStuk: schaal.zzpTariefPerStuk,
+        dagenPerMaand: aannames.dagenPerMaand,
+      },
+      toeslagen: 0,
+      overigeOpbrengst: 0,
+      extraEenheid: 'maand',
+    });
+
+    if (afgeleid.zzpMiddelen > 0) {
+      middelen.push(
+        alsMiddel(
+          SCHAAL_IDS.zzpMiddel,
+          `Middelen voor ZZP-routes (${afgeleid.zzpMiddelen} stuks)`,
+          SCHAAL_IDS.zzpOpdracht,
+          afgeleid.zzpMiddelen,
+          schaal.standaardMiddel
+        )
+      );
+    }
+
+    inzet.push({
+      id: SCHAAL_IDS.zzpInzet,
+      naam: `ZZP'ers (${schaal.zzpRoutes} routes)`,
+      hoortBij: SCHAAL_IDS.zzpOpdracht,
+      actief: true,
+      model: {
+        soort: 'zzp_stuk',
+        tariefPerStuk: schaal.zzpKostenPerStuk,
+        stuksPerDag: afgeleid.zzpStuksPerDag,
+        dagenPerMaand: aannames.dagenPerMaand,
+      },
+    });
+  }
+
+  return { ...budget, opdrachten, middelen, inzet };
+}
+
 // ─── De begroting doorrekenen ───────────────────────────────────────────────
 
 /**
@@ -358,10 +594,13 @@ export function berekenBreakEven(opdracht: Opdracht, tekortTeDekken: number): Br
  * @param inkomendeLeveringen  leveringen van andere entiteiten naar deze toe
  */
 export function berekenBegroting(
-  budget: Budget,
+  ruweBudget: Budget,
   entity: Entity,
   inkomendeLeveringen: OnderlingeLevering[]
 ): BegrotingResultaat {
+  // De schaalknoppen worden eerst omgezet naar gewone regels. Daarna weet de
+  // rest van deze functie niets meer van de schaal en kloppen alle controles.
+  const budget = pasSchaalToe(ruweBudget);
   const aannames = budget.aannames;
   const waarschuwingen: string[] = [];
 
@@ -432,6 +671,17 @@ export function berekenBegroting(
   // ── Subsidies: eigen regel, nooit verrekend
   const subsidies = som(budget.subsidies.map((subsidie) => berekenSubsidie(subsidie, aannames)));
 
+  // Een einddatum is informatief: de motor rekent met één maandbedrag en weet
+  // niet welke maand het is. Loopt een subsidie af binnen de periode van deze
+  // begroting, dan is het maandbedrag dus te rooskleurig — dat melden we.
+  budget.subsidies
+    .filter((subsidie) => subsidie.einddatum && subsidie.einddatum < budget.periodeTot)
+    .forEach((subsidie) => {
+      waarschuwingen.push(
+        `Subsidie "${subsidie.omschrijving}" loopt af in ${subsidie.einddatum}, vóór het einde van deze begroting (${budget.periodeTot}). Het bedrag telt hier nog voor de hele periode mee; kijk ook naar het resultaat zonder subsidie.`
+      );
+    });
+
   // ── Vaste lasten van de entiteit
   const vasteLasten = som(
     entity.vasteLasten.map((last) => naarMaand(last.bedrag, last.eenheid, aannames))
@@ -460,6 +710,22 @@ export function berekenBegroting(
     .forEach((levering) => {
       waarschuwingen.push(
         `Onderlinge levering "${levering.omschrijving}" is opgeslagen bij ${entity.naam}, maar wordt geleverd door een andere entiteit. Sla hem op bij de leverende entiteit.`
+      );
+    });
+
+  // Een opdracht zonder opbrengst is meestal geen fout: de opbrengst loopt dan
+  // via een onderlinge levering. Alleen als die er níét is, is het het melden
+  // waard — dan staan er wel kosten tegenover en niets ertegenover.
+  actieveOpdrachten
+    .filter((opdracht) => berekenOpbrengst(opdracht, aannames) === 0)
+    .filter((opdracht) => !uitgaand.some((levering) => levering.opdrachtId === opdracht.id))
+    .filter(
+      (opdracht) =>
+        (middelenPerOpdracht.get(opdracht.id) ?? 0) + (inzetPerOpdracht.get(opdracht.id) ?? 0) > 0
+    )
+    .forEach((opdracht) => {
+      waarschuwingen.push(
+        `Opdracht "${opdracht.naam}" heeft geen opbrengst, maar er hangen wel kosten aan. Vul een tarief in, of leg een onderlinge levering vast als een andere entiteit hiervoor betaalt.`
       );
     });
 

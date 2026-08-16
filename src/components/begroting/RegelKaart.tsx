@@ -4,7 +4,7 @@
 // tabbladen op elkaar lijken.
 
 import React from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Sliders, Trash2 } from 'lucide-react';
 import ActionMenu, { type ActionMenuItem } from '../ui/ActionMenu';
 import { formatEuro } from '../../utils/periode';
 
@@ -12,7 +12,7 @@ interface RegelKaartProps {
   titel: string;
   ondertitel?: string;
   /** Kleine labels onder de titel, bijvoorbeeld "Per stuk" of "Inactief". */
-  labels?: Array<{ tekst: string; toon?: 'neutraal' | 'goed' | 'waarschuwing' }>;
+  labels?: Array<{ tekst: string; toon?: 'neutraal' | 'goed' | 'waarschuwing' | 'schaal' }>;
   /** Het bedrag in de weergave-eenheid. */
   bedrag: number;
   bedragLabel: string;
@@ -22,10 +22,18 @@ interface RegelKaartProps {
   onBewerken: () => void;
   onVerwijderen: () => void;
   extraActies?: ActionMenuItem[];
+  /**
+   * Regels die uit de schaalknoppen komen zijn hier niet te bewerken: ze volgen
+   * die knoppen. In plaats van bewerken en verwijderen wijst deze kaart naar het
+   * tabblad Schaal.
+   */
+  vanSchaal?: boolean;
+  onNaarSchaal?: () => void;
 }
 
 const LABEL_KLEUR = {
   neutraal: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
+  schaal: 'bg-primary-100 dark:bg-primary-900/40 text-primary-800 dark:text-primary-200',
   goed: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-200',
   waarschuwing: 'bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200',
 };
@@ -41,14 +49,22 @@ const RegelKaart: React.FC<RegelKaartProps> = ({
   onBewerken,
   onVerwijderen,
   extraActies = [],
+  vanSchaal = false,
+  onNaarSchaal,
 }) => (
   <div
-    className={`p-3.5 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-primary-200 dark:hover:border-primary-800 transition-colors ${
-      actief ? '' : 'opacity-60'
-    }`}
+    className={`p-3.5 rounded-lg border transition-colors ${
+      vanSchaal
+        ? 'border-dashed border-primary-200 dark:border-primary-800/60 bg-primary-50/30 dark:bg-primary-900/10'
+        : 'border-gray-100 dark:border-gray-700 hover:border-primary-200 dark:hover:border-primary-800'
+    } ${actief ? '' : 'opacity-60'}`}
   >
     <div className="flex items-start gap-3">
-      <button type="button" onClick={onBewerken} className="flex-1 min-w-0 text-left">
+      <button
+        type="button"
+        onClick={vanSchaal ? onNaarSchaal : onBewerken}
+        className="flex-1 min-w-0 text-left"
+      >
         <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
           {titel}
         </span>
@@ -80,13 +96,25 @@ const RegelKaart: React.FC<RegelKaartProps> = ({
         </span>
       </div>
 
-      <ActionMenu
-        actions={[
-          { label: 'Bewerken', icon: Pencil, onClick: onBewerken },
-          ...extraActies,
-          { label: 'Verwijderen', icon: Trash2, variant: 'danger', onClick: onVerwijderen },
-        ]}
-      />
+      {vanSchaal ? (
+        <ActionMenu
+          actions={[
+            {
+              label: 'Naar de schaalknoppen',
+              icon: Sliders,
+              onClick: () => onNaarSchaal?.(),
+            },
+          ]}
+        />
+      ) : (
+        <ActionMenu
+          actions={[
+            { label: 'Bewerken', icon: Pencil, onClick: onBewerken },
+            ...extraActies,
+            { label: 'Verwijderen', icon: Trash2, variant: 'danger', onClick: onVerwijderen },
+          ]}
+        />
+      )}
     </div>
 
     {opbouw && opbouw.length > 0 && (

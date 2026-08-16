@@ -12,6 +12,7 @@
 import { maakEntiteit } from './entityService';
 import { maakBegroting } from './budgetService';
 import {
+  LEGE_SCHAAL,
   STANDAARD_AANNAMES,
   type NieuweBudget,
   type NieuweEntity,
@@ -176,6 +177,7 @@ function legeBegroting(entityId: string, naam: string, createdBy: string): Nieuw
     scenarioVan: null,
     weergaveEenheid: 'maand',
     aannames: { ...STANDAARD_AANNAMES, dagenPerMaand: RIJDAGEN },
+    schaal: LEGE_SCHAAL,
     opdrachten: [],
     middelen: [],
     inzet: [],

@@ -16,7 +16,7 @@ import Input from '../components/ui/Input';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import { dupliceerAlsScenario, maakBegroting } from '../services/budgetService';
 import { bouwPeriode, isGeldigePeriode, periodeBereikLabel } from '../utils/dateFilters';
-import { STANDAARD_AANNAMES } from '../types/begroting';
+import { LEGE_SCHAAL, STANDAARD_AANNAMES } from '../types/begroting';
 
 type Manier = 'leeg' | 'scenario';
 
@@ -86,6 +86,7 @@ const BegrotingNieuw: React.FC = () => {
         scenarioVan: null,
         weergaveEenheid: 'maand',
         aannames: STANDAARD_AANNAMES,
+        schaal: LEGE_SCHAAL,
         opdrachten: [],
         middelen: [],
         inzet: [],

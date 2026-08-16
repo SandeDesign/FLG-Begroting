@@ -8,10 +8,18 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { veiligGetal } from '../../utils/firestoreSchoon';
+import Uitkomst from './Uitkomst';
+import {
+  berekenFinancieringslast,
+  berekenMiddel,
+  berekenOnderhoud,
+} from '../../utils/begroting.calc';
+import { naarMaand } from '../../utils/periode';
 import EenheidKeuze from './EenheidKeuze';
 import {
   FINANCIERING_LABEL,
   HOORT_BIJ_ENTITEIT,
+  type Aannames,
   type Eenheid,
   type Financiering,
   type Middel,
@@ -59,6 +67,8 @@ interface MiddelModalProps {
   onClose: () => void;
   middel: Middel | null;
   opdrachten: Opdracht[];
+  /** Nodig om live te laten zien wat dit middel kost. */
+  aannames: Aannames;
   onBewaren: (middel: Middel) => Promise<void>;
 }
 
@@ -67,6 +77,7 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
   onClose,
   middel,
   opdrachten,
+  aannames,
   onBewaren,
 }) => {
   const {
@@ -81,11 +92,22 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
   const financiering = watch('financiering');
   const eenheid = watch('eenheid');
   const onderhoudBerekenen = watch('onderhoudBerekenen');
+  const huidig = watch();
+
+  // Direct laten zien wat dit middel per maand kost.
+  const proefMiddel: Middel = { ...huidig, id: middel?.id ?? 'proef' };
+  const perMaand = (bedrag: number) => naarMaand(bedrag || 0, huidig.eenheid, aannames);
 
   useEffect(() => {
     if (!isOpen) return;
-    reset(middel ? { ...LEEG, ...middel } : LEEG);
-  }, [isOpen, middel, reset]);
+    // Een nieuw middel hangt bijna altijd aan een opdracht, niet aan de entiteit
+    // zelf. Daarom staat de eerste opdracht voorgeselecteerd.
+    reset(
+      middel
+        ? { ...LEEG, ...middel }
+        : { ...LEEG, hoortBij: opdrachten[0]?.id ?? HOORT_BIJ_ENTITEIT }
+    );
+  }, [isOpen, middel, opdrachten, reset]);
 
   const verstuur = handleSubmit(async (waarden) => {
     await onBewaren({
@@ -274,6 +296,34 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
             </span>
           </label>
         </div>
+
+        <Uitkomst
+          titel="Wat dit middel per maand kost"
+          regels={[
+            {
+              label: 'Financieringslast',
+              bedrag: berekenFinancieringslast(proefMiddel, aannames),
+              berekening:
+                huidig.financiering === 'lease'
+                  ? 'De leasetermijn'
+                  : huidig.financiering === 'financial_lease'
+                    ? 'Annuïteit over de looptijd, met de rente uit de aannames'
+                    : 'Waarde min restwaarde, gedeeld over de looptijd',
+            },
+            { label: 'Brandstof', bedrag: perMaand(huidig.brandstof) },
+            { label: 'Verzekering', bedrag: perMaand(huidig.verzekering) },
+            { label: 'Wegenbelasting', bedrag: perMaand(huidig.wegenbelasting) },
+            {
+              label: 'Onderhoud',
+              bedrag: berekenOnderhoud(proefMiddel, aannames),
+              berekening: huidig.onderhoudBerekenen
+                ? `${aannames.kmPerDagPerMiddel} km × ${aannames.dagenPerMaand} dagen × € ${aannames.onderhoudPerKm}`
+                : undefined,
+            },
+            { label: 'Overig', bedrag: perMaand(huidig.overig) },
+          ]}
+          totaal={{ label: 'Totaal per maand', bedrag: berekenMiddel(proefMiddel, aannames) }}
+        />
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>

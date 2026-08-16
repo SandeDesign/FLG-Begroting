@@ -19,6 +19,7 @@ import {
 import { db } from '../lib/firebase';
 import { schoonVoorFirestore } from '../utils/firestoreSchoon';
 import {
+  LEGE_SCHAAL,
   STANDAARD_AANNAMES,
   type Aannames,
   type BegrotingStatus,
@@ -29,6 +30,7 @@ import {
   type NieuweBudget,
   type OnderlingeLevering,
   type Opdracht,
+  type Schaal,
   type Subsidie,
 } from '../types/begroting';
 
@@ -67,6 +69,20 @@ function naarOpdrachten(ruw: unknown): Opdracht[] {
   }));
 }
 
+/** Vult de schaal aan voor begrotingen die van vóór deze functie stammen. */
+function naarSchaal(ruw: unknown): Schaal {
+  const data = (ruw ?? {}) as Partial<Schaal>;
+  return {
+    ...LEGE_SCHAAL,
+    ...data,
+    standaardMiddel: { ...LEGE_SCHAAL.standaardMiddel, ...(data.standaardMiddel ?? {}) },
+    standaardMedewerker: {
+      ...LEGE_SCHAAL.standaardMedewerker,
+      ...(data.standaardMedewerker ?? {}),
+    },
+  };
+}
+
 function naarBudget(id: string, data: Record<string, unknown>): Budget {
   const leveringen = (data.onderlingeLeveringen as OnderlingeLevering[]) ?? [];
 
@@ -80,6 +96,7 @@ function naarBudget(id: string, data: Record<string, unknown>): Budget {
     scenarioVan: (data.scenarioVan as string | null) ?? null,
     weergaveEenheid: (data.weergaveEenheid as Eenheid) ?? 'maand',
     aannames: naarAannames(data.aannames),
+    schaal: naarSchaal(data.schaal),
     opdrachten: naarOpdrachten(data.opdrachten),
     middelen: (data.middelen as Middel[]) ?? [],
     inzet: (data.inzet as Inzet[]) ?? [],
@@ -174,6 +191,7 @@ export async function dupliceerAlsScenario(
     scenarioVan: origineel.id,
     weergaveEenheid: origineel.weergaveEenheid,
     aannames: origineel.aannames,
+    schaal: origineel.schaal,
     opdrachten: origineel.opdrachten,
     middelen: origineel.middelen,
     inzet: origineel.inzet,

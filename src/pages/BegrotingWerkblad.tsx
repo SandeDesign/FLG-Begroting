@@ -15,6 +15,7 @@ import {
   Download,
   FileText,
   HandCoins,
+  Layers,
   Package,
   Plus,
   ShieldCheck,
@@ -42,6 +43,7 @@ import InzetModal from '../components/begroting/InzetModal';
 import SubsidieModal from '../components/begroting/SubsidieModal';
 import LeveringModal from '../components/begroting/LeveringModal';
 import VerplaatsOpdrachtModal from '../components/begroting/VerplaatsOpdrachtModal';
+import SchaalPaneel from '../components/begroting/SchaalPaneel';
 import {
   dupliceerAlsScenario,
   haalBegroting,
@@ -59,6 +61,7 @@ import {
   berekenOpbrengst,
   berekenSubsidie,
   controleerBegroting,
+  pasSchaalToe,
   splitsLoondienst,
 } from '../utils/begroting.calc';
 import { periodeBereikLabel } from '../utils/dateFilters';
@@ -70,6 +73,7 @@ import {
   GRONDSLAG_LABEL,
   HOORT_BIJ_ENTITEIT,
   INZET_SOORT_LABEL,
+  isSchaalRegel,
   OPBRENGST_SOORT_LABEL,
   VERDEELSLEUTEL_LABEL,
   type Aannames,
@@ -81,6 +85,7 @@ import {
   type NieuweBudget,
   type OnderlingeLevering,
   type Opdracht,
+  type Schaal,
   type Subsidie,
   type Verdeelsleutel,
 } from '../types/begroting';
@@ -92,6 +97,7 @@ const TABBLADEN = [
   { id: 'inzet', naam: 'Inzet', icoon: Users },
   { id: 'subsidies', naam: 'Subsidies', icoon: HandCoins },
   { id: 'onderling', naam: 'Onderling', icoon: ArrowRightLeft },
+  { id: 'schaal', naam: 'Schaal', icoon: Layers },
   { id: 'aannames', naam: 'Aannames', icoon: SlidersHorizontal },
   { id: 'controles', naam: 'Controles', icoon: ShieldCheck },
 ] as const;
@@ -223,13 +229,17 @@ const BegrotingWerkblad: React.FC = () => {
     );
   }
 
+  // De lijsten tonen de geschaalde versie: de regels die uit de schaalknoppen
+  // volgen staan er dan gewoon tussen, herkenbaar gemarkeerd. Anders zie je ze
+  // wel terug in het resultaat maar nergens in de opsomming.
+  const geschaald = pasSchaalToe(budget);
   const eenheid = budget.weergaveEenheid;
   const aannames = budget.aannames;
   const om = (bedrag: number) => vanMaand(bedrag, eenheid, aannames);
 
   const naamVanOpdracht = (opdrachtId: string): string => {
     if (opdrachtId === HOORT_BIJ_ENTITEIT) return 'De entiteit zelf';
-    return budget.opdrachten.find((item) => item.id === opdrachtId)?.naam ?? 'Onbekende opdracht';
+    return geschaald.opdrachten.find((item) => item.id === opdrachtId)?.naam ?? 'Onbekende opdracht';
   };
 
   const naamVanEntiteit = (entityId: string): string =>
@@ -296,6 +306,49 @@ const BegrotingWerkblad: React.FC = () => {
 
   const bewaarAannames = async (aanpassing: Partial<Aannames>) => {
     await bewaar({ aannames: { ...aannames, ...aanpassing } });
+  };
+
+  const bewaarSchaal = async (aanpassing: Partial<Schaal>) => {
+    await bewaar({ schaal: { ...budget.schaal, ...aanpassing } });
+  };
+
+  /**
+   * Zet de regels die de schaal genereert om naar gewone regels, zodat je ze per
+   * stuk kunt aanpassen. De schaalknoppen gaan daarna uit — anders zou alles
+   * dubbel tellen.
+   */
+  const zetSchaalVast = async () => {
+    const bevestigd = window.confirm(
+      'De extra routes worden omgezet naar losse regels die je per stuk kunt aanpassen. De schaalknoppen gaan daarna uit. Doorgaan?'
+    );
+    if (!bevestigd) return;
+
+    const uniek = (id: string) => `${id.replace('schaal-', '')}-${Math.random().toString(36).slice(2, 8)}`;
+    const vertaling = new Map<string, string>();
+
+    const nieuweOpdrachten = geschaald.opdrachten.map((item) => {
+      if (!isSchaalRegel(item.id)) return item;
+      const nieuwId = uniek(item.id);
+      vertaling.set(item.id, nieuwId);
+      return { ...item, id: nieuwId, voorWie: '' };
+    });
+
+    await bewaar({
+      opdrachten: nieuweOpdrachten,
+      middelen: geschaald.middelen.map((item) =>
+        isSchaalRegel(item.id)
+          ? { ...item, id: uniek(item.id), hoortBij: vertaling.get(item.hoortBij) ?? item.hoortBij }
+          : item
+      ),
+      inzet: geschaald.inzet.map((item) =>
+        isSchaalRegel(item.id)
+          ? { ...item, id: uniek(item.id), hoortBij: vertaling.get(item.hoortBij) ?? item.hoortBij }
+          : item
+      ),
+      schaal: { ...budget.schaal, actief: false, extraRoutes: 0, zzpRoutes: 0 },
+    });
+
+    setMelding('De extra routes staan nu als losse regels in de begroting. De schaalknoppen zijn uitgezet.');
   };
 
   const dupliceer = async () => {
@@ -419,13 +472,13 @@ const BegrotingWerkblad: React.FC = () => {
                 <div className="flex justify-between gap-3">
                   <dt className="text-gray-600 dark:text-gray-300">Middelen</dt>
                   <dd className="font-semibold text-gray-900 dark:text-gray-100">
-                    {budget.middelen.filter((item) => item.actief).length}
+                    {geschaald.middelen.filter((item) => item.actief).length}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">
                   <dt className="text-gray-600 dark:text-gray-300">Inzet</dt>
                   <dd className="font-semibold text-gray-900 dark:text-gray-100">
-                    {budget.inzet.filter((item) => item.actief).length}
+                    {geschaald.inzet.filter((item) => item.actief).length}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">
@@ -487,7 +540,7 @@ const BegrotingWerkblad: React.FC = () => {
             </Button>
           </div>
 
-          {budget.opdrachten.length === 0 ? (
+          {geschaald.opdrachten.length === 0 ? (
             <EmptyState
               icon={Briefcase}
               title="Nog geen opdrachten"
@@ -497,13 +550,16 @@ const BegrotingWerkblad: React.FC = () => {
             />
           ) : (
             <div className="space-y-2">
-              {budget.opdrachten.map((opdracht) => (
+              {geschaald.opdrachten.map((opdracht) => (
                 <RegelKaart
                   key={opdracht.id}
                   titel={opdracht.naam}
                   ondertitel={opdracht.voorWie ? `voor ${opdracht.voorWie}` : undefined}
                   labels={[
                     { tekst: OPBRENGST_SOORT_LABEL[opdracht.opbrengst.soort] },
+                    ...(isSchaalRegel(opdracht.id)
+                      ? [{ tekst: 'Uit de schaalknoppen', toon: 'schaal' as const }]
+                      : []),
                     ...(opdracht.actief
                       ? []
                       : [{ tekst: 'Inactief', toon: 'waarschuwing' as const }]),
@@ -511,6 +567,8 @@ const BegrotingWerkblad: React.FC = () => {
                   bedrag={om(berekenOpbrengst(opdracht, aannames))}
                   bedragLabel={`Opbrengst ${EENHEID_LABEL[eenheid]}`}
                   actief={opdracht.actief}
+                  vanSchaal={isSchaalRegel(opdracht.id)}
+                  onNaarSchaal={() => zetTab('schaal')}
                   onBewerken={() => setOpdrachtModal({ open: true, item: opdracht })}
                   onVerwijderen={() => void verwijderOpdracht(opdracht)}
                   extraActies={[
@@ -540,7 +598,7 @@ const BegrotingWerkblad: React.FC = () => {
             </Button>
           </div>
 
-          {budget.middelen.length === 0 ? (
+          {geschaald.middelen.length === 0 ? (
             <EmptyState
               icon={Package}
               title="Nog geen middelen"
@@ -550,13 +608,16 @@ const BegrotingWerkblad: React.FC = () => {
             />
           ) : (
             <div className="space-y-2">
-              {budget.middelen.map((middel) => (
+              {geschaald.middelen.map((middel) => (
                 <RegelKaart
                   key={middel.id}
                   titel={middel.naam}
                   ondertitel={`hoort bij ${naamVanOpdracht(middel.hoortBij)}`}
                   labels={[
                     { tekst: FINANCIERING_LABEL[middel.financiering] },
+                    ...(isSchaalRegel(middel.id)
+                      ? [{ tekst: 'Uit de schaalknoppen', toon: 'schaal' as const }]
+                      : []),
                     ...(middel.actief ? [] : [{ tekst: 'Inactief', toon: 'waarschuwing' as const }]),
                   ]}
                   bedrag={om(berekenMiddel(middel, aannames))}
@@ -569,6 +630,8 @@ const BegrotingWerkblad: React.FC = () => {
                     { label: 'Overig', bedrag: om(middelPost(middel.overig, middel, aannames)) },
                   ]}
                   actief={middel.actief}
+                  vanSchaal={isSchaalRegel(middel.id)}
+                  onNaarSchaal={() => zetTab('schaal')}
                   onBewerken={() => setMiddelModal({ open: true, item: middel })}
                   onVerwijderen={() => {
                     if (!window.confirm(`"${middel.naam}" verwijderen?`)) return;
@@ -603,7 +666,7 @@ const BegrotingWerkblad: React.FC = () => {
             </p>
           )}
 
-          {budget.inzet.length === 0 ? (
+          {geschaald.inzet.length === 0 ? (
             <EmptyState
               icon={Users}
               title="Nog geen inzet"
@@ -613,7 +676,7 @@ const BegrotingWerkblad: React.FC = () => {
             />
           ) : (
             <div className="space-y-2">
-              {budget.inzet.map((inzet) => {
+              {geschaald.inzet.map((inzet) => {
                 const loon = splitsLoondienst(inzet);
                 return (
                   <RegelKaart
@@ -622,6 +685,9 @@ const BegrotingWerkblad: React.FC = () => {
                     ondertitel={`hoort bij ${naamVanOpdracht(inzet.hoortBij)}`}
                     labels={[
                       { tekst: INZET_SOORT_LABEL[inzet.model.soort] },
+                      ...(isSchaalRegel(inzet.id)
+                        ? [{ tekst: 'Uit de schaalknoppen', toon: 'schaal' as const }]
+                        : []),
                       ...(inzet.actief ? [] : [{ tekst: 'Inactief', toon: 'waarschuwing' as const }]),
                     ]}
                     bedrag={om(berekenInzet(inzet))}
@@ -638,6 +704,8 @@ const BegrotingWerkblad: React.FC = () => {
                         : undefined
                     }
                     actief={inzet.actief}
+                    vanSchaal={isSchaalRegel(inzet.id)}
+                    onNaarSchaal={() => zetTab('schaal')}
                     onBewerken={() => setInzetModal({ open: true, item: inzet })}
                     onVerwijderen={() => {
                       if (!window.confirm(`"${inzet.naam}" verwijderen?`)) return;
@@ -800,6 +868,16 @@ const BegrotingWerkblad: React.FC = () => {
             )}
           </Card>
         </div>
+      )}
+
+      {/* ── Schaal */}
+      {tab === 'schaal' && (
+        <SchaalPaneel
+          schaal={budget.schaal}
+          aannames={aannames}
+          onWijzigen={(aanpassing) => void bewaarSchaal(aanpassing)}
+          onVastzetten={() => void zetSchaalVast()}
+        />
       )}
 
       {/* ── Aannames */}
@@ -1012,6 +1090,7 @@ const BegrotingWerkblad: React.FC = () => {
         isOpen={opdrachtModal.open}
         onClose={() => setOpdrachtModal({ open: false, item: null })}
         opdracht={opdrachtModal.item}
+        aannames={aannames}
         onBewaren={bewaarOpdracht}
       />
 
@@ -1019,7 +1098,8 @@ const BegrotingWerkblad: React.FC = () => {
         isOpen={middelModal.open}
         onClose={() => setMiddelModal({ open: false, item: null })}
         middel={middelModal.item}
-        opdrachten={budget.opdrachten}
+        opdrachten={geschaald.opdrachten}
+        aannames={aannames}
         onBewaren={bewaarMiddel}
       />
 
@@ -1027,7 +1107,7 @@ const BegrotingWerkblad: React.FC = () => {
         isOpen={inzetModal.open}
         onClose={() => setInzetModal({ open: false, item: null })}
         inzet={inzetModal.item}
-        opdrachten={budget.opdrachten}
+        opdrachten={geschaald.opdrachten}
         heeftPersoneel={entiteit.heeftPersoneel}
         entiteitNaam={entiteit.naam}
         onBewaren={bewaarInzet}

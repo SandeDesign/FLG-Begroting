@@ -7,9 +7,13 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { veiligGetal } from '../../utils/firestoreSchoon';
+import Uitkomst from './Uitkomst';
+import { berekenBasisOpbrengst, berekenOpbrengst } from '../../utils/begroting.calc';
+import { naarMaand } from '../../utils/periode';
 import EenheidKeuze from './EenheidKeuze';
 import {
   OPBRENGST_SOORT_LABEL,
+  type Aannames,
   type Eenheid,
   type Opdracht,
   type OpbrengstModel,
@@ -109,6 +113,8 @@ interface OpdrachtModalProps {
   isOpen: boolean;
   onClose: () => void;
   opdracht: Opdracht | null;
+  /** Nodig om live te laten zien wat de opbrengst wordt. */
+  aannames: Aannames;
   onBewaren: (opdracht: Opdracht) => Promise<void>;
 }
 
@@ -116,6 +122,7 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
   isOpen,
   onClose,
   opdracht,
+  aannames,
   onBewaren,
 }) => {
   const {
@@ -130,6 +137,32 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
   const soort = watch('soort');
   const vastEenheid = watch('vastEenheid');
   const extraEenheid = watch('extraEenheid');
+  const huidig = watch();
+
+  // Direct laten zien wat er per maand uitkomt, met de berekening erbij.
+  const proefOpdracht: Opdracht = {
+    id: 'proef',
+    naam: huidig.naam,
+    voorWie: huidig.voorWie,
+    actief: true,
+    opbrengst: naarOpbrengst(huidig),
+    toeslagen: huidig.toeslagen,
+    overigeOpbrengst: huidig.overigeOpbrengst,
+    extraEenheid: huidig.extraEenheid,
+  };
+  const basis = berekenBasisOpbrengst(proefOpdracht, aannames);
+  const totaalOpbrengst = berekenOpbrengst(proefOpdracht, aannames);
+
+  const berekeningInWoorden = () => {
+    switch (huidig.soort) {
+      case 'stuks':
+        return `${huidig.stuksPerDag || 0} stuks × € ${huidig.tariefPerStuk || 0} × ${huidig.dagenPerMaand || 0} dagen`;
+      case 'uren':
+        return `${huidig.aantalMensen || 0} × ${huidig.urenPerWeek || 0} uur × 52 ÷ 12 × ${huidig.productiviteit || 0} × € ${huidig.tariefPerUur || 0}`;
+      case 'vast':
+        return `€ ${huidig.vastBedrag || 0} omgerekend naar maand`;
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -308,6 +341,27 @@ const OpdrachtModal: React.FC<OpdrachtModalProps> = ({
             />
           </div>
         </div>
+
+        <Uitkomst
+          titel="Wat deze opdracht per maand opbrengt"
+          regels={[
+            { label: 'Uit het model', bedrag: basis, berekening: berekeningInWoorden() },
+            {
+              label: 'Toeslagen',
+              bedrag: naarMaand(huidig.toeslagen || 0, huidig.extraEenheid, aannames),
+            },
+            {
+              label: 'Overige opbrengst',
+              bedrag: naarMaand(huidig.overigeOpbrengst || 0, huidig.extraEenheid, aannames),
+            },
+          ]}
+          totaal={{ label: 'Opbrengst per maand', bedrag: totaalOpbrengst }}
+          opmerking={
+            totaalOpbrengst === 0
+              ? 'Nul opbrengst is prima als een andere entiteit hiervoor betaalt — leg dat dan vast onder Onderling. Staat daar niets, dan draagt deze opdracht alleen kosten.'
+              : undefined
+          }
+        />
 
         <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
           <input
