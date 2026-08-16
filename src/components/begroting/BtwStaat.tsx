@@ -74,7 +74,7 @@ const BtwStaat: React.FC<BtwStaatProps> = ({ resultaat, eenheid }) => {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between gap-3 mb-3">
+      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4 mb-3">
         <div className="flex items-center gap-2">
           <Landmark className="h-4 w-4 text-gray-400 dark:text-gray-500" aria-hidden />
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">

@@ -43,7 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       onClick={() => setHandboekOpen(true)}
       title="Handboek openen"
       aria-label="Handboek openen"
-      className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-500 hover:bg-primary-50/40 dark:hover:bg-primary-900/10 transition-colors"
+      className="group flex items-center justify-center gap-2 px-3 h-10 min-w-[40px] rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-500 hover:bg-primary-50/40 dark:hover:bg-primary-900/10 transition-colors"
     >
       <HelpCircle
         className="h-4 w-4 text-primary-600 dark:text-primary-400 group-hover:scale-110 transition-transform"

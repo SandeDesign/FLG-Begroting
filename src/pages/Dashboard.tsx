@@ -61,11 +61,11 @@ const Dashboard: React.FC = () => {
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => navigate('/keten')}>
               <Network className="h-4 w-4" aria-hidden />
-              Ketenoverzicht
+              Keten<span className="hidden sm:inline">overzicht</span>
             </Button>
             <Button onClick={() => navigate('/begrotingen/nieuw')}>
               <Plus className="h-4 w-4" aria-hidden />
-              Nieuwe begroting
+              Nieuw<span className="hidden sm:inline">e begroting</span>
             </Button>
           </div>
         }
@@ -90,7 +90,7 @@ const Dashboard: React.FC = () => {
       ) : (
         <>
           {/* Kerncijfers van de keten */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
             <StatTile
               label="Opbrengst naar buiten"
               value={formatEuro(keten.opbrengstNetto)}

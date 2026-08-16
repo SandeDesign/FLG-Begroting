@@ -137,7 +137,7 @@ const Begrotingen: React.FC = () => {
         subtitle={`Alle begrotingen en scenario's die ${geselecteerdJaar} raken`}
         emoji="💼"
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <PeriodSelector />
             <Button onClick={() => navigate('/begrotingen/nieuw')}>
               <Plus className="h-4 w-4" aria-hidden />
@@ -191,7 +191,7 @@ const Begrotingen: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => void verwijder(begroting.id, begroting.naam)}
-                        className="text-xs font-medium text-red-600 dark:text-red-400 hover:underline"
+                        className="inline-flex items-center min-h-[36px] px-2 -mx-2 text-xs font-medium text-red-600 dark:text-red-400 hover:underline"
                       >
                         Verwijderen
                       </button>

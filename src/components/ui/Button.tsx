@@ -38,7 +38,7 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-xs',
+    sm: 'px-3 py-2 text-xs min-h-[36px]',
     md: 'px-4 py-2 text-sm',
     lg: 'px-6 py-3 text-base',
   };

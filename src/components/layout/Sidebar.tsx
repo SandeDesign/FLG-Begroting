@@ -81,7 +81,7 @@ const Sidebar: React.FC = () => {
           type="button"
           onClick={wisselIngeklapt}
           aria-label={ingeklapt ? 'Zijbalk uitklappen' : 'Zijbalk inklappen'}
-          className={`p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors ${
+          className={`h-9 w-9 flex items-center justify-center rounded-md text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors ${
             ingeklapt ? 'mx-auto' : ''
           }`}
         >

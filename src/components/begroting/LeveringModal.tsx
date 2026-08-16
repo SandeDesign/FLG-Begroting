@@ -134,12 +134,16 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
       size="lg"
     >
       <form onSubmit={verstuur} className="space-y-4">
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/40 text-sm">
-          <span className="font-semibold text-gray-900 dark:text-gray-100">{vanEntiteit.naam}</span>
-          <ArrowRight className="h-4 w-4 text-gray-400" aria-hidden />
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/40 text-sm">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+              {vanEntiteit.naam}
+            </span>
+            <ArrowRight className="h-4 w-4 text-gray-400 flex-shrink-0 rotate-90 sm:rotate-0" aria-hidden />
+          </div>
           <select
             {...register('naarEntityId', { required: true })}
-            className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-lg outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
+            className="w-full min-w-0 sm:flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-lg outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
           >
             <option value="">Kies de ontvangende entiteit…</option>
             {andereEntiteiten.map((entiteit) => (
@@ -284,7 +288,7 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
           directe kost. In het ketenoverzicht vallen ze tegen elkaar weg.
         </p>
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>
             Annuleren
           </Button>

@@ -62,24 +62,24 @@ const StatTile: React.FC<StatTileProps> = ({
       <div aria-hidden className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${c.stripe}`} />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-1.5">
-            <span className={`flex-shrink-0 w-5 h-5 rounded-md ${c.iconBg} flex items-center justify-center`}>
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.06em] leading-tight text-gray-400 dark:text-gray-500 mb-1.5 flex items-start sm:items-center gap-1.5">
+            <span className={`flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 mt-px sm:mt-0 rounded-md ${c.iconBg} flex items-center justify-center`}>
               {emoji ? (
                 <span className="text-[12px] leading-none" aria-hidden>{emoji}</span>
               ) : Icon ? (
-                <Icon className={`h-3 w-3 ${c.iconText}`} />
+                <Icon className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${c.iconText}`} />
               ) : null}
             </span>
-            <span className="truncate">{label}</span>
+            <span className="min-w-0">{label}</span>
           </p>
-          <p className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tightest leading-none tabular-nums">
+          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tightest leading-none tabular-nums">
             {value}
           </p>
           {sub && !delta && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{sub}</p>
+            <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1.5">{sub}</p>
           )}
           {delta && (
-            <p className={`text-xs font-medium mt-2 flex items-center gap-1 ${deltaColor}`}>
+            <p className={`text-[11px] sm:text-xs font-medium mt-1.5 flex items-center gap-1 ${deltaColor}`}>
               <span>{deltaArrow}</span>
               <span>{delta.text}</span>
             </p>
@@ -94,7 +94,7 @@ const StatTile: React.FC<StatTileProps> = ({
     </>
   );
 
-  const baseClass = `relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs p-5 overflow-hidden transition-all duration-200 ${
+  const baseClass = `relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xs p-3.5 sm:p-4 lg:p-5 overflow-hidden transition-all duration-200 ${
     isClickable ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer text-left w-full' : ''
   } ${className}`;
 

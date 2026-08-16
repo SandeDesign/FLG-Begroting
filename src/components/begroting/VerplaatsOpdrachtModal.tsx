@@ -124,7 +124,7 @@ const VerplaatsOpdrachtModal: React.FC<VerplaatsOpdrachtModalProps> = ({
 
         {fout && <p className="text-sm text-red-600 dark:text-red-400">{fout}</p>}
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-2">
           <Button variant="outline" onClick={onClose}>
             Annuleren
           </Button>

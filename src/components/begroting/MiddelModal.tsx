@@ -344,7 +344,7 @@ const MiddelModal: React.FC<MiddelModalProps> = ({
           totaal={{ label: 'Totaal per maand', bedrag: berekenMiddel(proefMiddel, aannames) }}
         />
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>
             Annuleren
           </Button>

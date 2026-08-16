@@ -33,7 +33,7 @@ const EenheidSchakelaar: React.FC<EenheidSchakelaarProps> = ({
           onClick={() => onChange(eenheid)}
           title={EENHEID_LABEL[eenheid]}
           aria-pressed={waarde === eenheid}
-          className={`px-2.5 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 ${
+          className={`px-3 py-2 min-h-[36px] text-xs font-semibold rounded-md transition-all duration-150 ${
             waarde === eenheid
               ? 'bg-primary-500 text-white shadow-glow-primary'
               : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white dark:hover:bg-gray-600/60'

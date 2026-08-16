@@ -28,6 +28,8 @@ import { useApp } from '../contexts/AppContext';
 import { useBegrotingen } from '../contexts/BegrotingsdataContext';
 import { useAuth } from '../contexts/AuthContext';
 import PageHeader from '../components/ui/PageHeader';
+import ActionMenu from '../components/ui/ActionMenu';
+import TabKiezer from '../components/begroting/TabKiezer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -428,25 +430,56 @@ const BegrotingWerkblad: React.FC = () => {
         title={budget.naam}
         subtitle={`${entiteit.naam} · ${periodeBereikLabel(budget.periodeVan, budget.periodeTot)} · ${BEGROTING_STATUS_LABEL[budget.status]}`}
         emoji="📋"
+        actiesNaastTitel
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={() => navigate('/begrotingen')}>
-              <ArrowLeft className="h-4 w-4" aria-hidden />
-              Terug
-            </Button>
-            <Button variant="outline" onClick={() => void dupliceer()}>
-              <Copy className="h-4 w-4" aria-hidden />
-              Scenario
-            </Button>
-            <Button variant="outline" onClick={() => exporteerBegrotingCSV(resultaat, eenheid)}>
-              <Download className="h-4 w-4" aria-hidden />
-              CSV
-            </Button>
-            <Button variant="outline" onClick={() => void exporteerBegrotingPDF(resultaat, eenheid)}>
-              <Download className="h-4 w-4" aria-hidden />
-              PDF
-            </Button>
-          </div>
+          <>
+            {/* Telefoon: alles onder één knop, anders vult die rij het halve scherm */}
+            <ActionMenu
+              variant="knop"
+              label="Acties voor deze begroting"
+              className="sm:hidden"
+              actions={[
+                {
+                  label: 'Terug naar begrotingen',
+                  icon: ArrowLeft,
+                  onClick: () => navigate('/begrotingen'),
+                },
+                { label: 'Dupliceren als scenario', icon: Copy, onClick: () => void dupliceer() },
+                {
+                  label: 'Exporteren naar CSV',
+                  icon: Download,
+                  onClick: () => exporteerBegrotingCSV(resultaat, eenheid),
+                },
+                {
+                  label: 'Exporteren naar PDF',
+                  icon: Download,
+                  onClick: () => void exporteerBegrotingPDF(resultaat, eenheid),
+                },
+              ]}
+            />
+
+            <div className="hidden sm:flex flex-wrap items-center gap-2">
+              <Button variant="outline" onClick={() => navigate('/begrotingen')}>
+                <ArrowLeft className="h-4 w-4" aria-hidden />
+                Terug
+              </Button>
+              <Button variant="outline" onClick={() => void dupliceer()}>
+                <Copy className="h-4 w-4" aria-hidden />
+                Scenario
+              </Button>
+              <Button variant="outline" onClick={() => exporteerBegrotingCSV(resultaat, eenheid)}>
+                <Download className="h-4 w-4" aria-hidden />
+                CSV
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => void exporteerBegrotingPDF(resultaat, eenheid)}
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                PDF
+              </Button>
+            </div>
+          </>
         }
       />
 
@@ -459,28 +492,14 @@ const BegrotingWerkblad: React.FC = () => {
       )}
 
       {/* Tabbladen */}
-      <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
-        {TABBLADEN.map(({ id, naam, icoon: Icoon }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => zetTab(id)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-              tab === id
-                ? 'bg-primary-500 text-white shadow-glow-primary'
-                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60'
-            }`}
-          >
-            <Icoon className="h-4 w-4" aria-hidden />
-            {naam}
-            {id === 'controles' && afwijkingen.length > 0 && (
-              <span className="ml-0.5 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full">
-                {afwijkingen.length}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      <TabKiezer
+        actief={tab}
+        onKies={zetTab}
+        tabbladen={TABBLADEN.map((blad) => ({
+          ...blad,
+          telling: blad.id === 'controles' ? afwijkingen.length : 0,
+        }))}
+      />
 
       {/* ── Overzicht */}
       {tab === 'overzicht' && (

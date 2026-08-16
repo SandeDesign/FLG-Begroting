@@ -20,7 +20,7 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({ className = '' }) => {
         type="button"
         onClick={() => setGeselecteerdJaar(geselecteerdJaar - 1)}
         aria-label="Vorig jaar"
-        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+        className="h-9 w-9 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
       >
         <ChevronLeft className="h-4 w-4" aria-hidden />
       </button>
@@ -31,7 +31,7 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({ className = '' }) => {
         type="button"
         onClick={() => setGeselecteerdJaar(geselecteerdJaar + 1)}
         aria-label="Volgend jaar"
-        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+        className="h-9 w-9 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
       >
         <ChevronRight className="h-4 w-4" aria-hidden />
       </button>
