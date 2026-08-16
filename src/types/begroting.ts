@@ -378,6 +378,8 @@ export interface BegrotingResultaat {
   budgetNaam: string;
   entityId: string;
   entiteitNaam: string;
+  /** De aannames waarmee gerekend is — nodig om het resultaat na te kunnen rekenen. */
+  aannames: Aannames;
 
   // Opbrengsten
   opbrengstOpdrachten: number;
@@ -400,8 +402,10 @@ export interface BegrotingResultaat {
   resultaatZonderSubsidie: number;
 
   opdrachten: OpdrachtResultaat[];
-  /** Kosten van middelen die op de entiteit drukken in plaats van op een opdracht. */
+  /** Kosten die op de entiteit drukken in plaats van op een opdracht. */
   kostenOpEntiteit: number;
+  kostenMiddelenOpEntiteit: number;
+  kostenInzetOpEntiteit: number;
   /** Vaste lasten die niet over opdrachten verdeeld konden worden. */
   nietVerdeeldeVasteLasten: number;
 
