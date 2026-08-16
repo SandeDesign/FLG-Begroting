@@ -18,7 +18,7 @@
     @apply border-gray-200 dark:border-gray-700;
   }
 
-  /* Refined scrollbars — subtle, warm */
+  /* Ingetogen, warme scrollbars */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -38,7 +38,7 @@
     border: 2px solid transparent;
   }
   .dark ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.1);
     background-clip: padding-box;
     border: 2px solid transparent;
   }
@@ -61,87 +61,4 @@
   .material-input {
     @apply w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400 transition-all duration-150;
   }
-}
-
-/* FullCalendar dark mode + styling */
-.employee-agenda-calendar .fc {
-  --fc-border-color: #e5e7eb;
-  --fc-today-bg-color: rgba(59, 130, 246, 0.05);
-  --fc-now-indicator-color: #ef4444;
-  --fc-event-border-color: transparent;
-  font-family: inherit;
-}
-
-.dark .employee-agenda-calendar .fc {
-  --fc-border-color: #374151;
-  --fc-today-bg-color: rgba(59, 130, 246, 0.1);
-  --fc-page-bg-color: #1f2937;
-  --fc-neutral-bg-color: #111827;
-  --fc-list-event-hover-bg-color: #374151;
-}
-
-.dark .employee-agenda-calendar .fc .fc-col-header-cell-cushion,
-.dark .employee-agenda-calendar .fc .fc-timegrid-slot-label-cushion,
-.dark .employee-agenda-calendar .fc .fc-daygrid-day-number,
-.dark .employee-agenda-calendar .fc .fc-list-day-text,
-.dark .employee-agenda-calendar .fc .fc-list-day-side-text {
-  color: #d1d5db;
-}
-
-.dark .employee-agenda-calendar .fc .fc-button-primary {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #d1d5db;
-}
-
-.dark .employee-agenda-calendar .fc .fc-button-primary:hover {
-  background-color: #4b5563;
-}
-
-.dark .employee-agenda-calendar .fc .fc-button-primary:not(:disabled).fc-button-active {
-  background-color: #4f46e5;
-  border-color: #4338ca;
-}
-
-.employee-agenda-calendar .fc .fc-toolbar-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-}
-
-.dark .employee-agenda-calendar .fc .fc-toolbar-title {
-  color: #f3f4f6;
-}
-
-.employee-agenda-calendar .fc .fc-event {
-  border-radius: 0.375rem;
-  padding: 1px 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.employee-agenda-calendar .fc .fc-timegrid-event {
-  border-radius: 0.375rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.employee-agenda-calendar .fc .fc-day-today {
-  background-color: var(--fc-today-bg-color) !important;
-}
-
-.employee-agenda-calendar .fc .fc-col-header-cell {
-  padding: 8px 0;
-  font-weight: 600;
-  font-size: 0.813rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.employee-agenda-calendar .fc .fc-timegrid-slot {
-  height: 2.5rem;
-}
-
-.employee-agenda-calendar .fc .fc-scrollgrid {
-  border-radius: 0.5rem;
-  overflow: hidden;
 }

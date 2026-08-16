@@ -1,307 +1,125 @@
-import React, { useState, useEffect } from 'react';
+// src/components/layout/Sidebar.tsx
+// Vaste zijbalk op desktop. Zes items, geen secties en geen rolfilter — met dit
+// aantal pagina's is inklappen per groep alleen maar in de weg lopen.
+
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  LogOut,
-  ChevronRight,
-  ChevronLeft,
-  Star,
-} from 'lucide-react';
-import { useApp } from '../../contexts/AppContext';
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getUserSettings } from '../../services/firebase';
-import {
-  getFilteredNavigation,
-  getNavigationSections,
-  getItemDisplayName,
-  NavigationItem,
-  CompanyType,
-} from '../../utils/menuConfig';
-import { useChatUnreadCount } from '../../hooks/useChatUnreadCount';
+import { NAVIGATIE, type NavigatieItem } from '../../utils/menuConfig';
 
-// Navigation Item - Cleaner Design
-const NavItem: React.FC<{ item: NavigationItem; collapsed: boolean; userRole: string | null; dynamicBadge?: string | null }> = ({ item, collapsed, userRole, dynamicBadge }) => {
-  const badge = dynamicBadge ?? item.badge;
-  return (
-    <NavLink
-      to={item.href}
-      className={({ isActive }) =>
-        `group flex items-center px-3 py-2 mx-2 text-[13px] font-medium rounded-lg transition-all duration-150 relative ${
-          isActive
-            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200 font-semibold'
-            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-gray-100'
-        } ${collapsed ? 'justify-center' : ''}`
-      }
-      title={collapsed ? getItemDisplayName(item, userRole) : undefined}
-    >
-      {({ isActive }) => (
-        <>
-          {isActive && !collapsed && (
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500 dark:bg-primary-400" aria-hidden />
-          )}
+const OPSLAG_INGEKLAPT = 'flg.zijbalkIngeklapt';
+
+const ZijbalkItem: React.FC<{ item: NavigatieItem; ingeklapt: boolean }> = ({
+  item,
+  ingeklapt,
+}) => (
+  <NavLink
+    to={item.href}
+    end={item.exact}
+    title={ingeklapt ? item.naam : undefined}
+    className={({ isActive }) =>
+      `group relative flex items-center px-3 py-2 mx-2 text-[13px] font-medium rounded-lg transition-all duration-150 ${
+        isActive
+          ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200 font-semibold'
+          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-gray-100'
+      } ${ingeklapt ? 'justify-center' : ''}`
+    }
+  >
+    {({ isActive }) => (
+      <>
+        {isActive && !ingeklapt && (
           <span
-            className={`flex-shrink-0 inline-flex items-center justify-center w-[20px] h-[20px] text-base leading-none ${collapsed ? '' : 'mr-2.5'}`}
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500 dark:bg-primary-400"
             aria-hidden
-          >
-            {item.emoji}
-          </span>
-          {/* Collapsed state: small red dot als er een badge is */}
-          {collapsed && badge && (
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800" />
-          )}
-          {!collapsed && (
-            <>
-              <span className="truncate">{getItemDisplayName(item, userRole)}</span>
-              {badge && (
-                <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none flex items-center justify-center">
-                  {badge}
-                </span>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </NavLink>
-  );
-};
+          />
+        )}
+        <span
+          className={`flex-shrink-0 inline-flex items-center justify-center w-5 h-5 text-base leading-none ${
+            ingeklapt ? '' : 'mr-2.5'
+          }`}
+          aria-hidden
+        >
+          {item.emoji}
+        </span>
+        {!ingeklapt && <span className="truncate">{item.naam}</span>}
+      </>
+    )}
+  </NavLink>
+);
 
-// Section Header - Minimal text-only (matches design preview)
-const SectionHeader: React.FC<{
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  collapsed: boolean;
-  isExpanded: boolean;
-  onToggle: () => void;
-  color: string;
-}> = ({ title, collapsed, isExpanded, onToggle }) => {
-  if (collapsed) {
-    return (
-      <div className="flex justify-center py-2">
-        <div className="w-6 h-px bg-gray-200 dark:bg-gray-700"></div>
-      </div>
-    );
-  }
+const Sidebar: React.FC = () => {
+  const { user, uitloggen } = useAuth();
+  const [ingeklapt, setIngeklapt] = useState(false);
 
-  return (
-    <button
-      onClick={onToggle}
-      className="flex items-center w-full px-3 py-1.5 mt-3 mx-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors group"
-      style={{ width: 'calc(100% - 1rem)' }}
-    >
-      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em] flex-1 text-left">
-        {title}
-      </span>
-      <ChevronRight className={`h-3 w-3 text-gray-300 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-all duration-150 ${isExpanded ? 'rotate-90' : ''}`} />
-    </button>
-  );
-};
-
-interface SidebarProps {
-  onLogoClick?: () => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ onLogoClick }) => {
-  const { signOut, userRole, user } = useAuth();
-  const chatUnread = useChatUnreadCount();
-  const dynamicBadgeFor = (item: NavigationItem): string | null => {
-    if (item.id === 'chat' && chatUnread > 0) {
-      return chatUnread > 99 ? '99+' : String(chatUnread);
-    }
-    return null;
-  };
-  const { selectedCompany } = useApp();
-  const [collapsed, setCollapsed] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [favoritePages, setFavoritePages] = useState<string[]>([]);
-
-  // Load state from localStorage on mount
   useEffect(() => {
-    const savedCollapsed = localStorage.getItem('sidebarCollapsed');
-    const savedExpanded = localStorage.getItem('sidebarExpandedSections');
-
-    if (savedCollapsed !== null) {
-      setCollapsed(JSON.parse(savedCollapsed));
-    }
-    if (savedExpanded !== null) {
-      setExpandedSections(JSON.parse(savedExpanded));
-    }
+    setIngeklapt(localStorage.getItem(OPSLAG_INGEKLAPT) === 'true');
   }, []);
 
-  // Load favorite pages from user settings voor het geselecteerde bedrijf
-  useEffect(() => {
-    const loadFavorites = async () => {
-      if (user && (userRole === 'admin' || userRole === 'co-admin') && selectedCompany?.id) {
-        try {
-          const settings = await getUserSettings(user.uid);
-          if (settings?.favoritePages && settings.favoritePages[selectedCompany.id]) {
-            setFavoritePages(settings.favoritePages[selectedCompany.id]);
-          } else {
-            setFavoritePages([]);
-          }
-        } catch {
-          setFavoritePages([]);
-        }
-      } else {
-        setFavoritePages([]);
-      }
-    };
-
-    loadFavorites();
-  }, [user?.uid, userRole, selectedCompany?.id]);
-
-  const handleToggleCollapsed = () => {
-    const newState = !collapsed;
-    setCollapsed(newState);
-    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
+  const wisselIngeklapt = () => {
+    setIngeklapt((huidig) => {
+      const nieuw = !huidig;
+      localStorage.setItem(OPSLAG_INGEKLAPT, String(nieuw));
+      return nieuw;
+    });
   };
-
-  const toggleSection = (sectionTitle: string) => {
-    const newExpandedSections = expandedSections.includes(sectionTitle)
-      ? expandedSections.filter(s => s !== sectionTitle)
-      : [...expandedSections, sectionTitle];
-
-    setExpandedSections(newExpandedSections);
-    localStorage.setItem('sidebarExpandedSections', JSON.stringify(newExpandedSections));
-  };
-
-  // Filter navigation by role AND company type
-  const companyType = selectedCompany?.companyType as CompanyType | undefined;
-  const filteredNavigation = getFilteredNavigation(userRole, companyType);
-
-  // Zonder opgeslagen voorkeur: open standaard de secties met defaultOpen
-  // (bv. de manager-secties "Algemeen" en "Voor mezelf").
-  useEffect(() => {
-    if (localStorage.getItem('sidebarExpandedSections') !== null) return;
-    const defaults = getNavigationSections(userRole, companyType)
-      .filter(s => s.defaultOpen)
-      .map(s => s.title);
-    if (defaults.length > 0) setExpandedSections(defaults);
-  }, [userRole, companyType]);
-
-  // Dashboard item (no section)
-  const dashboardItem = filteredNavigation.find(i => i.id === 'dashboard');
-
-  // Favorite items (only for admin)
-  const favoriteItems = (userRole === 'admin' || userRole === 'co-admin') && favoritePages.length > 0
-    ? filteredNavigation.filter(i => favoritePages.includes(i.href) && i.id !== 'dashboard')
-    : [];
-
-  // Sections from menuConfig
-  const sections = getNavigationSections(userRole, companyType);
 
   return (
-    <div className={`hidden lg:flex lg:flex-col lg:bg-white dark:lg:bg-gray-800 lg:border-r lg:border-gray-100 dark:lg:border-gray-700/60 lg:shadow-xs transition-all duration-200 relative z-40 ${ collapsed ? 'lg:w-16' : 'lg:w-64' }`}>
-      {/* Header - Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-gray-100 dark:border-gray-700/60 px-3 relative">
+    <aside
+      className={`hidden lg:flex lg:flex-col bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700/60 transition-all duration-200 ${
+        ingeklapt ? 'w-[68px]' : 'w-60'
+      }`}
+    >
+      {/* Kop */}
+      <div className="h-14 flex items-center justify-between px-3 border-b border-gray-100 dark:border-gray-700/60">
+        {!ingeklapt && (
+          <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tracking-tight truncate">
+            FLG-Begroting
+          </span>
+        )}
         <button
-          onClick={onLogoClick}
-          className="hover:opacity-80 transition-opacity focus:outline-none"
-          title="Open wekelijkse taken"
+          type="button"
+          onClick={wisselIngeklapt}
+          aria-label={ingeklapt ? 'Zijbalk uitklappen' : 'Zijbalk inklappen'}
+          className={`p-1.5 rounded-md text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition-colors ${
+            ingeklapt ? 'mx-auto' : ''
+          }`}
         >
-          {!collapsed && (
-            selectedCompany?.logoUrl ? (
-              <img src={selectedCompany.logoUrl} alt={selectedCompany.name} className="h-10 w-auto max-w-[200px] object-contain" />
-            ) : (
-              <img src="/Logo_1.png" alt="Logo" className="h-10 w-auto" />
-            )
+          {ingeklapt ? (
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          ) : (
+            <ChevronLeft className="h-4 w-4" aria-hidden />
           )}
-          {collapsed && (
-            selectedCompany?.logoUrl ? (
-              <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center">
-                <img src={selectedCompany.logoUrl} alt={selectedCompany.name} className="w-full h-full object-contain p-0.5" />
-              </div>
-            ) : (
-              <div className="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">F</span>
-              </div>
-            )
-          )}
-        </button>
-
-        <button
-          onClick={handleToggleCollapsed}
-          className="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center hover:bg-primary-50 dark:hover:bg-gray-700 hover:border-primary-300 dark:hover:border-primary-500 hover:text-primary-600 shadow-sm z-10 transition-colors"
-        >
-          <ChevronLeft className={`h-3 w-3 text-gray-500 dark:text-gray-300 transition-transform duration-150 ${collapsed ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-3 overflow-y-auto">
-        {/* Dashboard - Solo */}
-        {dashboardItem && (
-          <div className="pb-3 mb-2 border-b border-gray-100 dark:border-gray-700/60">
-            <NavItem item={dashboardItem} collapsed={collapsed} userRole={userRole} />
-          </div>
-        )}
-
-        {/* Favorites Section - Only for admin */}
-        {favoriteItems.length > 0 && (
-          <div className="pb-2 mb-1">
-            <SectionHeader
-              title="Favorieten"
-              icon={Star}
-              collapsed={collapsed}
-              isExpanded={expandedSections.includes('Favorieten')}
-              onToggle={() => toggleSection('Favorieten')}
-              color="bg-amber-500"
-            />
-            {(collapsed || expandedSections.includes('Favorieten')) && (
-              <div className={`space-y-0.5 ${collapsed ? '' : 'mt-1'}`}>
-                {favoriteItems.map((item) => (
-                  <NavItem key={item.id} item={item} collapsed={collapsed} userRole={userRole} dynamicBadge={dynamicBadgeFor(item)} />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Boekhouder: Flat list without collapsible sections */}
-        {userRole === 'boekhouder' ? (
-          <div className="space-y-0.5">
-            {filteredNavigation.filter(i => i.id !== 'dashboard').map((item) => (
-              <NavItem key={item.id} item={item} collapsed={collapsed} userRole={userRole} dynamicBadge={dynamicBadgeFor(item)} />
-            ))}
-          </div>
-        ) : (
-          /* Admin/Manager/Employee: Sections with dropdowns
-             (manager → 2 submenus: "Persoonlijk" en "Beheer") */
-          <div>
-            {sections.map((section) => (
-              <div key={section.title} className="mb-1">
-                <SectionHeader
-                  title={section.title}
-                  icon={section.icon}
-                  collapsed={collapsed}
-                  isExpanded={expandedSections.includes(section.title)}
-                  onToggle={() => toggleSection(section.title)}
-                  color={section.color}
-                />
-
-                {(collapsed || expandedSections.includes(section.title)) && (
-                  <div className={`space-y-0.5 ${collapsed ? '' : 'mt-1'}`}>
-                    {section.items.map((item) => (
-                      <NavItem key={item.id} item={item} collapsed={collapsed} userRole={userRole} dynamicBadge={dynamicBadgeFor(item)} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Navigatie */}
+      <nav className="flex-1 overflow-y-auto py-3 space-y-0.5">
+        {NAVIGATIE.map((item) => (
+          <ZijbalkItem key={item.id} item={item} ingeklapt={ingeklapt} />
+        ))}
       </nav>
 
-      {/* Footer */}
+      {/* Voet */}
       <div className="border-t border-gray-100 dark:border-gray-700/60 p-2">
+        {!ingeklapt && user?.email && (
+          <p className="px-3 pb-2 text-[11px] text-gray-400 dark:text-gray-500 truncate">
+            {user.email}
+          </p>
+        )}
         <button
-          onClick={signOut}
-          className={`flex w-full items-center px-3 py-2 text-[13px] font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ${ collapsed ? 'justify-center' : '' }`}
-          title={collapsed ? 'Uitloggen' : undefined}
+          type="button"
+          onClick={() => void uitloggen()}
+          title={ingeklapt ? 'Uitloggen' : undefined}
+          className={`flex items-center w-full px-3 py-2 text-[13px] font-medium rounded-lg text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300 transition-colors ${
+            ingeklapt ? 'justify-center' : ''
+          }`}
         >
-          <LogOut className={`h-[18px] w-[18px] ${collapsed ? '' : 'mr-2.5'}`} />
-          {!collapsed && <span>Uitloggen</span>}
+          <LogOut className={`h-4 w-4 flex-shrink-0 ${ingeklapt ? '' : 'mr-2.5'}`} aria-hidden />
+          {!ingeklapt && <span>Uitloggen</span>}
         </button>
       </div>
-    </div>
+    </aside>
   );
 };
 

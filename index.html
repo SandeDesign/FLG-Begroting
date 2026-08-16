@@ -4,36 +4,46 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/Logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FLG-Administratie - Administratiesoftware</title>
-    <meta name="description" content="Complete loonadministratie software voor FLGroep haar bedrijven. Beheer werknemers, uren, loonberekeningen en meer." />
-    
-    <!-- PWA Meta Tags -->
+    <title>FLG-Begroting</title>
+    <meta
+      name="description"
+      content="Begrotingen voor de entiteiten van de groep: opbrengsten uit opdrachten, directe kosten, vaste lasten en het ketenoverzicht."
+    />
+
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#cd853f" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="FLG-Administratie" />
+    <meta name="apple-mobile-web-app-title" content="FLG-Begroting" />
     <link rel="apple-touch-icon" href="/Logo.png" />
   </head>
   <body class="h-full bg-gray-50">
     <div id="root" class="h-full"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Service Worker Registration -->
+
+    <!-- Service worker registreren; de app vraagt zelf om te vernieuwen -->
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js').then(function(reg) {
-          reg.addEventListener('updatefound', function() {
-            var newWorker = reg.installing;
-            newWorker.addEventListener('statechange', function() {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nieuwe SW staat te wachten — stuur event naar React app
-                window.dispatchEvent(new CustomEvent('swUpdateAvailable', { detail: { reg: reg } }));
-              }
+        navigator.serviceWorker
+          .register('/service-worker.js')
+          .then(function (reg) {
+            reg.addEventListener('updatefound', function () {
+              var nieuweWorker = reg.installing;
+              if (!nieuweWorker) return;
+              nieuweWorker.addEventListener('statechange', function () {
+                if (nieuweWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  window.dispatchEvent(
+                    new CustomEvent('swUpdateAvailable', { detail: { reg: reg } })
+                  );
+                }
+              });
             });
+          })
+          .catch(function (fout) {
+            console.error('Service worker registreren mislukt:', fout);
           });
-        }).catch(function(err) { console.error('SW registration failed:', err); });
       }
     </script>
   </body>

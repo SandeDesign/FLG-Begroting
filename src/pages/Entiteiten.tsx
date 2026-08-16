@@ -1,23 +1,23 @@
-// src/pages/Settings.tsx
-// Profiel, themakleur en donkere modus
+// src/pages/Entiteiten.tsx
+// De BV's van de groep en hun vaste lasten
 // Skelet — wordt gevuld zodra de rekenmotor is goedgekeurd.
 
 import React from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 import { usePageTitle } from '../contexts/PageTitleContext';
 import PageHeader from '../components/ui/PageHeader';
 import { EmptyState } from '../components/ui/EmptyState';
 import Card from '../components/ui/Card';
 
-const Settings: React.FC = () => {
-  usePageTitle('Instellingen');
+const Entiteiten: React.FC = () => {
+  usePageTitle('Entiteiten');
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Instellingen" subtitle="Profiel, themakleur en donkere modus" emoji="⚙️" />
+      <PageHeader title="Entiteiten" subtitle="De BV's van de groep en hun vaste lasten" emoji="🏢" />
       <Card>
         <EmptyState
-          icon={SlidersHorizontal}
+          icon={Building2}
           title="Nog in aanbouw"
           description="Deze pagina wordt gebouwd zodra de rekenmotor is nagerekend en goedgekeurd."
         />
@@ -26,4 +26,4 @@ const Settings: React.FC = () => {
   );
 };
 
-export default Settings;
+export default Entiteiten;

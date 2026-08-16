@@ -1,384 +1,95 @@
-import React, { useState, useEffect } from 'react';
+// src/components/layout/MobileFullScreenMenu.tsx
+// Schermvullend menu op mobiel, met de entiteitkeuze en het jaar bovenaan zodat
+// je vanaf één plek van context kunt wisselen.
+
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  X,
-  Calendar,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  LayoutDashboard,
-  Star,
-  Building2,
-} from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useApp } from '../../contexts/AppContext';
-import { getFilteredNavigation, getNavigationSections, getItemDisplayName, CompanyType } from '../../utils/menuConfig';
-import { getUserSettings } from '../../services/firebase';
-import { getQuarterLabel } from '../../utils/dateFilters';
-import { useChatUnreadCount } from '../../hooks/useChatUnreadCount';
+import { NAVIGATIE } from '../../utils/menuConfig';
+import EntiteitSelector from '../ui/EntiteitSelector';
+import PeriodSelector from '../ui/PeriodSelector';
 
 interface MobileFullScreenMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({ isOpen, onClose }) => {
-  const { userRole, signOut, user } = useAuth();
-  const { companies, selectedCompany, setSelectedCompany, selectedYear, setSelectedYear, selectedQuarter, setSelectedQuarter } = useApp();
-  const chatUnread = useChatUnreadCount();
-  const chatBadge = chatUnread > 0 ? (chatUnread > 99 ? '99+' : String(chatUnread)) : null;
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
-  const [favoritePages, setFavoritePages] = useState<string[]>([]);
-  const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
-  const [periodSelectorOpen, setPeriodSelectorOpen] = useState(false);
-
-  const canSelectCompany = (userRole === 'admin' || userRole === 'co-admin' || userRole === 'boekhouder') && companies && companies.length > 1;
-
-  useEffect(() => {
-    const loadFavorites = async () => {
-      if (user && (userRole === 'admin' || userRole === 'co-admin') && selectedCompany?.id) {
-        try {
-          const settings = await getUserSettings(user.uid);
-          if (settings?.favoritePages && settings.favoritePages[selectedCompany.id]) {
-            setFavoritePages(settings.favoritePages[selectedCompany.id]);
-          } else {
-            setFavoritePages([]);
-          }
-        } catch {
-          setFavoritePages([]);
-        }
-      } else {
-        setFavoritePages([]);
-      }
-    };
-    loadFavorites();
-  }, [user?.uid, userRole, selectedCompany?.id]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setCompanyDropdownOpen(false);
-    }
-  }, [isOpen]);
-
-  // Open standaard de secties met defaultOpen (bv. manager "Algemeen" /
-  // "Voor mezelf") wanneer er nog niets is uitgeklapt.
-  useEffect(() => {
-    if (!isOpen) return;
-    const ct = selectedCompany?.companyType as CompanyType | undefined;
-    setExpandedSections(prev => {
-      if (prev.length > 0) return prev;
-      return getNavigationSections(userRole, ct).filter(s => s.defaultOpen).map(s => s.title);
-    });
-  }, [isOpen, userRole, selectedCompany?.companyType]);
+export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const { user, uitloggen } = useAuth();
 
   if (!isOpen) return null;
 
-  const companyType = selectedCompany?.companyType as CompanyType | undefined;
-  const filteredNavigation = getFilteredNavigation(userRole, companyType);
-  const dashboardItem = filteredNavigation.find(i => i.id === 'dashboard');
-  const favoriteItems = (userRole === 'admin' || userRole === 'co-admin') && favoritePages.length > 0
-    ? filteredNavigation.filter(i => favoritePages.includes(i.href) && i.id !== 'dashboard')
-    : [];
-  const menuSections = getNavigationSections(userRole, companyType);
-
-  const toggleSection = (sectionTitle: string) => {
-    setExpandedSections(prev =>
-      prev.includes(sectionTitle)
-        ? prev.filter(s => s !== sectionTitle)
-        : [...prev, sectionTitle]
-    );
-  };
-
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
-      <div
-        className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+    <div className="lg:hidden fixed inset-0 z-50 bg-white dark:bg-gray-900 flex flex-col">
+      {/* Kop */}
+      <div className="flex items-center justify-between px-4 h-16 border-b border-gray-100 dark:border-gray-700/60">
+        <span className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+          FLG-Begroting
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Menu sluiten"
+          className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          <X className="h-5 w-5" aria-hidden />
+        </button>
+      </div>
 
-      <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-gray-50 dark:bg-gray-900 shadow-2xl transform transition-transform duration-300 ease-out overflow-hidden flex flex-col">
-
-        {/* Header with brand gradient */}
-        <div className="relative px-5 py-5 bg-gradient-to-br from-primary-600 to-primary-800 flex-shrink-0 shadow-glow-primary-lg">
-          <div className="relative flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              {selectedCompany?.logoUrl ? (
-                <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-white shadow-md ring-1 ring-white/30 flex-shrink-0">
-                  <img
-                    src={selectedCompany.logoUrl}
-                    alt={selectedCompany.name}
-                    className="w-full h-full object-contain p-1.5"
-                  />
-                </div>
-              ) : (
-                <div className="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center ring-1 ring-white/30 flex-shrink-0">
-                  <Building2 className="w-6 h-6 text-white" />
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                {canSelectCompany ? (
-                  <button
-                    onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
-                    className="flex items-center gap-1.5 text-left max-w-full"
-                  >
-                    <h2 className="text-base font-bold text-white tracking-tight truncate">
-                      {selectedCompany?.name || 'Selecteer bedrijf'}
-                    </h2>
-                    <ChevronDown className={`h-4 w-4 text-white/80 flex-shrink-0 transition-transform ${companyDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                ) : (
-                  <h2 className="text-base font-bold text-white tracking-tight truncate">
-                    {selectedCompany?.name || 'Menu'}
-                  </h2>
-                )}
-                <p className="text-xs text-white/70 mt-0.5 truncate">FLG Administratie</p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg text-white/90 hover:bg-white/15 hover:text-white transition-colors flex-shrink-0"
-              aria-label="Sluiten"
-            >
-              <X className="h-5 w-5" />
-            </button>
+      <div className="flex-1 overflow-y-auto">
+        {/* Context: entiteit en jaar */}
+        <div className="p-4 space-y-4 border-b border-gray-100 dark:border-gray-700/60">
+          <EntiteitSelector />
+          <div>
+            <span className="block text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-2">
+              Jaar
+            </span>
+            <PeriodSelector />
           </div>
         </div>
 
-        {/* Company Dropdown */}
-        {canSelectCompany && companyDropdownOpen && (
-          <div className="border-b border-gray-100 dark:border-gray-700/60 flex-shrink-0 bg-white dark:bg-gray-800 shadow-sm">
-            <div className="p-2 space-y-0.5 max-h-64 overflow-y-auto">
-              {companies.map((company) => (
-                <button
-                  key={company.id}
-                  onClick={() => {
-                    setSelectedCompany(company);
-                    setCompanyDropdownOpen(false);
-                    onClose();
-                  }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
-                    selectedCompany?.id === company.id
-                      ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-900 dark:text-primary-200 font-semibold'
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/60'
-                  }`}
-                >
-                  {company.logoUrl ? (
-                    <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center bg-white dark:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-600 flex-shrink-0">
-                      <img
-                        src={company.logoUrl}
-                        alt={company.name}
-                        className="w-full h-full object-contain p-1"
-                      />
-                    </div>
-                  ) : (
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${selectedCompany?.id === company.id ? 'bg-primary-500' : 'bg-gray-400 dark:bg-gray-600'}`}>
-                      <Building2 className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm block truncate">{company.name}</span>
-                    <span className="text-[11px] block truncate text-gray-400 dark:text-gray-500">
-                      {company.companyType === 'project' ? 'Project' :
-                       company.companyType === 'holding' ? 'Holding' :
-                       company.companyType === 'shareholder' ? 'Aandeelhouder' :
-                       company.companyType === 'employer' ? 'Werkgever' : company.companyType}
-                    </span>
-                  </div>
-                  {selectedCompany?.id === company.id && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary-500 flex-shrink-0" />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Period Selector */}
-        <div className="border-b border-gray-100 dark:border-gray-700/60 flex-shrink-0 bg-white dark:bg-gray-800">
-          <button
-            onClick={() => setPeriodSelectorOpen(!periodSelectorOpen)}
-            className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-primary-600 dark:text-primary-400" />
-              <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.08em]">Periode</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
-                {selectedYear} <span className="text-gray-400 dark:text-gray-500 font-medium">·</span> {selectedQuarter ? `Q${selectedQuarter}` : 'Heel jaar'}
-              </span>
-              <ChevronDown className={`h-3.5 w-3.5 text-gray-400 dark:text-gray-500 transition-transform ${periodSelectorOpen ? 'rotate-180' : ''}`} />
-            </div>
-          </button>
-
-          {periodSelectorOpen && (
-            <div className="px-4 pb-3 space-y-2 border-t border-gray-100 dark:border-gray-700/60 pt-3">
-              <div className="flex items-center justify-center gap-2">
-                <button onClick={() => { setSelectedYear(selectedYear - 1); }} className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 dark:border-gray-700 hover:border-primary-400 hover:text-primary-600 text-gray-500 dark:text-gray-300 transition-colors">
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                </button>
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tracking-tight min-w-[3rem] text-center">{selectedYear}</span>
-                <button onClick={() => { setSelectedYear(selectedYear + 1); }} className="w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 dark:border-gray-700 hover:border-primary-400 hover:text-primary-600 text-gray-500 dark:text-gray-300 transition-colors">
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <div className="grid grid-cols-5 gap-1 bg-gray-100 dark:bg-gray-700/60 rounded-lg p-1">
-                {([null, 1, 2, 3, 4] as (number | null)[]).map((q) => (
-                  <button
-                    key={q ?? 'all'}
-                    onClick={() => { setSelectedQuarter(q); onClose(); }}
-                    className={`px-2 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                      selectedQuarter === q
-                        ? 'bg-primary-500 text-white shadow-glow-primary'
-                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white dark:hover:bg-gray-600/60'
-                    }`}
-                  >
-                    {getQuarterLabel(q)}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
-
-          {/* Dashboard - prominent card */}
-          {dashboardItem && (
+        {/* Pagina's */}
+        <nav className="p-3 space-y-1">
+          {NAVIGATIE.map((item) => (
             <NavLink
-              to={dashboardItem.href}
+              key={item.id}
+              to={item.href}
+              end={item.exact}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${
+                `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-glow-primary'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/60 border border-gray-100 dark:border-gray-700 shadow-xs'
+                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200 font-semibold'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`
               }
             >
-              {({ isActive }) => (
-                <>
-                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-lg leading-none ${ isActive ? 'bg-white/15 backdrop-blur-sm' : 'bg-gray-50 dark:bg-gray-700/50' }`} aria-hidden>
-                    📊
-                  </span>
-                  <span className="flex-1">Dashboard</span>
-                </>
-              )}
+              <span className="text-xl leading-none" aria-hidden>
+                {item.emoji}
+              </span>
+              <span>{item.naam}</span>
             </NavLink>
-          )}
-
-          {/* Favorites */}
-          {favoriteItems.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-xs overflow-hidden">
-              <button
-                onClick={() => toggleSection('Favorieten')}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
-              >
-                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em]">Favorieten</span>
-                <ChevronDown className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform ${ expandedSections.includes('Favorieten') ? 'rotate-180' : '' }`} />
-              </button>
-
-              {expandedSections.includes('Favorieten') && (
-                <div className="px-2 pb-2 space-y-0.5 border-t border-gray-100 dark:border-gray-700/60 pt-2">
-                  {favoriteItems.map((item) => (
-                    <NavLink
-                      key={item.id}
-                      to={item.href}
-                      onClick={onClose}
-                      className={({ isActive }) =>
-                        `relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
-                          isActive
-                            ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200 font-semibold'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60'
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          {isActive && (
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500" aria-hidden />
-                          )}
-                          <span className="flex-shrink-0 inline-flex items-center justify-center w-[20px] h-[20px] text-base leading-none" aria-hidden>
-                            {item.emoji}
-                          </span>
-                          <span className="flex-1 truncate">{getItemDisplayName(item, userRole)}</span>
-                        </>
-                      )}
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Sections */}
-          {menuSections.map((section) => {
-            const isExpanded = expandedSections.includes(section.title);
-            return (
-              <div key={section.title} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-xs overflow-hidden">
-                <button
-                  onClick={() => toggleSection(section.title)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors"
-                >
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.1em]">{section.title}</span>
-                  <ChevronDown className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform ${ isExpanded ? 'rotate-180' : '' }`} />
-                </button>
-
-                {isExpanded && (
-                  <div className="px-2 pb-2 space-y-0.5 border-t border-gray-100 dark:border-gray-700/60 pt-2">
-                    {section.items.map((item) => (
-                      <NavLink
-                        key={item.id}
-                        to={item.href}
-                        onClick={onClose}
-                        className={({ isActive }) =>
-                          `relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium ${
-                            isActive
-                              ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200 font-semibold'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60'
-                          }`
-                        }
-                      >
-                        {({ isActive }) => (
-                          <>
-                            {isActive && (
-                              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-500" aria-hidden />
-                            )}
-                            <span className="flex-shrink-0 inline-flex items-center justify-center w-[20px] h-[20px] text-base leading-none" aria-hidden>
-                              {item.emoji}
-                            </span>
-                            <span className="flex-1 truncate">{getItemDisplayName(item, userRole)}</span>
-                            {item.id === 'chat' && chatBadge && (
-                              <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center leading-none">
-                                {chatBadge}
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </NavLink>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          ))}
         </nav>
+      </div>
 
-        {/* Footer */}
-        <div className="border-t border-gray-100 dark:border-gray-700/60 p-3 bg-white dark:bg-gray-800 flex-shrink-0">
-          <button
-            onClick={() => {
-              signOut();
-              onClose();
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Uitloggen</span>
-          </button>
-        </div>
+      {/* Voet */}
+      <div className="border-t border-gray-100 dark:border-gray-700/60 p-4">
+        {user?.email && (
+          <p className="pb-3 text-xs text-gray-400 dark:text-gray-500 truncate">{user.email}</p>
+        )}
+        <button
+          type="button"
+          onClick={() => void uitloggen()}
+          className="flex items-center gap-2.5 w-full px-3 py-3 rounded-xl text-sm font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+        >
+          <LogOut className="h-4 w-4" aria-hidden />
+          <span>Uitloggen</span>
+        </button>
       </div>
     </div>
   );

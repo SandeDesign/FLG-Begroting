@@ -1,116 +1,61 @@
+// src/components/AppUpdateModal.tsx
+// Melding dat er een nieuwe versie klaarstaat. De service worker wacht tot de
+// gebruiker hier op vernieuwen klikt, zodat je nooit midden in het invullen van
+// een begroting wordt onderbroken.
+
 import React from 'react';
 import { RefreshCw, Sparkles } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 
-interface Props {
-  reg: ServiceWorkerRegistration | null;
-  onDismiss: () => void;
+interface AppUpdateModalProps {
+  registratie: ServiceWorkerRegistration | null;
+  onSluiten: () => void;
 }
 
-const CHANGELOG: Record<string, string[]> = {
-  employee: [
-    'Kilometerstanden: vul per dag je begin- en eindstand in — de dagkilometers worden automatisch berekend',
-    'Mijn Auto: bekijk je toegewezen auto (APK, onderhoud, tankpas) en meld schade of defecten',
-    'Taken afvinken werkt nu correct — je voltooide taken blijven staan',
-  ],
-  admin: [
-    'Taken bij "Uren goedkeuren": zie per week welke taken een medewerker heeft afgevinkt',
-    'Auto Beheer: koppel kentekens aan medewerkers, beheer APK/onderhoud en handel meldingen af',
-    'Kilometerstanden van de auto lopen automatisch mee vanuit de urenregistratie',
-    'Taken: voltooien en toevoegen opgelost (incl. validatie van titel en deadline)',
-  ],
-  manager: [
-    'Auto Beheer: bekijk het wagenpark en wijs auto\'s toe aan je team',
-    'Taken bij "Uren goedkeuren" zichtbaar per week per medewerker',
-    'Taken: voltooien werkt nu correct',
-  ],
-  all: [
-    'Kilometerstanden gekoppeld aan het nieuwe Auto Beheer',
-  ],
-};
-
-const AppUpdateModal: React.FC<Props> = ({ reg, onDismiss }) => {
-  const { userRole } = useAuth();
-
-  const handleUpdate = () => {
-    if (reg?.waiting) {
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
+const AppUpdateModal: React.FC<AppUpdateModalProps> = ({ registratie, onSluiten }) => {
+  const vernieuw = () => {
+    registratie?.waiting?.postMessage({ type: 'SKIP_WAITING' });
     window.location.reload();
   };
 
-  const roleChanges = (userRole && CHANGELOG[userRole]) ? CHANGELOG[userRole] : [];
-  const allChanges = CHANGELOG.all;
-
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onSluiten} />
 
-      {/* Modal card */}
       <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
-        {/* Gradient header */}
         <div className="bg-gradient-to-br from-primary-600 to-primary-800 px-6 py-8 text-white text-center">
           <div className="flex justify-center mb-3">
             <div className="bg-white/20 rounded-full p-3">
-              <Sparkles className="h-8 w-8" />
+              <Sparkles className="h-8 w-8" aria-hidden />
             </div>
           </div>
           <h2 className="text-xl font-bold mb-1">Nieuwe versie beschikbaar</h2>
           <p className="text-primary-100 text-sm">
-            FLG-Administratie is bijgewerkt met nieuwe functies.
+            Vernieuw om met de laatste versie verder te werken.
           </p>
         </div>
 
-        {/* Changelog */}
         <div className="px-6 py-5">
-          {roleChanges.length > 0 && (
-            <div className="mb-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300 mb-2">
-                Wat is er nieuw voor jou
-              </h3>
-              <ul className="space-y-2">
-                {roleChanges.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
-                    <span className="mt-0.5 text-green-500 font-bold shrink-0">✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {allChanges.length > 0 && (
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300 mb-2">
-                Algemeen
-              </h3>
-              <ul className="space-y-2">
-                {allChanges.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-200">
-                    <span className="mt-0.5 text-blue-500 font-bold shrink-0">✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+            Openstaande wijzigingen die je nog niet hebt opgeslagen gaan verloren bij het
+            vernieuwen. Sla eerst je begroting op als je middenin een aanpassing zit.
+          </p>
         </div>
 
-        {/* Actions */}
-        <div className="px-6 pb-6 flex flex-col gap-3">
+        <div className="px-6 pb-6 flex gap-3">
           <button
-            onClick={handleUpdate}
-            className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+            type="button"
+            onClick={onSluiten}
+            className="flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
-            <RefreshCw className="h-4 w-4" />
-            Nu vernieuwen
+            Later
           </button>
           <button
-            onClick={onDismiss}
-            className="w-full text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 py-2 transition-colors"
+            type="button"
+            onClick={vernieuw}
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg bg-primary-600 hover:bg-primary-700 text-white shadow-glow-primary transition-colors"
           >
-            Later herinneren
+            <RefreshCw className="h-4 w-4" aria-hidden />
+            Vernieuwen
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 {
-  "name": "FLG-Administratie",
-  "short_name": "FLG",
-  "description": "Complete HR & Administratie Management System",
+  "name": "FLG-Begroting",
+  "short_name": "Begroting",
+  "description": "Begrotingen voor de entiteiten van de groep",
   "start_url": "/login",
   "display": "standalone",
   "background_color": "#fdf8f3",
@@ -33,7 +33,7 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["business", "productivity"],
+  "categories": ["business", "finance", "productivity"],
   "lang": "nl",
   "dir": "ltr",
   "scope": "/",

@@ -1,8 +1,11 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "flg-begroting",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,31 +14,16 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
-    "@azure/msal-browser": "^5.4.0",
-    "@fullcalendar/core": "^6.1.20",
-    "@fullcalendar/daygrid": "^6.1.20",
-    "@fullcalendar/interaction": "^6.1.20",
-    "@fullcalendar/react": "^6.1.20",
-    "@fullcalendar/timegrid": "^6.1.20",
     "@hookform/resolvers": "^5.2.2",
-    "@netlify/functions": "^2.8.0",
-    "@react-pdf/renderer": "^4.3.1",
     "date-fns": "^4.1.0",
     "firebase": "^12.3.0",
-    "firebase-admin": "^12.7.0",
-    "googleapis": "^140.0.0",
-    "html2canvas": "^1.4.1",
     "jspdf": "^3.0.4",
     "lucide-react": "^0.344.0",
-    "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.4.394",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.63.0",
     "react-router-dom": "^6.25.1",
     "recharts": "^3.2.1",
-    "tesseract.js": "^6.0.1",
-    "xlsx": "^0.18.5",
     "yup": "^1.7.1"
   },
   "devDependencies": {

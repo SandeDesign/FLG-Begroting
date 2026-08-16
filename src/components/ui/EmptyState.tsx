@@ -2,7 +2,7 @@ import React from 'react';
 import Button from './Button';
 
 interface EmptyStateProps {
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
   actionLabel?: string;

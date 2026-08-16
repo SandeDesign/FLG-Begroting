@@ -1,30 +1,55 @@
+// src/lib/firebase.ts
+// Firebase-initialisatie voor FLG-Begroting.
+//
+// Alle configuratie komt uit environment variables. Er zijn bewust GEEN fallback-
+// waarden: ontbreekt er een variabele, dan stopt de app direct met een leesbare
+// melding in plaats van stil naar het verkeerde project te schrijven.
+//
+// Let op: een VITE_*-variabele belandt altijd in de clientbundle. Voor de Firebase-
+// webconfig is dat normaal en veilig — de beveiliging zit in de Firestore rules.
+// Zet hier dus nooit een sleutel in die geheim moet blijven.
+
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
-import { getDatabase } from 'firebase/database';
 
-// ✅ SECURITY: These should come from environment variables
-// Create .env.local file with:
-// VITE_FIREBASE_API_KEY=...
-// VITE_FIREBASE_AUTH_DOMAIN=...
-// etc.
+// De waarden worden per stuk uitgelezen. Dat moet statisch (import.meta.env.NAAM),
+// want Vite vervangt deze verwijzingen tijdens de build door de echte waarde.
+const configuratie: Array<{ sleutel: string; variabele: string; waarde: string | undefined }> = [
+  { sleutel: 'apiKey', variabele: 'VITE_FIREBASE_API_KEY', waarde: import.meta.env.VITE_FIREBASE_API_KEY },
+  { sleutel: 'authDomain', variabele: 'VITE_FIREBASE_AUTH_DOMAIN', waarde: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN },
+  { sleutel: 'projectId', variabele: 'VITE_FIREBASE_PROJECT_ID', waarde: import.meta.env.VITE_FIREBASE_PROJECT_ID },
+  { sleutel: 'storageBucket', variabele: 'VITE_FIREBASE_STORAGE_BUCKET', waarde: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET },
+  { sleutel: 'messagingSenderId', variabele: 'VITE_FIREBASE_MESSAGING_SENDER_ID', waarde: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID },
+  { sleutel: 'appId', variabele: 'VITE_FIREBASE_APP_ID', waarde: import.meta.env.VITE_FIREBASE_APP_ID },
+];
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBAC-tl3pCXeUwGlw13tW2-vpwgsG9_jiI",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "alloon.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "alloon",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "alloon.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "896567545879",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:896567545879:web:1ebbf02a7a8ac1c7d50c52",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-Y1R80QE0XN"
+const ontbrekend = configuratie
+  .filter((regel) => !regel.waarde || regel.waarde.trim() === '')
+  .map((regel) => regel.variabele);
+
+if (ontbrekend.length > 0) {
+  throw new Error(
+    `FLG-Begroting kan niet starten: de volgende environment variabelen ontbreken of zijn leeg: ${ontbrekend.join(', ')}. ` +
+      'Zet ze lokaal in een .env-bestand (zie .env.example) en in Vercel onder Settings → Environment Variables, ' +
+      'voor elke omgeving apart (Production, Preview en Development).'
+  );
+}
+
+const firebaseConfig = Object.fromEntries(
+  configuratie.map((regel) => [regel.sleutel, regel.waarde as string])
+) as {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
 };
 
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-export const storage = getStorage(app);
-export const database = getDatabase(app);
 
 export default app;

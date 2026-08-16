@@ -1,248 +1,109 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// src/contexts/AuthContext.tsx
+// Inloggen en toegang. Er is één rol en er zijn twee accounts; die worden
+// handmatig in de Firebase console aangemaakt. Registreren kan dus niet.
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
-  User,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
-  updateProfile
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  type User,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { useToast } from '../hooks/useToast';
-import { getUserRole, getEmployeeById, getUserSettings } from '../services/firebase';
+import { heeftToegang as controleerToegang } from '../services/toegangService';
 
 interface AuthContextType {
   user: User | null;
-  userRole: string | null;
-  currentEmployeeId: string | null;
-  adminUserId: string | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  /** null zolang de controle nog loopt. */
+  toegang: boolean | null;
+  laden: boolean;
+  inloggen: (email: string, wachtwoord: string) => Promise<void>;
+  uitloggen: () => Promise<void>;
+  wachtwoordVergeten: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/** Vertaalt een Firebase-foutcode naar een leesbare Nederlandse melding. */
+function foutmelding(fout: unknown, standaard: string): string {
+  const code = typeof fout === 'object' && fout !== null && 'code' in fout ? String(fout.code) : '';
+
+  switch (code) {
+    case 'auth/user-not-found':
+    case 'auth/invalid-credential':
+      return 'Geen account gevonden met dit e-mailadres, of het wachtwoord klopt niet';
+    case 'auth/wrong-password':
+      return 'Onjuist wachtwoord';
+    case 'auth/invalid-email':
+      return 'Ongeldig e-mailadres';
+    case 'auth/too-many-requests':
+      return 'Te veel pogingen. Probeer het later opnieuw';
+    case 'auth/network-request-failed':
+      return 'Geen verbinding met Firebase. Controleer je internetverbinding';
+    default:
+      return standaard;
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [currentEmployeeId, setCurrentEmployeeId] = useState<string | null>(null);
-  const [adminUserId, setAdminUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { success, error } = useToast();
+  const [toegang, setToegang] = useState<boolean | null>(null);
+  const [laden, setLaden] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
+    return onAuthStateChanged(auth, async (huidigeGebruiker) => {
+      setUser(huidigeGebruiker);
 
-      if (user) {
-        try {
-          const roleData = await getUserRole(user.uid);
-          setUserRole(roleData?.role || null);
-          setCurrentEmployeeId(roleData?.employeeId || null);
-
-          if (roleData?.role === 'admin') {
-            // ✅ CHECK IF THIS ADMIN IS A CO-ADMIN (Design A: role='admin' + primaryAdminUserId)
-            // Get co-admin's own settings to find primary admin UID
-            try {
-              const userSettings = await getUserSettings(user.uid);
-
-              if (userSettings?.primaryAdminUserId) {
-                // ✅ This user is a co-admin - use primary admin's UID
-                console.log('[AuthContext] Co-admin detected, primaryAdminUserId:', userSettings.primaryAdminUserId);
-                setAdminUserId(userSettings.primaryAdminUserId);
-              } else {
-                // ✅ This user is a primary admin - use their own UID
-                console.log('[AuthContext] Primary admin detected, using own UID:', user.uid);
-                setAdminUserId(user.uid);
-              }
-            } catch (settingsError) {
-              console.error('[AuthContext] Error loading user settings, using own UID:', settingsError);
-              setAdminUserId(user.uid);
-            }
-          } else if (roleData?.role === 'co-admin') {
-            // ✅ Design B co-admin: role stored as 'co-admin' in Firestore
-            try {
-              const userSettings = await getUserSettings(user.uid);
-              if (userSettings?.primaryAdminUserId) {
-                console.log('[AuthContext] Co-admin (co-admin role) detected, primaryAdminUserId:', userSettings.primaryAdminUserId);
-                setAdminUserId(userSettings.primaryAdminUserId);
-              } else {
-                console.warn('[AuthContext] Co-admin has no primaryAdminUserId, using own UID');
-                setAdminUserId(user.uid);
-              }
-            } catch (settingsError) {
-              console.error('[AuthContext] Error loading co-admin settings, using own UID:', settingsError);
-              setAdminUserId(user.uid);
-            }
-          } else if (roleData?.role === 'manager') {
-            // Manager gets their own UID so they can load their assigned company
-            setAdminUserId(user.uid);
-          } else if (roleData?.role === 'boekhouder') {
-            // Boekhouder: eigen UID — AppContext laadt companies van alle toegewezen admins
-            setAdminUserId(user.uid);
-          } else if (roleData?.role === 'employee' && roleData?.employeeId) {
-            const employeeDoc = await getEmployeeById(roleData.employeeId);
-            if (employeeDoc) {
-              setAdminUserId(employeeDoc.userId);
-            } else {
-              setAdminUserId(null);
-            }
-          } else {
-            setAdminUserId(null);
-          }
-        } catch (err) {
-          console.error('Error loading user role:', err);
-          setUserRole(null);
-          setCurrentEmployeeId(null);
-          setAdminUserId(null);
-        }
-      } else {
-        setUserRole(null);
-        setCurrentEmployeeId(null);
-        setAdminUserId(null);
+      if (!huidigeGebruiker) {
+        setToegang(null);
+        setLaden(false);
+        return;
       }
 
-      setLoading(false);
+      try {
+        setToegang(await controleerToegang(huidigeGebruiker.uid));
+      } catch (fout) {
+        console.error('Toegangscontrole mislukt:', fout);
+        setToegang(false);
+      } finally {
+        setLaden(false);
+      }
     });
-
-    return unsubscribe;
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const inloggen = async (email: string, wachtwoord: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      success('Welkom terug!', 'Je bent succesvol ingelogd');
-    } catch (err: any) {
-      console.error('Sign in error:', err);
-      let message = 'Er is een fout opgetreden bij het inloggen';
-
-      switch (err.code) {
-        case 'auth/user-not-found':
-          message = 'Geen account gevonden met dit e-mailadres';
-          break;
-        case 'auth/wrong-password':
-          message = 'Onjuist wachtwoord';
-          break;
-        case 'auth/invalid-email':
-          message = 'Ongeldig e-mailadres';
-          break;
-        case 'auth/too-many-requests':
-          message = 'Te veel pogingen. Probeer het later opnieuw';
-          break;
-        default:
-          message = err.message;
-          break;
-      }
-
-      error('Inloggen mislukt', message);
-      throw err;
+      await signInWithEmailAndPassword(auth, email, wachtwoord);
+    } catch (fout) {
+      throw new Error(foutmelding(fout, 'Er ging iets mis bij het inloggen'));
     }
   };
 
-  const signUp = async (email: string, password: string, displayName: string) => {
-    try {
-      const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(user, { displayName });
-
-      const { createUserRole } = await import('../services/firebase');
-      await createUserRole(user.uid, 'admin', undefined, {
-        firstName: displayName.split(' ')[0],
-        lastName: displayName.split(' ').slice(1).join(' '),
-        email: email,
-      });
-      setUserRole('admin');
-
-      success('Account aangemaakt!', 'Je kunt nu beginnen met het beheren van je loonadministratie');
-    } catch (err: any) {
-      console.error('Sign up error:', err);
-      let message = 'Er is een fout opgetreden bij het aanmaken van je account';
-
-      switch (err.code) {
-        case 'auth/email-already-in-use':
-          message = 'Er bestaat al een account met dit e-mailadres';
-          break;
-        case 'auth/invalid-email':
-          message = 'Ongeldig e-mailadres';
-          break;
-        case 'auth/weak-password':
-          message = 'Wachtwoord is te zwak. Gebruik minimaal 6 karakters';
-          break;
-        default:
-          message = err.message;
-          break;
-      }
-
-      error('Registratie mislukt', message);
-      throw err;
-    }
+  const uitloggen = async () => {
+    await firebaseSignOut(auth);
+    setToegang(null);
   };
 
-  const signOut = async () => {
-    try {
-      await firebaseSignOut(auth);
-      setUserRole(null);
-      setCurrentEmployeeId(null);
-      setAdminUserId(null);
-      success('Tot ziens!', 'Je bent uitgelogd');
-    } catch (err: any) {
-      console.error('Sign out error:', err);
-      error('Uitloggen mislukt', 'Er is een fout opgetreden');
-      throw err;
-    }
-  };
-
-  const resetPassword = async (email: string) => {
+  const wachtwoordVergeten = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email);
-      success('E-mail verzonden!', 'Controleer je inbox voor de reset link');
-    } catch (err: any) {
-      console.error('Password reset error:', err);
-      let message = 'Er is een fout opgetreden bij het versturen van de reset e-mail';
-
-      switch (err.code) {
-        case 'auth/user-not-found':
-          message = 'Geen account gevonden met dit e-mailadres';
-          break;
-        case 'auth/invalid-email':
-          message = 'Ongeldig e-mailadres';
-          break;
-        default:
-          message = err.message;
-          break;
-      }
-
-      error('Reset mislukt', message);
-      throw err;
+    } catch (fout) {
+      throw new Error(foutmelding(fout, 'Er ging iets mis bij het versturen van de e-mail'));
     }
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        userRole,
-        currentEmployeeId,
-        adminUserId,
-        loading,
-        signIn,
-        signUp,
-        signOut,
-        resetPassword,
-      }}
-    >
+    <AuthContext.Provider value={{ user, toegang, laden, inloggen, uitloggen, wachtwoordVergeten }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth moet binnen een AuthProvider gebruikt worden');
   }
   return context;
 };

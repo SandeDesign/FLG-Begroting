@@ -1,109 +1,66 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+// src/contexts/DarkModeContext.tsx
+// Donkere modus. De voorkeur staat in localStorage — met twee accounts op eigen
+// apparaten is dat voldoende en scheelt een Firestore-lees bij elke start.
+
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+
+const OPSLAG_SLEUTEL = 'flg.donkereModus';
 
 interface DarkModeContextType {
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
-  setDarkMode: (value: boolean) => void;
+  donkereModus: boolean;
+  zetDonkereModus: (waarde: boolean) => void;
+  wisselDonkereModus: () => void;
 }
 
 const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
 
-export const DarkModeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+/** Zet of verwijdert de class `dark` op <html>, waar Tailwind op stuurt. */
+function pasToe(actief: boolean): void {
+  document.documentElement.classList.toggle('dark', actief);
+}
 
-  // Load dark mode preference from localStorage en Firestore
+/** Leest de opgeslagen voorkeur, of valt terug op de systeeminstelling. */
+function leesVoorkeur(): boolean {
+  const bewaard = localStorage.getItem(OPSLAG_SLEUTEL);
+  if (bewaard !== null) return bewaard === 'true';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [donkereModus, setDonkereModus] = useState<boolean>(false);
+
   useEffect(() => {
-    const loadDarkModePreference = async () => {
-      try {
-        // 1. Check localStorage first (sneller)
-        const localPref = localStorage.getItem('darkMode');
-        if (localPref !== null) {
-          const darkModeEnabled = localPref === 'true';
-          setIsDarkMode(darkModeEnabled);
-          applyDarkMode(darkModeEnabled);
-        }
+    const voorkeur = leesVoorkeur();
+    setDonkereModus(voorkeur);
+    pasToe(voorkeur);
+  }, []);
 
-        // 2. Als user is ingelogd, haal preference op uit Firestore
-        if (user) {
-          const userSettingsRef = doc(db, 'userSettings', user.uid);
-          const userSettingsDoc = await getDoc(userSettingsRef);
+  const zetDonkereModus = useCallback((waarde: boolean) => {
+    setDonkereModus(waarde);
+    pasToe(waarde);
+    localStorage.setItem(OPSLAG_SLEUTEL, String(waarde));
+  }, []);
 
-          if (userSettingsDoc.exists()) {
-            const data = userSettingsDoc.data();
-            if (data.darkMode !== undefined) {
-              setIsDarkMode(data.darkMode);
-              applyDarkMode(data.darkMode);
-              // Sync met localStorage
-              localStorage.setItem('darkMode', data.darkMode.toString());
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error loading dark mode preference:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadDarkModePreference();
-  }, [user]);
-
-  const applyDarkMode = (enabled: boolean) => {
-    if (enabled) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
-  const setDarkMode = async (value: boolean) => {
-    setIsDarkMode(value);
-    applyDarkMode(value);
-
-    // Save to localStorage
-    localStorage.setItem('darkMode', value.toString());
-
-    // Save to Firestore if user is logged in
-    if (user) {
-      try {
-        const userSettingsRef = doc(db, 'userSettings', user.uid);
-        const userSettingsDoc = await getDoc(userSettingsRef);
-
-        if (userSettingsDoc.exists()) {
-          await updateDoc(userSettingsRef, {
-            darkMode: value,
-          });
-        } else {
-          await setDoc(userSettingsRef, {
-            darkMode: value,
-          });
-        }
-      } catch (error) {
-        console.error('Error saving dark mode preference:', error);
-      }
-    }
-  };
-
-  const toggleDarkMode = () => {
-    setDarkMode(!isDarkMode);
-  };
+  const wisselDonkereModus = useCallback(() => {
+    setDonkereModus((huidig) => {
+      const nieuw = !huidig;
+      pasToe(nieuw);
+      localStorage.setItem(OPSLAG_SLEUTEL, String(nieuw));
+      return nieuw;
+    });
+  }, []);
 
   return (
-    <DarkModeContext.Provider value={{ isDarkMode, toggleDarkMode, setDarkMode }}>
+    <DarkModeContext.Provider value={{ donkereModus, zetDonkereModus, wisselDonkereModus }}>
       {children}
     </DarkModeContext.Provider>
   );
 };
 
-export const useDarkMode = () => {
+export const useDarkMode = (): DarkModeContextType => {
   const context = useContext(DarkModeContext);
   if (context === undefined) {
-    throw new Error('useDarkMode must be used within a DarkModeProvider');
+    throw new Error('useDarkMode moet binnen een DarkModeProvider gebruikt worden');
   }
   return context;
 };
