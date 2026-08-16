@@ -1,8 +1,8 @@
 // src/contexts/AuthContext.tsx
-// Inloggen en toegang. Er is één rol en er zijn twee accounts; die worden
-// handmatig in de Firebase console aangemaakt. Registreren kan dus niet.
+// Inloggen en toegang. Er is één soort gebruiker: wie op de lijst in
+// settings/access staat mag alles inzien en wijzigen.
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   onAuthStateChanged,
   sendPasswordResetEmail,
@@ -11,16 +11,22 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { heeftToegang as controleerToegang } from '../services/toegangService';
+import { claimToegang, haalToegangsstatus } from '../services/toegangService';
 
 interface AuthContextType {
   user: User | null;
   /** null zolang de controle nog loopt. */
   toegang: boolean | null;
+  /** false als settings/access nog niet bestaat — dan mag de eerste gebruiker claimen. */
+  ingericht: boolean;
   laden: boolean;
   inloggen: (email: string, wachtwoord: string) => Promise<void>;
   uitloggen: () => Promise<void>;
   wachtwoordVergeten: (email: string) => Promise<void>;
+  /** Zet de huidige gebruiker als eerste op de lijst. Kan maar één keer. */
+  claimEersteToegang: () => Promise<void>;
+  /** Leest de toegangsstatus opnieuw, bijvoorbeeld na het toevoegen van een account. */
+  herlaadToegang: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,7 +55,20 @@ function foutmelding(fout: unknown, standaard: string): string {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [toegang, setToegang] = useState<boolean | null>(null);
+  const [ingericht, setIngericht] = useState(true);
   const [laden, setLaden] = useState(true);
+
+  const controleerToegang = useCallback(async (huidigeGebruiker: User) => {
+    try {
+      const status = await haalToegangsstatus(huidigeGebruiker.uid);
+      setIngericht(status.ingericht);
+      setToegang(status.toegestaan);
+    } catch (fout) {
+      console.error('Toegangscontrole mislukt:', fout);
+      setIngericht(true);
+      setToegang(false);
+    }
+  }, []);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (huidigeGebruiker) => {
@@ -57,20 +76,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!huidigeGebruiker) {
         setToegang(null);
+        setIngericht(true);
         setLaden(false);
         return;
       }
 
-      try {
-        setToegang(await controleerToegang(huidigeGebruiker.uid));
-      } catch (fout) {
-        console.error('Toegangscontrole mislukt:', fout);
-        setToegang(false);
-      } finally {
-        setLaden(false);
-      }
+      await controleerToegang(huidigeGebruiker);
+      setLaden(false);
     });
-  }, []);
+  }, [controleerToegang]);
 
   const inloggen = async (email: string, wachtwoord: string) => {
     try {
@@ -93,8 +107,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const claimEersteToegang = async () => {
+    if (!user) throw new Error('Je bent niet ingelogd.');
+
+    try {
+      await claimToegang(user.uid);
+    } catch {
+      throw new Error(
+        'De toegang kon niet ingericht worden. Waarschijnlijk heeft iemand anders dit al gedaan — vraag diegene om je toe te voegen.'
+      );
+    }
+
+    await controleerToegang(user);
+  };
+
+  const herlaadToegang = async () => {
+    if (user) await controleerToegang(user);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, toegang, laden, inloggen, uitloggen, wachtwoordVergeten }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        toegang,
+        ingericht,
+        laden,
+        inloggen,
+        uitloggen,
+        wachtwoordVergeten,
+        claimEersteToegang,
+        herlaadToegang,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

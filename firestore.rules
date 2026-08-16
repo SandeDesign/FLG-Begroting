@@ -2,9 +2,9 @@ rules_version = '2';
 
 // Firestore rules voor FLG-Begroting.
 //
-// Er zijn twee accounts en verder niemand. Wie toegang heeft staat in het
-// document settings/access, in het veld allowedUids. Dat document beheer je
-// handmatig in de Firebase console — de app kan het niet schrijven.
+// Wie toegang heeft staat in het document settings/access, in het veld
+// allowedUids. Iedereen op die lijst is gelijk: alles inzien, alles wijzigen.
+// Accounts en de lijst zelf beheer je vanuit de app, onder Instellingen.
 //
 // Deployen: firebase deploy --only firestore:rules
 // (of plakken in Firebase console → Firestore Database → Regels)
@@ -12,18 +12,32 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Staat deze gebruiker op de whitelist?
+    // Staat deze gebruiker op de lijst?
     function magErbij() {
       return request.auth != null
         && request.auth.uid in get(/databases/$(database)/documents/settings/access).data.allowedUids;
     }
 
-    // De whitelist zelf is leesbaar voor iedereen die is ingelogd. Dat is nodig
-    // zodat de app een nette "Geen toegang"-melding kan tonen in plaats van
-    // overal leesfouten. Schrijven kan alleen via de Firebase console.
     match /settings/access {
+      // Leesbaar voor iedereen die is ingelogd, zodat de app een nette
+      // "Geen toegang"-melding kan tonen in plaats van overal leesfouten.
       allow read: if request.auth != null;
-      allow write: if false;
+
+      // Aanmaken kan precies één keer: zolang het document nog niet bestaat mag
+      // een ingelogde gebruiker zichzelf op de lijst zetten. Daarna is deze weg
+      // dicht, want create geldt alleen voor een document dat er nog niet is.
+      allow create: if request.auth != null
+        && request.resource.data.allowedUids is list
+        && request.auth.uid in request.resource.data.allowedUids;
+
+      // Wijzigen mag alleen door wie er al op staat. De lijst mag nooit leeg
+      // raken, anders kan niemand er meer bij.
+      allow update: if magErbij()
+        && request.resource.data.allowedUids is list
+        && request.resource.data.allowedUids.size() > 0;
+
+      // Weggooien kan niet: dat zou de toegang voor iedereen opheffen.
+      allow delete: if false;
     }
 
     // De entiteiten van de groep, inclusief hun vaste lasten.
