@@ -4,10 +4,12 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
+  updateProfile,
   type User,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
@@ -21,6 +23,7 @@ interface AuthContextType {
   ingericht: boolean;
   laden: boolean;
   inloggen: (email: string, wachtwoord: string) => Promise<void>;
+  registreren: (email: string, wachtwoord: string, naam: string) => Promise<void>;
   uitloggen: () => Promise<void>;
   wachtwoordVergeten: (email: string) => Promise<void>;
   /** Zet de huidige gebruiker als eerste op de lijst. Kan maar één keer. */
@@ -47,6 +50,12 @@ function foutmelding(fout: unknown, standaard: string): string {
       return 'Te veel pogingen. Probeer het later opnieuw';
     case 'auth/network-request-failed':
       return 'Geen verbinding met Firebase. Controleer je internetverbinding';
+    case 'auth/email-already-in-use':
+      return 'Er bestaat al een account met dit e-mailadres. Log gewoon in.';
+    case 'auth/weak-password':
+      return 'Het wachtwoord is te kort. Gebruik minimaal zes tekens.';
+    case 'auth/operation-not-allowed':
+      return 'E-mail en wachtwoord staan niet aan in Firebase. Zet ze aan onder Authentication → Sign-in method.';
     default:
       return standaard;
   }
@@ -94,6 +103,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  /**
+   * Een account aanmaken en er meteen mee inloggen.
+   *
+   * Toegang tot de begroting volgt niet automatisch: ben je de eerste, dan kun
+   * je hem claimen; daarna voegt iemand die al toegang heeft je toe onder
+   * Instellingen. Zo kan niet iedereen die de link kent zomaar meekijken.
+   */
+  const registreren = async (email: string, wachtwoord: string, naam: string) => {
+    try {
+      const { user: nieuweGebruiker } = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        wachtwoord
+      );
+
+      if (naam.trim()) {
+        await updateProfile(nieuweGebruiker, { displayName: naam.trim() });
+      }
+    } catch (fout) {
+      throw new Error(foutmelding(fout, 'Er ging iets mis bij het aanmaken van het account'));
+    }
+  };
+
   const uitloggen = async () => {
     await firebaseSignOut(auth);
     setToegang(null);
@@ -133,6 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ingericht,
         laden,
         inloggen,
+        registreren,
         uitloggen,
         wachtwoordVergeten,
         claimEersteToegang,

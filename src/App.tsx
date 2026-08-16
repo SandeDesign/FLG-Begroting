@@ -2,7 +2,7 @@
 // Routes en providers. Eén rol, dus geen rolafhankelijke routeblokken meer.
 
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { AppProvider } from './contexts/AppContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
@@ -12,6 +12,7 @@ import AppUpdateModal from './components/AppUpdateModal';
 import Layout from './components/layout/Layout';
 
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Ketenoverzicht from './pages/Ketenoverzicht';
@@ -60,10 +61,10 @@ const App: React.FC = () => (
           <BrowserRouter>
             <UpdateMelding />
             <Routes>
-              {/* Openbaar — registreren kan niet, accounts worden handmatig aangemaakt */}
+              {/* Openbaar */}
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/register" element={<Navigate to="/login" replace />} />
 
               {/* Achter de login */}
               <Route
