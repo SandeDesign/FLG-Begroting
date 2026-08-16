@@ -45,7 +45,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         <span className="truncate">{title}</span>
       </h1>
       {subtitle && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">{subtitle}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 sm:truncate">{subtitle}</p>
       )}
     </div>
     {actions && (

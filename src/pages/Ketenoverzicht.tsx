@@ -15,6 +15,7 @@ import Button from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 import ControleBalk from '../components/begroting/ControleBalk';
+import KetenEntiteitKaart from '../components/begroting/KetenEntiteitKaart';
 import EenheidSchakelaar from '../components/begroting/EenheidSchakelaar';
 import { berekenKeten } from '../utils/begroting.calc';
 import { exporteerKetenCSV, exporteerKetenPDF } from '../services/exportService';
@@ -78,6 +79,7 @@ const Ketenoverzicht: React.FC = () => {
   // Die zetten we onderaan apart, want het is geen werkende entiteit.
   const werkendeEntiteiten = selectie.filter((item) => !item.entiteit.isHolding);
   const holdings = selectie.filter((item) => item.entiteit.isHolding);
+  const gesorteerd = [...werkendeEntiteiten, ...holdings];
   const vasteLastenGroep = holdings.reduce(
     (totaal, item) => totaal + item.resultaat.vasteLasten,
     0
@@ -200,7 +202,59 @@ const Ketenoverzicht: React.FC = () => {
               </span>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Telefoon en tablet: onder elkaar. Zes kolommen worden op een smal
+                scherm 680 px breed, en dan scrol je zijwaarts door je eigen
+                cijfers heen. */}
+            <div className="space-y-2 lg:hidden">
+              {gesorteerd.map(({ entiteit, budget, resultaat }) => (
+                <KetenEntiteitKaart
+                  key={budget.id}
+                  entiteit={entiteit}
+                  budget={budget}
+                  resultaat={resultaat}
+                  om={om}
+                  onOpenen={() => navigate(`/begrotingen/${budget.id}`)}
+                />
+              ))}
+
+              <div className="pt-3 mt-1 border-t-2 border-gray-300 dark:border-gray-600">
+                <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Samen</p>
+                <div className="flex items-baseline justify-between gap-3 py-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Opbrengst</span>
+                  <span className="text-sm tabular-nums whitespace-nowrap text-gray-700 dark:text-gray-200">
+                    {formatEuro(om(keten.opbrengstBruto))}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-3 py-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Subsidies</span>
+                  <span className="text-sm tabular-nums whitespace-nowrap text-emerald-700 dark:text-emerald-300">
+                    {formatEuro(om(keten.subsidies))}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-3 py-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Kosten</span>
+                  <span className="text-sm tabular-nums whitespace-nowrap text-gray-700 dark:text-gray-200">
+                    {formatEuro(om(keten.kostenBruto))}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between gap-3 pt-1.5 mt-1 border-t border-gray-100 dark:border-gray-700">
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+                    Resultaat
+                  </span>
+                  <span
+                    className={`text-sm font-bold tabular-nums whitespace-nowrap ${
+                      keten.resultaat >= 0
+                        ? 'text-emerald-700 dark:text-emerald-300'
+                        : 'text-red-700 dark:text-red-300'
+                    }`}
+                  >
+                    {formatEuro(om(keten.resultaat))}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-sm min-w-[680px]">
                 <thead>
                   <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
@@ -213,7 +267,7 @@ const Ketenoverzicht: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                  {[...werkendeEntiteiten, ...holdings].map(({ entiteit, budget, resultaat }) => (
+                  {gesorteerd.map(({ entiteit, budget, resultaat }) => (
                     <tr key={budget.id}>
                       <td className="py-2.5 pr-3">
                         <button
