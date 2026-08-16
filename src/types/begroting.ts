@@ -269,6 +269,32 @@ export const GRONDSLAG_LABEL: Record<Grondslag, string> = {
   vast: 'Vast bedrag',
 };
 
+/**
+ * Het BTW-tarief op een onderlinge factuur.
+ *
+ * BTW telt niet mee in het resultaat: je draagt hem af en de ontvangende
+ * entiteit vordert hem terug, dus per saldo is het een doorlopende post. Hij
+ * staat er wel bij, omdat het factuurbedrag anders niet klopt met wat er
+ * werkelijk heen en weer gaat.
+ */
+export type BtwTarief = 'hoog' | 'laag' | 'geen' | 'verlegd';
+
+export const BTW_LABEL: Record<BtwTarief, string> = {
+  hoog: '21%',
+  laag: '9%',
+  geen: 'Geen BTW',
+  verlegd: 'Verlegd',
+};
+
+export const BTW_PERCENTAGE: Record<BtwTarief, number> = {
+  hoog: 0.21,
+  laag: 0.09,
+  geen: 0,
+  // Bij verlegde BTW staat er geen BTW op de factuur; de ontvanger geeft hem
+  // zelf aan en trekt hem in dezelfde aangifte weer af.
+  verlegd: 0,
+};
+
 export interface OnderlingeLevering {
   id: string;
   omschrijving: string;
@@ -282,6 +308,8 @@ export interface OnderlingeLevering {
   /** Uren of stuks per maand. Bij grondslag 'vast' niet gebruikt. */
   aantal: number;
   eenheid: Eenheid;
+  /** Wat er op de factuur staat. Verandert niets aan het resultaat. */
+  btw: BtwTarief;
 }
 
 // ─── Aannames ───────────────────────────────────────────────────────────────
@@ -514,8 +542,13 @@ export interface LeveringRegel {
   vanEntityId: string;
   naarEntityId: string;
   opdrachtId: string;
-  /** Bedrag per maand. */
+  /** Bedrag per maand, exclusief BTW. Dit telt mee in het resultaat. */
   bedrag: number;
+  /** De BTW over dat bedrag. Telt niet mee in het resultaat. */
+  btwBedrag: number;
+  /** Wat er op de factuur komt te staan: bedrag plus BTW. */
+  factuurbedrag: number;
+  btw: BtwTarief;
   tarief: number;
   aantal: number;
   grondslag: Grondslag;
@@ -567,6 +600,10 @@ export interface BegrotingResultaat {
 
   onderlingUit: LeveringRegel[];
   onderlingIn: LeveringRegel[];
+  /** BTW op de uitgaande onderlinge facturen. Telt niet mee in het resultaat. */
+  btwOnderlingUit: number;
+  /** BTW op de inkomende onderlinge facturen. Telt niet mee in het resultaat. */
+  btwOnderlingIn: number;
 
   /** Totaal aantal stuks per maand over alle opdrachten die op stuks draaien. */
   stuksPerMaand: number;

@@ -23,7 +23,7 @@ import type {
   OpdrachtResultaat,
   Subsidie,
 } from '../types/begroting';
-import { HOORT_BIJ_ENTITEIT, LEGE_SCHAAL, SCHAAL_IDS } from '../types/begroting';
+import { BTW_PERCENTAGE, HOORT_BIJ_ENTITEIT, LEGE_SCHAAL, SCHAAL_IDS } from '../types/begroting';
 import { EENHEDEN } from '../types/begroting';
 import type { Schaal, StandaardMedewerker, StandaardMiddel } from '../types/begroting';
 import { naarMaand, vanMaand } from './periode';
@@ -207,6 +207,56 @@ export function berekenInzet(inzet: Inzet): number {
   }
 }
 
+/**
+ * De inzet in woorden, zodat in een lijst meteen te zien is wat iemand krijgt.
+ * Bij ZZP is dat het tarief dat de uitvoerder ontvangt — de vraag die je bij een
+ * lijstje anders alleen kunt beantwoorden door de regel open te klikken.
+ */
+export function omschrijfInzet(inzet: Inzet): string {
+  const model = inzet.model;
+  const euro = (bedrag: number) =>
+    new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(getal(bedrag));
+
+  switch (model.soort) {
+    case 'loondienst':
+      return `${euro(model.uurloon)} per uur · ${model.urenPerWeek} uur per week`;
+    case 'zzp_stuk':
+      return `krijgt ${euro(model.tariefPerStuk)} per stuk · ${model.stuksPerDag} stuks per dag · ${model.dagenPerMaand} dagen`;
+    case 'zzp_dag':
+      return `krijgt ${euro(model.dagtarief)} per dag · ${model.dagenPerMaand} dagen per maand`;
+  }
+}
+
+/**
+ * Wat een ZZP-inzet per stuk of per dag ontvangt, met de bijbehorende eenheid.
+ * Null bij loondienst, want daar is er geen tarief per stuk.
+ */
+export function zzpTarief(
+  inzet: Inzet
+): { bedrag: number; eenheid: 'stuk' | 'dag'; perDag: number; perMaand: number } | null {
+  const model = inzet.model;
+
+  if (model.soort === 'zzp_stuk') {
+    return {
+      bedrag: model.tariefPerStuk,
+      eenheid: 'stuk',
+      perDag: getal(model.tariefPerStuk * model.stuksPerDag),
+      perMaand: getal(model.tariefPerStuk * model.stuksPerDag * model.dagenPerMaand),
+    };
+  }
+
+  if (model.soort === 'zzp_dag') {
+    return {
+      bedrag: model.dagtarief,
+      eenheid: 'dag',
+      perDag: model.dagtarief,
+      perMaand: getal(model.dagtarief * model.dagenPerMaand),
+    };
+  }
+
+  return null;
+}
+
 /** De losse regels van een loondienstberekening, om in de UI te kunnen tonen. */
 export function splitsLoondienst(
   inzet: Inzet
@@ -235,7 +285,7 @@ export function berekenSubsidie(subsidie: Subsidie, aannames: Aannames): number 
 }
 
 /**
- * Wat er per maand onderling geleverd wordt.
+ * Wat er per maand onderling geleverd wordt, exclusief BTW.
  *
  * Bij een vast bedrag telt alleen het tarief. Bij per uur en per stuk is het
  * tarief maal het aantal; de eenheid geeft aan over welke periode dat aantal
@@ -248,14 +298,33 @@ export function berekenLevering(levering: OnderlingeLevering, aannames: Aannames
   return naarMaand(levering.tarief * levering.aantal, levering.eenheid, aannames);
 }
 
+/**
+ * De BTW over een onderlinge levering.
+ *
+ * Deze telt bewust niet mee in het resultaat: de leverende entiteit draagt hem
+ * af en de ontvangende vordert hem terug, dus binnen de groep is het een
+ * doorlopende post. Hij wordt wel getoond, want anders klopt het bedrag op de
+ * factuur niet met wat je in de begroting ziet staan.
+ */
+export function berekenLeveringBtw(levering: OnderlingeLevering, aannames: Aannames): number {
+  const tarief = BTW_PERCENTAGE[levering.btw ?? 'hoog'];
+  return getal(berekenLevering(levering, aannames) * tarief);
+}
+
 function naarLeveringRegel(levering: OnderlingeLevering, aannames: Aannames): LeveringRegel {
+  const bedrag = berekenLevering(levering, aannames);
+  const btwBedrag = berekenLeveringBtw(levering, aannames);
+
   return {
     id: levering.id,
     omschrijving: levering.omschrijving,
     vanEntityId: levering.vanEntityId,
     naarEntityId: levering.naarEntityId,
     opdrachtId: levering.opdrachtId,
-    bedrag: berekenLevering(levering, aannames),
+    bedrag,
+    btwBedrag,
+    factuurbedrag: bedrag + btwBedrag,
+    btw: levering.btw ?? 'hoog',
     tarief: levering.tarief,
     aantal: levering.aantal,
     grondslag: levering.grondslag,
@@ -704,6 +773,8 @@ export function berekenBegroting(
 
   const opbrengstOnderlingUit = som(onderlingUit.map((regel) => regel.bedrag));
   const kostenOnderlingIn = som(onderlingIn.map((regel) => regel.bedrag));
+  const btwOnderlingUit = som(onderlingUit.map((regel) => regel.btwBedrag));
+  const btwOnderlingIn = som(onderlingIn.map((regel) => regel.btwBedrag));
 
   budget.onderlingeLeveringen
     .filter((levering) => levering.vanEntityId !== entity.id)
@@ -806,6 +877,8 @@ export function berekenBegroting(
 
     onderlingUit,
     onderlingIn,
+    btwOnderlingUit,
+    btwOnderlingIn,
 
     stuksPerMaand,
     resultaatPerStuk: stuksPerMaand > 0 ? getal(resultaat / stuksPerMaand) : 0,

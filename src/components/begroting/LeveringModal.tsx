@@ -10,8 +10,12 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { veiligGetal } from '../../utils/firestoreSchoon';
 import EenheidKeuze from './EenheidKeuze';
+import Uitkomst from './Uitkomst';
 import {
+  BTW_LABEL,
+  BTW_PERCENTAGE,
   GRONDSLAG_LABEL,
+  type BtwTarief,
   type Eenheid,
   type Entity,
   type Grondslag,
@@ -27,6 +31,7 @@ interface FormWaarden {
   tarief: number;
   aantal: number;
   eenheid: Eenheid;
+  btw: BtwTarief;
 }
 
 const LEEG: FormWaarden = {
@@ -37,6 +42,7 @@ const LEEG: FormWaarden = {
   tarief: 0,
   aantal: 0,
   eenheid: 'maand',
+  btw: 'hoog',
 };
 
 interface LeveringModalProps {
@@ -73,6 +79,7 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
   const eenheid = watch('eenheid');
   const tarief = watch('tarief');
   const aantal = watch('aantal');
+  const btw = watch('btw');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -87,6 +94,7 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
             tarief: levering.tarief,
             aantal: levering.aantal,
             eenheid: levering.eenheid,
+            btw: levering.btw ?? 'hoog',
           }
         : {
             ...LEEG,
@@ -107,11 +115,16 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
       tarief: waarden.tarief,
       aantal: waarden.aantal,
       eenheid: waarden.eenheid,
+      btw: waarden.btw,
     });
     onClose();
   });
 
   const eenheidLabel = grondslag === 'per_uur' ? 'uren' : 'stuks';
+
+  // Wat er per maand omgaat, met en zonder BTW.
+  const bedragExBtw = grondslag === 'vast' ? tarief || 0 : (tarief || 0) * (aantal || 0);
+  const btwBedrag = bedragExBtw * BTW_PERCENTAGE[btw];
 
   return (
     <Modal
@@ -219,6 +232,52 @@ const LeveringModal: React.FC<LeveringModalProps> = ({
               : `Tarief maal aantal geeft het bedrag per de gekozen eenheid: ${tarief || 0} × ${aantal || 0}.`}
           </p>
         </div>
+
+        <div className="space-y-1.5">
+          <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+            BTW op de factuur
+          </span>
+          <div className="grid grid-cols-4 gap-2">
+            {(Object.keys(BTW_LABEL) as BtwTarief[]).map((optie) => (
+              <button
+                key={optie}
+                type="button"
+                onClick={() => setValue('btw', optie, { shouldDirty: true })}
+                className={`px-2 py-2.5 text-sm font-medium rounded-lg border transition-colors ${
+                  btw === optie
+                    ? 'border-primary-400 bg-primary-50/60 dark:bg-primary-900/20 text-primary-700 dark:text-primary-200'
+                    : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/40'
+                }`}
+              >
+                {BTW_LABEL[optie]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <Uitkomst
+          titel="Wat hier per maand omgaat"
+          regels={[
+            {
+              label: 'Bedrag exclusief BTW',
+              bedrag: bedragExBtw,
+              berekening:
+                grondslag === 'vast'
+                  ? 'Het vaste bedrag'
+                  : `${tarief || 0} × ${aantal || 0} ${eenheidLabel}`,
+            },
+            {
+              label: `BTW (${BTW_LABEL[btw]})`,
+              bedrag: btwBedrag,
+              berekening:
+                btw === 'verlegd'
+                  ? 'Verlegd: de ontvanger geeft de BTW zelf aan'
+                  : undefined,
+            },
+          ]}
+          totaal={{ label: 'Op de factuur', bedrag: bedragExBtw + btwBedrag }}
+          opmerking="Alleen het bedrag exclusief BTW telt mee in de begroting. De BTW draag je af en de ontvangende entiteit vordert hem terug, dus binnen de groep valt die tegen elkaar weg."
+        />
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Deze regel telt bij {vanEntiteit.naam} als opbrengst en bij de ontvangende entiteit als

@@ -262,6 +262,7 @@ export async function laadVoorbeelddata(createdBy: string): Promise<SeedResultaa
         tarief: 9000,
         aantal: 3,
         eenheid: 'maand',
+        btw: 'hoog',
       },
     ],
   };

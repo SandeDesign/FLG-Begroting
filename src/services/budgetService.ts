@@ -83,8 +83,14 @@ function naarSchaal(ruw: unknown): Schaal {
   };
 }
 
+/** Vult het BTW-tarief aan voor leveringen die van vóór dat veld stammen. */
+function naarLeveringen(ruw: unknown): OnderlingeLevering[] {
+  const lijst = (ruw as OnderlingeLevering[]) ?? [];
+  return lijst.map((levering) => ({ ...levering, btw: levering.btw ?? 'hoog' }));
+}
+
 function naarBudget(id: string, data: Record<string, unknown>): Budget {
-  const leveringen = (data.onderlingeLeveringen as OnderlingeLevering[]) ?? [];
+  const leveringen = naarLeveringen(data.onderlingeLeveringen);
 
   return {
     id,

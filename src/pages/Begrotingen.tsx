@@ -99,9 +99,7 @@ const Begrotingen: React.FC = () => {
         emoji="💼"
         actions={
           <div className="flex items-center gap-2">
-            <div className="hidden sm:block">
-              <PeriodSelector />
-            </div>
+            <PeriodSelector />
             <Button onClick={() => navigate('/begrotingen/nieuw')}>
               <Plus className="h-4 w-4" aria-hidden />
               Nieuwe begroting

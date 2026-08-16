@@ -59,7 +59,7 @@ const ResultatenStaat: React.FC<ResultatenStaatProps> = ({ resultaat, eenheid })
           Resultatenstaat
         </h3>
         <span className="text-xs text-gray-500 dark:text-gray-400">
-          Bedragen {EENHEID_LABEL[eenheid]}
+          Bedragen {EENHEID_LABEL[eenheid]}, exclusief BTW
         </span>
       </div>
 
@@ -118,6 +118,15 @@ const ResultatenStaat: React.FC<ResultatenStaatProps> = ({ resultaat, eenheid })
           );
         })}
       </div>
+
+      {(resultaat.btwOnderlingUit > 0 || resultaat.btwOnderlingIn > 0) && (
+        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+          Op de onderlinge facturen staat daarnaast {formatEuro(om(resultaat.btwOnderlingUit))} aan
+          BTW die wij in rekening brengen en {formatEuro(om(resultaat.btwOnderlingIn))} die aan ons
+          in rekening wordt gebracht. Die telt niet mee in het resultaat: hij wordt afgedragen en
+          weer teruggevorderd.
+        </p>
+      )}
 
       <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
         Zonder subsidie zou het resultaat{' '}

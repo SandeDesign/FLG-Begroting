@@ -56,18 +56,22 @@ import {
   berekenBegroting,
   berekenInzet,
   berekenLevering,
+  berekenLeveringBtw,
   berekenMiddel,
   berekenOnderhoud,
   berekenOpbrengst,
   berekenSubsidie,
   controleerBegroting,
+  omschrijfInzet,
   pasSchaalToe,
   splitsLoondienst,
+  zzpTarief,
 } from '../utils/begroting.calc';
 import { periodeBereikLabel } from '../utils/dateFilters';
 import { formatEuro, formatGetal, formatPercentage, naarMaand, vanMaand } from '../utils/periode';
 import {
   BEGROTING_STATUS_LABEL,
+  BTW_LABEL,
   EENHEID_LABEL,
   FINANCIERING_LABEL,
   GRONDSLAG_LABEL,
@@ -566,6 +570,18 @@ const BegrotingWerkblad: React.FC = () => {
                   ]}
                   bedrag={om(berekenOpbrengst(opdracht, aannames))}
                   bedragLabel={`Opbrengst ${EENHEID_LABEL[eenheid]}`}
+                  opbouw={(() => {
+                    const regel = resultaat.opdrachten.find(
+                      (item) => item.opdrachtId === opdracht.id
+                    );
+                    if (!regel) return undefined;
+                    return [
+                      { label: 'Middelen', bedrag: om(-regel.kostenMiddelen) },
+                      { label: 'Inzet', bedrag: om(-regel.kostenInzet) },
+                      { label: 'Aandeel vaste lasten', bedrag: om(-regel.aandeelVasteLasten) },
+                      { label: 'Blijft over', bedrag: om(regel.overNaVasteLasten) },
+                    ];
+                  })()}
                   actief={opdracht.actief}
                   vanSchaal={isSchaalRegel(opdracht.id)}
                   onNaarSchaal={() => zetTab('schaal')}
@@ -678,11 +694,12 @@ const BegrotingWerkblad: React.FC = () => {
             <div className="space-y-2">
               {geschaald.inzet.map((inzet) => {
                 const loon = splitsLoondienst(inzet);
+                const zzp = zzpTarief(inzet);
                 return (
                   <RegelKaart
                     key={inzet.id}
                     titel={inzet.naam}
-                    ondertitel={`hoort bij ${naamVanOpdracht(inzet.hoortBij)}`}
+                    ondertitel={`${omschrijfInzet(inzet)} · hoort bij ${naamVanOpdracht(inzet.hoortBij)}`}
                     labels={[
                       { tekst: INZET_SOORT_LABEL[inzet.model.soort] },
                       ...(isSchaalRegel(inzet.id)
@@ -701,7 +718,13 @@ const BegrotingWerkblad: React.FC = () => {
                             { label: 'Pensioen', bedrag: om(loon.pensioen) },
                             { label: 'Overig', bedrag: om(loon.overig) },
                           ]
-                        : undefined
+                        : zzp
+                          ? [
+                              { label: `Krijgt per ${zzp.eenheid}`, bedrag: zzp.bedrag },
+                              { label: 'Per dag', bedrag: zzp.perDag },
+                              { label: 'Per maand', bedrag: zzp.perMaand },
+                            ]
+                          : undefined
                     }
                     actief={inzet.actief}
                     vanSchaal={isSchaalRegel(inzet.id)}
@@ -796,6 +819,12 @@ const BegrotingWerkblad: React.FC = () => {
               </Button>
             </div>
 
+            <p className="mb-4 px-3 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-900/40 text-xs text-gray-600 dark:text-gray-300">
+              Elke post die je onderling doorbelast is een eigen regel: mensen, bussen,
+              administratie, huur — voeg er zoveel toe als er zijn. Alle bedragen zijn exclusief
+              BTW; de BTW staat per regel apart en telt niet mee in het resultaat.
+            </p>
+
             {budget.onderlingeLeveringen.length === 0 ? (
               <EmptyState
                 icon={ArrowRightLeft}
@@ -811,9 +840,23 @@ const BegrotingWerkblad: React.FC = () => {
                     key={levering.id}
                     titel={levering.omschrijving}
                     ondertitel={`${entiteit.naam} → ${naamVanEntiteit(levering.naarEntityId)} · ${naamVanOpdracht(levering.opdrachtId)}`}
-                    labels={[{ tekst: GRONDSLAG_LABEL[levering.grondslag] }]}
+                    labels={[
+                      { tekst: GRONDSLAG_LABEL[levering.grondslag] },
+                      { tekst: `BTW ${BTW_LABEL[levering.btw ?? 'hoog']}` },
+                    ]}
                     bedrag={om(berekenLevering(levering, aannames))}
-                    bedragLabel={`Opbrengst ${EENHEID_LABEL[eenheid]}`}
+                    bedragLabel={`Opbrengst ${EENHEID_LABEL[eenheid]}, ex BTW`}
+                    opbouw={[
+                      { label: 'Exclusief BTW', bedrag: om(berekenLevering(levering, aannames)) },
+                      { label: 'BTW', bedrag: om(berekenLeveringBtw(levering, aannames)) },
+                      {
+                        label: 'Op de factuur',
+                        bedrag: om(
+                          berekenLevering(levering, aannames) +
+                            berekenLeveringBtw(levering, aannames)
+                        ),
+                      },
+                    ]}
                     actief
                     onBewerken={() => setLeveringModal({ open: true, item: levering })}
                     onVerwijderen={() => {
@@ -826,6 +869,35 @@ const BegrotingWerkblad: React.FC = () => {
                     }}
                   />
                 ))}
+
+                {/* Wat er in totaal naar elke entiteit gaat */}
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-1.5">
+                  {Array.from(
+                    resultaat.onderlingUit.reduce((totalen, regel) => {
+                      const huidig = totalen.get(regel.naarEntityId) ?? { ex: 0, btw: 0 };
+                      totalen.set(regel.naarEntityId, {
+                        ex: huidig.ex + regel.bedrag,
+                        btw: huidig.btw + regel.btwBedrag,
+                      });
+                      return totalen;
+                    }, new Map<string, { ex: number; btw: number }>())
+                  ).map(([entityId, totalen]) => (
+                    <div key={entityId} className="flex flex-wrap items-baseline justify-between gap-2">
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                        Totaal naar {naamVanEntiteit(entityId)}
+                      </span>
+                      <span className="text-sm tabular-nums">
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">
+                          {formatEuro(om(totalen.ex))}
+                        </span>
+                        <span className="text-gray-400 dark:text-gray-500">
+                          {' '}
+                          ex BTW · {formatEuro(om(totalen.ex + totalen.btw))} op de factuur
+                        </span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </Card>
@@ -856,10 +928,13 @@ const BegrotingWerkblad: React.FC = () => {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <span className="block text-[11px] text-gray-400 dark:text-gray-500">
-                        Kosten {EENHEID_LABEL[eenheid]}
+                        Kosten {EENHEID_LABEL[eenheid]}, ex BTW
                       </span>
                       <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                         {formatEuro(om(regel.bedrag))}
+                      </span>
+                      <span className="block text-[11px] text-gray-400 dark:text-gray-500">
+                        {formatEuro(om(regel.factuurbedrag))} op de factuur
                       </span>
                     </div>
                   </div>

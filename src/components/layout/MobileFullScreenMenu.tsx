@@ -1,14 +1,13 @@
 // src/components/layout/MobileFullScreenMenu.tsx
-// Schermvullend menu op mobiel, met de entiteitkeuze en het jaar bovenaan zodat
-// je vanaf één plek van context kunt wisselen.
+// Schermvullend menu op mobiel: alleen de pagina's en uitloggen. De entiteit en
+// de periode staan in de begroting zelf, dus die hoeven hier niet gekozen te
+// worden.
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LogOut, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { NAVIGATIE } from '../../utils/menuConfig';
-import EntiteitSelector from '../ui/EntiteitSelector';
-import PeriodSelector from '../ui/PeriodSelector';
 
 interface MobileFullScreenMenuProps {
   isOpen: boolean;
@@ -41,17 +40,6 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Context: entiteit en jaar */}
-        <div className="p-4 space-y-4 border-b border-gray-100 dark:border-gray-700/60">
-          <EntiteitSelector />
-          <div>
-            <span className="block text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-2">
-              Jaar
-            </span>
-            <PeriodSelector />
-          </div>
-        </div>
-
         {/* Pagina's */}
         <nav className="p-3 space-y-1">
           {NAVIGATIE.map((item) => (
