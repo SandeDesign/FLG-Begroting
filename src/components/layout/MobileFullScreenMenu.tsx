@@ -39,7 +39,7 @@ export const MobileFullScreenMenu: React.FC<MobileFullScreenMenuProps> = ({
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
         {/* Pagina's */}
         <nav className="p-3 space-y-1">
           {NAVIGATIE.map((item) => (

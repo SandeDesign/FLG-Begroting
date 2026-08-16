@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Compass } from 'lucide-react';
 
 const NotFound: React.FC = () => (
-  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+  <div className="min-h-screen supports-[height:100dvh]:min-h-[100dvh] bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
     <div className="text-center max-w-sm">
       <div className="mx-auto w-14 h-14 rounded-2xl bg-white dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700 flex items-center justify-center mb-5 shadow-xs">
         <Compass className="h-6 w-6 text-gray-400 dark:text-gray-500" aria-hidden />

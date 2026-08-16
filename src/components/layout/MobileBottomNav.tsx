@@ -13,7 +13,7 @@ interface MobileBottomNavProps {
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onMenuClick }) => (
   <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
     <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700/60 shadow-xl">
-      <div className="flex justify-around items-center px-2 py-2.5">
+      <div className="flex justify-around items-center px-2 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))]">
         {ONDERBALK.map((item) => (
           <NavLink
             key={item.id}
