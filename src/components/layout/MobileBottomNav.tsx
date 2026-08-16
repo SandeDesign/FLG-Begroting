@@ -1,6 +1,10 @@
 // src/components/layout/MobileBottomNav.tsx
-// Vaste onderbalk op mobiel: vier pagina's plus een knop naar het volledige menu.
+// Onderbalk op mobiel: vier pagina's plus een knop naar het volledige menu.
 // Niet instelbaar — met zes pagina's in totaal valt er weinig te kiezen.
+//
+// De balk zweeft bewust niet boven de pagina. Als laatste blok in de kolom
+// staat hij altijd onderaan, kan er nooit inhoud achter verdwijnen, en hoeft de
+// pagina er geen ruimte voor vrij te houden die je moet raden.
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -11,8 +15,11 @@ interface MobileBottomNavProps {
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onMenuClick }) => (
-  <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
-    <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-700/60 shadow-xl">
+  <nav className="lg:hidden flex-shrink-0">
+    {/* Dekkend, zonder blur: er scrolt niets meer achter deze balk langs, en
+          een permanent backdrop-filter kost elk beeld GPU-werk — precies wat je
+          op een telefoon als schokkerig scrollen terugziet. */}
+      <div className="bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700/60 shadow-lg">
       <div className="flex justify-around items-center px-2 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))]">
         {ONDERBALK.map((item) => (
           <NavLink

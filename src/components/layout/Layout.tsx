@@ -56,7 +56,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 
   return (
-    <div className="flex h-screen supports-[height:100dvh]:h-[100dvh] bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-screen supports-[height:100svh]:h-[100svh] bg-gray-50 dark:bg-gray-900">
       <Sidebar />
       <MobileFullScreenMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       <Handboek isOpen={handboekOpen} onClose={() => setHandboekOpen(false)} />
@@ -88,7 +88,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {handboekKnop}
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
           <div className="p-4 lg:p-6">{children}</div>
         </main>
 

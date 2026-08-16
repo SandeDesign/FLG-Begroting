@@ -7,6 +7,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Voorkomt dat het scrollen doorslaat naar het document en de balk van de
+       browser laat in- en uitklappen — dat gaf een hik onderaan de pagina. */
+    overscroll-behavior: none;
   }
 
   body {
