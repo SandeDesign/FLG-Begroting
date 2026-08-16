@@ -1,14 +1,15 @@
 // src/hooks/useBegrotingsdata.ts
-// Laadt alle begrotingen in één keer en rekent ze door.
+// Rekent de begrotingen door die de BegrotingsdataProvider al in het geheugen
+// heeft staan.
 //
-// Alle begrotingen samen ophalen is hier goedkoper dan per entiteit: er zijn er
-// een handvol, en de inkomende onderlinge leveringen van de één zitten in de
-// begroting van de ander. Met alles in het geheugen kan de rekenmotor zonder
-// extra queries vooruit.
+// De begrotingen zelf worden hier niet meer opgehaald — dat doet één luisteraar
+// voor de hele app. Deze hook doet alleen het rekenwerk, en dat kost geen
+// netwerk. Alle begrotingen samen in het geheugen hebben is nodig omdat de
+// inkomende onderlinge leveringen van de één in de begroting van de ander staan.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { haalBegrotingen } from '../services/budgetService';
+import { useBegrotingen } from '../contexts/BegrotingsdataContext';
 import { berekenBegroting, controleerBegroting } from '../utils/begroting.calc';
 import type {
   Afwijking,
@@ -40,29 +41,12 @@ function alleLeveringen(begrotingen: Budget[]): OnderlingeLevering[] {
 }
 
 export function useBegrotingsdata(): Begrotingsdata {
-  const { entiteiten } = useApp();
-  const [begrotingen, setBegrotingen] = useState<Budget[]>([]);
-  const [laden, setLaden] = useState(true);
-  const [fout, setFout] = useState<string | null>(null);
+  const { entiteiten, laden: entiteitenLaden } = useApp();
+  const { begrotingen, laden: begrotingenLaden, fout, herlaad } = useBegrotingen();
 
-  const herlaad = useCallback(async () => {
-    setLaden(true);
-    setFout(null);
-
-    try {
-      setBegrotingen(await haalBegrotingen());
-    } catch (foutmelding) {
-      console.error('Begrotingen laden mislukt:', foutmelding);
-      setFout('De begrotingen konden niet geladen worden.');
-      setBegrotingen([]);
-    } finally {
-      setLaden(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void herlaad();
-  }, [herlaad]);
+  // Pas klaar als beide luisteraars hun eerste melding hebben gehad; zonder de
+  // entiteiten valt er niets door te rekenen.
+  const laden = entiteitenLaden || begrotingenLaden;
 
   const doorgerekend = useMemo<DoorgerekendeBegroting[]>(() => {
     const leveringen = alleLeveringen(begrotingen);

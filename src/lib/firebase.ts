@@ -10,7 +10,11 @@
 // Zet hier dus nooit een sleutel in die geheim moet blijven.
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 // De waarden worden per stuk uitgelezen. Dat moet statisch (import.meta.env.NAAM),
@@ -49,7 +53,24 @@ const firebaseConfig = Object.fromEntries(
 
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+/**
+ * Firestore met een schijfcache en automatische verbindingsdetectie.
+ *
+ * `persistentLocalCache` bewaart de data in IndexedDB. Kom je terug in de app,
+ * dan staat alles er meteen en wordt er op de achtergrond bijgewerkt — geen
+ * wachten op een netwerkronde voordat je iets ziet. Op mobiel scheelt dat het
+ * meest.
+ *
+ * `experimentalAutoDetectLongPolling` lost het andere mobiele probleem op:
+ * Firestore probeert standaard een streaming verbinding, en die blijft achter
+ * sommige mobiele netwerken en bedrijfsproxy's seconden hangen voordat hij
+ * terugvalt. Met deze vlag detecteert de client dat direct.
+ */
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+  experimentalAutoDetectLongPolling: true,
+});
+
 export const auth = getAuth(app);
 
 export default app;

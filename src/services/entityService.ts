@@ -8,11 +8,13 @@ import {
   addDoc,
   getDoc,
   getDocs,
+  onSnapshot,
   updateDoc,
   deleteDoc,
   orderBy,
   query,
   serverTimestamp,
+  type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Entity, NieuweEntity, VasteLast } from '../types/begroting';
@@ -46,6 +48,24 @@ export async function haalEntiteiten(): Promise<Entity[]> {
   const q = query(collection(db, COLLECTIE), orderBy('volgorde', 'asc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => naarEntity(d.id, d.data()));
+}
+
+/**
+ * Blijft de entiteiten volgen. De eerste melding komt uit de schijfcache en is
+ * er dus meteen; daarna volgt de versie van de server. Ook eigen wijzigingen
+ * komen hier direct langs, zodat de app na een opslag niets hoeft op te halen.
+ *
+ * Geeft de opzegfunctie terug — altijd aanroepen bij het opruimen.
+ */
+export function volgEntiteiten(
+  bij: (entiteiten: Entity[]) => void,
+  bijFout: (fout: Error) => void
+): Unsubscribe {
+  return onSnapshot(
+    query(collection(db, COLLECTIE), orderBy('volgorde', 'asc')),
+    (snapshot) => bij(snapshot.docs.map((d) => naarEntity(d.id, d.data()))),
+    bijFout
+  );
 }
 
 /** Eén entiteit, of null als hij niet bestaat. */

@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { usePageTitle } from '../contexts/PageTitleContext';
 import { useApp } from '../contexts/AppContext';
+import { useBegrotingen } from '../contexts/BegrotingsdataContext';
 import { useAuth } from '../contexts/AuthContext';
 import PageHeader from '../components/ui/PageHeader';
 import Card from '../components/ui/Card';
@@ -47,8 +48,6 @@ import VerplaatsOpdrachtModal from '../components/begroting/VerplaatsOpdrachtMod
 import SchaalPaneel from '../components/begroting/SchaalPaneel';
 import {
   dupliceerAlsScenario,
-  haalBegroting,
-  haalBegrotingen,
   verplaatsOpdracht,
   werkBegrotingBij,
 } from '../services/budgetService';
@@ -116,9 +115,11 @@ const BegrotingWerkblad: React.FC = () => {
   const { entiteiten } = useApp();
   const [zoekParams, setZoekParams] = useSearchParams();
 
+  // De begrotingen komen uit de gedeelde luisteraar: geen query bij het openen,
+  // dus het werkblad staat er meteen. Het budget zelf staat lokaal, zodat een
+  // wijziging direct zichtbaar is en pas daarna wordt weggeschreven.
+  const { begrotingen: alleBegrotingen, laden } = useBegrotingen();
   const [budget, setBudget] = useState<Budget | null>(null);
-  const [alleBegrotingen, setAlleBegrotingen] = useState<Budget[]>([]);
-  const [laden, setLaden] = useState(true);
   const [melding, setMelding] = useState<string | null>(null);
 
   const [opdrachtModal, setOpdrachtModal] = useState<{ open: boolean; item: Opdracht | null }>({
@@ -195,24 +196,17 @@ const BegrotingWerkblad: React.FC = () => {
   usePageTitle(budget?.naam ?? 'Begroting');
 
   // ── Laden
-  const laad = useCallback(async () => {
+  //
+  // Zodra de gedeelde lijst binnen is, of zodra je naar een andere begroting
+  // gaat, wordt het lokale budget daaruit overgenomen. Staat er al een budget
+  // met hetzelfde id, dan blijft dat staan: dat is de versie met de wijziging
+  // die je zojuist deed.
+  useEffect(() => {
     if (!budgetId) return;
 
-    setLaden(true);
-    try {
-      const [gevonden, alles] = await Promise.all([haalBegroting(budgetId), haalBegrotingen()]);
-      setBudget(gevonden);
-      setAlleBegrotingen(alles);
-    } catch {
-      setMelding('De begroting kon niet geladen worden.');
-    } finally {
-      setLaden(false);
-    }
-  }, [budgetId]);
-
-  useEffect(() => {
-    void laad();
-  }, [laad]);
+    const gevonden = alleBegrotingen.find((item) => item.id === budgetId) ?? null;
+    setBudget((huidig) => (huidig && huidig.id === budgetId ? huidig : gevonden));
+  }, [budgetId, alleBegrotingen]);
 
   // ── Opslaan: lokaal bijwerken en meteen wegschrijven
   const bewaar = useCallback(
@@ -411,7 +405,9 @@ const BegrotingWerkblad: React.FC = () => {
     if (!opdracht) return;
 
     const overzicht = await verplaatsOpdracht(budget.id, naarBudgetId, opdracht.id);
-    await laad();
+    // De luisteraar levert de bijgewerkte begroting; het lokale budget moet die
+    // versie overnemen, want de opdracht staat er nu niet meer in.
+    setBudget(null);
     setMelding(
       `"${overzicht.opdracht}" is verplaatst, samen met ${overzicht.aantalMiddelen} middelen, ${overzicht.aantalInzet} keer inzet en ${overzicht.aantalLeveringen} onderlinge leveringen.`
     );

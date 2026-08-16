@@ -2,12 +2,13 @@
 // Service worker voor FLG-Begroting. Alleen caching — er zijn geen push-
 // notificaties, dus geen Firebase Cloud Messaging in deze worker.
 //
-// Belangrijk: de HTML wordt NIET cache-first geserveerd. Deed hij dat wel, dan
-// bleef een oude versie van de app hangen na een nieuwe deploy en zag je nieuwe
-// pagina's niet verschijnen. Navigatie gaat daarom eerst naar het netwerk, met
-// de cache alleen als terugval wanneer je offline bent.
+// De HTML wordt geserveerd uit de cache én tegelijk op de achtergrond
+// ververst. Eerst naar het netwerk gaan betekende namelijk dat je op mobiel bij
+// elke keer openen op de verbinding stond te wachten voordat er iets in beeld
+// kwam. Nu staat het scherm er meteen en wordt de nieuwe versie klaargezet voor
+// de volgende keer — de app vraagt je dan zelf om te vernieuwen.
 
-const CACHE_NAME = 'flg-begroting-v2';
+const CACHE_NAME = 'flg-begroting-v3';
 const OFFLINE_PAGINA = '/index.html';
 const TE_CACHEN = ['/', OFFLINE_PAGINA, '/manifest.json', '/Logo.png'];
 
@@ -39,17 +40,29 @@ self.addEventListener('fetch', (event) => {
 
   if (request.method !== 'GET') return;
 
-  // Navigatie (een pagina openen of verversen): altijd eerst het netwerk, zodat
-  // een nieuwe deploy meteen doorkomt. Offline val je terug op de cache.
+  // Navigatie (een pagina openen of verversen): meteen uit de cache, en
+  // ondertussen op de achtergrond de nieuwste versie ophalen. Zo hoef je nooit
+  // op de verbinding te wachten om iets te zien.
+  //
+  // Een nieuwe deploy komt daarmee één keer later door. Dat is geen probleem:
+  // de browser controleert deze service worker apart, en zodra er een nieuwe
+  // versie klaarstaat vraagt de app zelf of je wilt vernieuwen.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((antwoord) => {
-          const kopie = antwoord.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(OFFLINE_PAGINA, kopie));
-          return antwoord;
+      caches.open(CACHE_NAME).then((cache) =>
+        cache.match(OFFLINE_PAGINA).then((gecachet) => {
+          const vanNetwerk = fetch(request)
+            .then((antwoord) => {
+              if (antwoord && antwoord.status === 200) {
+                cache.put(OFFLINE_PAGINA, antwoord.clone());
+              }
+              return antwoord;
+            })
+            .catch(() => gecachet || Response.error());
+
+          return gecachet || vanNetwerk;
         })
-        .catch(() => caches.match(OFFLINE_PAGINA).then((gecachet) => gecachet || Response.error()))
+      )
     );
     return;
   }

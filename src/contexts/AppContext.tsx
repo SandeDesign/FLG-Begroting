@@ -10,7 +10,7 @@ import React, {
   useState,
 } from 'react';
 import { useAuth } from './AuthContext';
-import { haalEntiteiten } from '../services/entityService';
+import { volgEntiteiten } from '../services/entityService';
 import { applyThemeColor } from '../utils/themeColors';
 import type { Entity } from '../types/begroting';
 
@@ -39,7 +39,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [laden, setLaden] = useState(true);
   const [fout, setFout] = useState<string | null>(null);
 
-  const herlaadEntiteiten = useCallback(async () => {
+  /**
+   * De entiteiten worden gevolgd in plaats van opgehaald. Firestore levert de
+   * eerste melding uit zijn schijfcache — die is er dus meteen, zonder te
+   * wachten op het netwerk — en stuurt daarna de versie van de server na. Ook
+   * eigen wijzigingen komen direct langs.
+   */
+  useEffect(() => {
     if (!user || toegang !== true) {
       setEntiteiten([]);
       setLaden(false);
@@ -49,33 +55,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setLaden(true);
     setFout(null);
 
-    try {
-      const opgehaald = await haalEntiteiten();
-      setEntiteiten(opgehaald);
+    const stop = volgEntiteiten(
+      (opgehaald) => {
+        setEntiteiten(opgehaald);
 
-      // Houd de selectie geldig: bewaar hem als hij nog bestaat, val anders terug
-      // op de eerder opgeslagen keuze of de eerste actieve entiteit.
-      setGeselecteerdeEntiteitState((huidige) => {
-        if (huidige) {
-          const bijgewerkt = opgehaald.find((e) => e.id === huidige.id);
-          if (bijgewerkt) return bijgewerkt;
-        }
-        const bewaardId = localStorage.getItem(OPSLAG_ENTITEIT);
-        const bewaard = bewaardId ? opgehaald.find((e) => e.id === bewaardId) : undefined;
-        return bewaard ?? opgehaald.find((e) => e.actief) ?? opgehaald[0] ?? null;
-      });
-    } catch (foutmelding) {
-      console.error('Entiteiten laden mislukt:', foutmelding);
-      setFout('De entiteiten konden niet geladen worden. Controleer je verbinding en de Firestore rules.');
-      setEntiteiten([]);
-    } finally {
-      setLaden(false);
-    }
+        // Houd de selectie geldig: bewaar hem als hij nog bestaat, val anders
+        // terug op de eerder opgeslagen keuze of de eerste actieve entiteit.
+        setGeselecteerdeEntiteitState((huidige) => {
+          if (huidige) {
+            const bijgewerkt = opgehaald.find((e) => e.id === huidige.id);
+            if (bijgewerkt) return bijgewerkt;
+          }
+          const bewaardId = localStorage.getItem(OPSLAG_ENTITEIT);
+          const bewaard = bewaardId ? opgehaald.find((e) => e.id === bewaardId) : undefined;
+          return bewaard ?? opgehaald.find((e) => e.actief) ?? opgehaald[0] ?? null;
+        });
+
+        setLaden(false);
+      },
+      (foutmelding) => {
+        console.error('Entiteiten laden mislukt:', foutmelding);
+        setFout(
+          'De entiteiten konden niet geladen worden. Controleer je verbinding en de Firestore rules.'
+        );
+        setEntiteiten([]);
+        setLaden(false);
+      }
+    );
+
+    return stop;
   }, [user, toegang]);
 
-  useEffect(() => {
-    void herlaadEntiteiten();
-  }, [herlaadEntiteiten]);
+  /**
+   * Blijft bestaan omdat pagina's hem na een opslag aanroepen. De luisteraar
+   * hierboven heeft de wijziging dan al doorgegeven, dus er valt niets meer op
+   * te halen.
+   */
+  const herlaadEntiteiten = useCallback(async () => {}, []);
 
   // Jaarkeuze terughalen uit de vorige sessie.
   useEffect(() => {

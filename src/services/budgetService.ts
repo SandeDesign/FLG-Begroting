@@ -10,11 +10,13 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   updateDoc,
   where,
+  type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { schoonVoorFirestore } from '../utils/firestoreSchoon';
@@ -137,6 +139,24 @@ function naarBudget(id: string, data: Record<string, unknown>): Budget {
 export async function haalBegrotingen(): Promise<Budget[]> {
   const snapshot = await getDocs(query(collection(db, COLLECTIE), orderBy('naam', 'asc')));
   return snapshot.docs.map((d) => naarBudget(d.id, d.data()));
+}
+
+/**
+ * Blijft alle begrotingen volgen. De eerste melding komt uit de schijfcache en
+ * is er dus meteen; daarna volgt de server. Zo hoeft geen enkele pagina bij het
+ * openen nog op een netwerkronde te wachten.
+ *
+ * Geeft de opzegfunctie terug — altijd aanroepen bij het opruimen.
+ */
+export function volgBegrotingen(
+  bij: (begrotingen: Budget[]) => void,
+  bijFout: (fout: Error) => void
+): Unsubscribe {
+  return onSnapshot(
+    query(collection(db, COLLECTIE), orderBy('naam', 'asc')),
+    (snapshot) => bij(snapshot.docs.map((d) => naarBudget(d.id, d.data()))),
+    bijFout
+  );
 }
 
 /** De begrotingen van één entiteit. */
