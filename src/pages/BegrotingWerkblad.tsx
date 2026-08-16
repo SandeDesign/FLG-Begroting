@@ -148,6 +148,44 @@ const BegrotingWerkblad: React.FC = () => {
   const tab = (zoekParams.get('tab') as TabId | null) ?? 'overzicht';
   const zetTab = (nieuw: TabId) => setZoekParams({ tab: nieuw }, { replace: true });
 
+  // Het handboek kan hier naartoe linken met ?open=inzet en dergelijke. Dan gaat
+  // meteen het juiste scherm open, zodat je niet hoeft te zoeken naar wat er in
+  // de uitleg stond.
+  const teOpenen = zoekParams.get('open');
+
+  useEffect(() => {
+    if (!teOpenen) return;
+
+    switch (teOpenen) {
+      case 'opdracht':
+        setOpdrachtModal({ open: true, item: null });
+        break;
+      case 'middel':
+        setMiddelModal({ open: true, item: null });
+        break;
+      case 'inzet':
+        setInzetModal({ open: true, item: null });
+        break;
+      case 'subsidie':
+        setSubsidieModal({ open: true, item: null });
+        break;
+      case 'levering':
+        setLeveringModal({ open: true, item: null });
+        break;
+      default:
+        break;
+    }
+
+    // De parameter meteen opruimen, zodat het scherm niet opnieuw opengaat als
+    // je terugnavigeert of de pagina ververst.
+    const rest = new URLSearchParams(zoekParams);
+    rest.delete('open');
+    setZoekParams(rest, { replace: true });
+    // Alleen reageren op een nieuwe open-parameter, niet op elke wijziging van
+    // de zoekparameters — anders zou het opruimen zichzelf opnieuw aftrappen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teOpenen]);
+
   const entiteit = useMemo<Entity | null>(
     () => entiteiten.find((item) => item.id === budget?.entityId) ?? null,
     [entiteiten, budget?.entityId]
@@ -544,6 +582,23 @@ const BegrotingWerkblad: React.FC = () => {
             </Button>
           </div>
 
+          <button
+            type="button"
+            onClick={() => zetTab('schaal')}
+            className="w-full mb-4 flex items-start gap-2.5 px-3 py-2.5 rounded-lg bg-primary-50/60 dark:bg-primary-900/15 hover:bg-primary-50 dark:hover:bg-primary-900/25 transition-colors text-left"
+          >
+            <Layers
+              className="h-4 w-4 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5"
+              aria-hidden
+            />
+            <span className="text-xs text-gray-600 dark:text-gray-300">
+              Voeg je routes toe die als geheel meeschalen — zoveel routes, zoveel bussen, zoveel
+              mensen? Gebruik dan de <span className="font-semibold">schaalknoppen</span>. Daar vul
+              je het aantal op één plek in en maakt de app de opdracht, de bussen en de inzet in
+              één keer aan.
+            </span>
+          </button>
+
           {geschaald.opdrachten.length === 0 ? (
             <EmptyState
               icon={Briefcase}
@@ -681,6 +736,22 @@ const BegrotingWerkblad: React.FC = () => {
               ZZP kan wel.
             </p>
           )}
+
+          <button
+            type="button"
+            onClick={() => zetTab('schaal')}
+            className="w-full mb-4 flex items-start gap-2.5 px-3 py-2.5 rounded-lg bg-primary-50/60 dark:bg-primary-900/15 hover:bg-primary-50 dark:hover:bg-primary-900/25 transition-colors text-left"
+          >
+            <Layers
+              className="h-4 w-4 text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5"
+              aria-hidden
+            />
+            <span className="text-xs text-gray-600 dark:text-gray-300">
+              Hoort deze inzet bij een hele route, dan hoef je het aantal stuks hier niet apart in
+              te vullen: op het tabblad <span className="font-semibold">Schaal</span> zet je het één
+              keer neer en rekent de app de opbrengst én de kosten er samen uit.
+            </span>
+          </button>
 
           {geschaald.inzet.length === 0 ? (
             <EmptyState

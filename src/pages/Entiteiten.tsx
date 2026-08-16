@@ -1,8 +1,8 @@
 // src/pages/Entiteiten.tsx
 // De BV's van de groep: aanmaken, bewerken en doorklikken naar hun vaste lasten.
 
-import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Building2, Pencil, Plus, Receipt, Trash2 } from 'lucide-react';
 import { usePageTitle } from '../contexts/PageTitleContext';
 import { useApp } from '../contexts/AppContext';
@@ -35,6 +35,22 @@ const Entiteiten: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [teBewerken, setTeBewerken] = useState<Entity | null>(null);
   const [melding, setMelding] = useState<string | null>(null);
+  const [zoekParams, setZoekParams] = useSearchParams();
+
+  // Het handboek linkt hierheen met ?open=entiteit om de modal meteen te openen.
+  const teOpenen = zoekParams.get('open');
+
+  useEffect(() => {
+    if (teOpenen !== 'entiteit') return;
+
+    setTeBewerken(null);
+    setModalOpen(true);
+
+    const rest = new URLSearchParams(zoekParams);
+    rest.delete('open');
+    setZoekParams(rest, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teOpenen]);
 
   // De vaste lasten worden hier per maand getoond, ongeacht hoe ze zijn ingevoerd.
   const vasteLastenPerEntiteit = useMemo(() => {
