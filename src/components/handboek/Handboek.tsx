@@ -9,6 +9,41 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, BookOpen, Search, X } from 'lucide-react';
 import { HANDBOEK, type Verwijzing } from './handboekInhoud';
+import BegrotingKiezer from './BegrotingKiezer';
+import { useApp } from '../../contexts/AppContext';
+import { haalBegroting } from '../../services/budgetService';
+
+/** Waar een verwijzing je heen brengt, in gewone taal. */
+const TAB_LABEL: Record<string, string> = {
+  overzicht: 'het overzicht',
+  opdrachten: 'de opdrachten',
+  middelen: 'de middelen',
+  inzet: 'de inzet',
+  subsidies: 'de subsidies',
+  onderling: 'de onderlinge leveringen',
+  schaal: 'de schaalknoppen',
+  aannames: 'de aannames',
+  controles: 'de controles',
+};
+
+const OPENT_LABEL: Record<string, string> = {
+  opdracht: 'het scherm voor een nieuwe opdracht',
+  middel: 'het scherm voor een nieuw middel',
+  inzet: 'het scherm voor een nieuwe inzet',
+  subsidie: 'het scherm voor een nieuwe subsidie',
+  levering: 'het scherm voor een nieuwe onderlinge levering',
+};
+
+/** Bijvoorbeeld: "de inzet, met het scherm voor een nieuwe inzet open". */
+function bestemmingInWoorden(verwijzing: Verwijzing): string {
+  const tab = verwijzing.tab ? TAB_LABEL[verwijzing.tab] : undefined;
+  const opent = verwijzing.opent ? OPENT_LABEL[verwijzing.opent] : undefined;
+
+  if (tab && opent) return `${tab}, met ${opent} open`;
+  if (tab) return tab;
+  if (opent) return opent;
+  return 'de juiste pagina';
+}
 
 interface HandboekProps {
   isOpen: boolean;
@@ -47,9 +82,16 @@ const Handboek: React.FC<HandboekProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { entiteiten } = useApp();
+
   const [zoek, setZoek] = useState('');
   const [gekozenId, setGekozenId] = useState<string>(ALLE_ONDERWERPEN[0]?.id ?? '');
   const [toonDetailMobiel, setToonDetailMobiel] = useState(false);
+
+  // Zodra een verwijzing een begroting nodig heeft die nog niet open staat,
+  // wordt hij hier geparkeerd tot je er een gekozen hebt.
+  const [wachtOpBegroting, setWachtOpBegroting] = useState<Verwijzing | null>(null);
+  const [actieveBegrotingNaam, setActieveBegrotingNaam] = useState<string | null>(null);
 
   // Sluiten met Escape — een schermvullend paneel hoort dat te kunnen.
   useEffect(() => {
@@ -62,6 +104,33 @@ const Handboek: React.FC<HandboekProps> = ({ isOpen, onClose }) => {
     document.addEventListener('keydown', opToets);
     return () => document.removeEventListener('keydown', opToets);
   }, [isOpen, onClose]);
+
+  // De naam van de begroting waar je nu in zit, zodat de knop kan tonen waar je
+  // heen gaat in plaats van je blind ergens naartoe te sturen.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const match = location.pathname.match(/^\/begrotingen\/([^/]+)$/);
+    const budgetId = match?.[1];
+
+    if (!budgetId || budgetId === 'nieuw') {
+      setActieveBegrotingNaam(null);
+      return;
+    }
+
+    let actief = true;
+    haalBegroting(budgetId)
+      .then((gevonden) => {
+        if (actief) setActieveBegrotingNaam(gevonden?.naam ?? null);
+      })
+      .catch(() => {
+        if (actief) setActieveBegrotingNaam(null);
+      });
+
+    return () => {
+      actief = false;
+    };
+  }, [isOpen, location.pathname]);
 
   const gefilterd = useMemo<PlatOnderwerp[]>(() => {
     const term = zoek.trim().toLowerCase();
@@ -82,21 +151,16 @@ const Handboek: React.FC<HandboekProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  /**
-   * Bouwt het pad van een verwijzing. Gaat hij naar "de begroting", dan pakt hij
-   * het id uit de huidige route — sta je daar niet, dan brengt hij je eerst naar
-   * de lijst met begrotingen.
-   */
-  const bouwPad = (verwijzing: Verwijzing): string => {
-    let pad = verwijzing.pad;
+  /** Het id van de begroting die nu open staat, of null. */
+  const huidigeBegroting = (): string | null => {
+    const match = location.pathname.match(/^\/begrotingen\/([^/]+)$/);
+    const budgetId = match?.[1];
+    return budgetId && budgetId !== 'nieuw' ? budgetId : null;
+  };
 
-    if (pad === 'begroting') {
-      const match = location.pathname.match(/^\/begrotingen\/([^/]+)$/);
-      const budgetId = match?.[1];
-
-      if (!budgetId || budgetId === 'nieuw') return '/begrotingen';
-      pad = `/begrotingen/${budgetId}`;
-    }
+  /** Bouwt het pad, met het tabblad en het te openen scherm erin. */
+  const bouwPad = (verwijzing: Verwijzing, budgetId: string | null): string => {
+    const pad = verwijzing.pad === 'begroting' ? `/begrotingen/${budgetId}` : verwijzing.pad;
 
     const params = new URLSearchParams();
     if (verwijzing.tab) params.set('tab', verwijzing.tab);
@@ -107,7 +171,31 @@ const Handboek: React.FC<HandboekProps> = ({ isOpen, onClose }) => {
   };
 
   const volgVerwijzing = (verwijzing: Verwijzing) => {
-    navigate(bouwPad(verwijzing));
+    // Gaat de verwijzing naar een begroting, dan moeten we weten welke. Staat er
+    // een open, dan is dat de logische keuze; anders vragen we het eerst, want
+    // anders beland je op de lijst en ben je het tabblad kwijt.
+    if (verwijzing.pad === 'begroting') {
+      const budgetId = huidigeBegroting();
+
+      if (!budgetId) {
+        setWachtOpBegroting(verwijzing);
+        return;
+      }
+
+      navigate(bouwPad(verwijzing, budgetId));
+      onClose();
+      return;
+    }
+
+    navigate(bouwPad(verwijzing, null));
+    onClose();
+  };
+
+  const kiesBegroting = (budgetId: string) => {
+    if (!wachtOpBegroting) return;
+
+    navigate(bouwPad(wachtOpBegroting, budgetId));
+    setWachtOpBegroting(null);
     onClose();
   };
 
@@ -146,7 +234,16 @@ const Handboek: React.FC<HandboekProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="flex-1 flex min-h-0">
+        <div className="flex-1 flex min-h-0 relative">
+          {wachtOpBegroting && (
+            <BegrotingKiezer
+              bestemming={bestemmingInWoorden(wachtOpBegroting)}
+              entiteiten={entiteiten}
+              onKies={kiesBegroting}
+              onAnnuleer={() => setWachtOpBegroting(null)}
+            />
+          )}
+
           {/* Lijst */}
           <div
             className={`w-full lg:w-80 xl:w-96 border-r border-gray-100 dark:border-gray-700 flex flex-col min-h-0 ${
@@ -297,6 +394,37 @@ const Handboek: React.FC<HandboekProps> = ({ isOpen, onClose }) => {
                         </button>
                       ))}
                     </div>
+
+                    {/* Gaat een knop naar een begroting, dan zie je hier welke —
+                        en kun je een andere kiezen zonder eerst weg te navigeren. */}
+                    {gekozen.verwijzingen.some((verwijzing) => verwijzing.pad === 'begroting') && (
+                      <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        {actieveBegrotingNaam ? (
+                          <>
+                            Je gaat naar{' '}
+                            <span className="font-semibold text-gray-700 dark:text-gray-200">
+                              {actieveBegrotingNaam}
+                            </span>
+                            .{' '}
+                          </>
+                        ) : (
+                          <>Er staat nog geen begroting open. </>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setWachtOpBegroting(
+                              gekozen.verwijzingen?.find(
+                                (verwijzing) => verwijzing.pad === 'begroting'
+                              ) ?? null
+                            )
+                          }
+                          className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline underline-offset-2 transition-colors"
+                        >
+                          {actieveBegrotingNaam ? 'Een andere kiezen' : 'Kies een begroting'}
+                        </button>
+                      </p>
+                    )}
                   </div>
                 )}
               </article>
